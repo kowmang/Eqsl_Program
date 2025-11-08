@@ -30,6 +30,9 @@
     + dxcc_lookup
     + version
     + manual
+* **settings_data** folder created, filled with settings files
+    + settings   
+* **database_sql** folder created, will be filled with database at first startup
 * testing upload to .git
 
 
