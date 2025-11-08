@@ -12,4 +12,4 @@
 * testing upload to .git
 
 
-# Projekt begin 08.11.2025
+# Project begin 08.11.2025
