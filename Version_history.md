@@ -1,7 +1,20 @@
 
 
+# Version 0.0.2
+### (start of coding)
+
+
+
+
+
+
+
+
+
+
 
 # Version 0.0.1
+### (preparing for coding)
 
 * **eqsl_main_prog** file created
 * **README** created
@@ -20,4 +33,4 @@
 * testing upload to .git
 
 
-# Project begin 08.11.2025
+## Project begin 08.11.2025
