@@ -3,3 +3,6 @@
     "datenbank": "C:/Projekte/mein_projekt/datenbank.db",
     "tabelle_name": "meine_csv_daten"
 }
+
+//FIXME: Add settings for:
+// - default path settings
