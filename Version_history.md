@@ -5,6 +5,7 @@
 
 
 * **create_sql_db** created, script for first database creation
+* **gui_data** all .ui files are compiled to _ui.py for python use
 
 
 
@@ -12,8 +13,7 @@
 
 
 
-
-
+---
 
 # Version 0.0.1
 ### (preparing for coding)
@@ -40,5 +40,6 @@
 * **scripts** folder created, filled with script files
 * testing upload to .git
 
+---
 
 ## Project begin 08.11.2025
