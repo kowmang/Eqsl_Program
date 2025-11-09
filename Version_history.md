@@ -16,6 +16,8 @@
 # Version 0.0.1
 ### (preparing for coding)
 
+//TODO: folder scripts erstellen und script sql db erstellen erzeugen
+
 * **eqsl_main_prog** file created
 * **README** created
 * **Version_history** created
