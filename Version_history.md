@@ -26,6 +26,7 @@
     + frm_settings
     + frm_upload
     + frm_version
+//TODO: .UI erstellen für Sql db erzeugen und Warnings
 * **support_data** folder created, filled with support files
     + dxcc_lookup
     + version
