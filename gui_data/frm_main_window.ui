@@ -428,14 +428,14 @@
     <property name="title">
      <string>Upload</string>
     </property>
-    <addaction name="actionSingle_Upload"/>
+    <addaction name="actionUpload"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionManual"/>
-    <addaction name="actionAbout"/>
+    <addaction name="actionVersionInfo"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuUpload"/>
@@ -452,7 +452,7 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionSingle_Upload">
+  <action name="actionUpload">
    <property name="text">
     <string>Upload</string>
    </property>
@@ -467,7 +467,7 @@
     <string>Manual</string>
    </property>
   </action>
-  <action name="actionAbout">
+  <action name="actionVersionInfo">
    <property name="text">
     <string>About</string>
    </property>
