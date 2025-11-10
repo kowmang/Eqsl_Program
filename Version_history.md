@@ -8,6 +8,7 @@
 * **gui_data** all .ui files are compiled to _ui.py for python use
 * **__init__.py** in all folders integrated to make folder as module for python
 * **file_structure** create to visualize the file structre 
+* **eqsl_main_prog** testscript for gui windows 
 
 
 
