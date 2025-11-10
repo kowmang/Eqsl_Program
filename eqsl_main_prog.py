@@ -1,53 +1,10 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtCore import Slot
 
 # Korrekter relativer Import für Ihre saubere Struktur.
-# Die Datei 'eqsl_main_prog.py' und der Ordner 'gui_data' sind auf derselben Ebene.
 from .gui_data.frm_main_window_ui import Ui_frm_main_window 
-from .gui_data.frm_sql_create_ui import Ui_frm_sql_create
 from .gui_data.frm_settings_ui import Ui_frm_settings
-from .gui_data.frm_upload_ui import Ui_frm_upload
-from .gui_data.frm_image_view_ui import Ui_frm_image_view
-from .gui_data.frm_help_view_ui import Ui_frm_help_view
-from .gui_data.frm_version_ui import Ui_frm_version
-
-
-class EqslMainWindow(QMainWindow):
-    """
-    Klasse zur Initialisierung des Hauptfensters.
-    Sie erbt von QMainWindow und bindet die kompilierte UI-Klasse ein.
-    """
-    def __init__(self):
-        super().__init__()
-        
-        # UI-Klasse instanziieren (das Objekt erstellen)
-        self.ui = Ui_frm_main_window()
-        
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
-        self.ui.setupUi(self)
-        
-        self.setWindowTitle("eQSL Programm (Hauptfenster)")
-
-        # Die Verbindungen lassen wir für diesen Test weg
-        # self._setup_connections() 
-#-----------------------------------------------------------
-# Test der anderen Fensterklassen
-
-class EqslSqlCreateWindow(QMainWindow):
-    """
-    Klasse zur Initialisierung des SQL-Erstellungsfensters.
-    Sie erbt von QMainWindow und bindet die kompilierte UI-Klasse ein.
-    """
-    def __init__(self):
-        super().__init__()
-        
-        # UI-Klasse instanziieren (das Objekt erstellen)
-        self.ui = Ui_frm_sql_create()
-        
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
-        self.ui.setupUi(self)
-        
-        self.setWindowTitle("eQSL Programm (SQL-Erstellungsfenster)")
 
 
 class EqslSettingsWindow(QMainWindow):
@@ -58,83 +15,68 @@ class EqslSettingsWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        # UI-Klasse instanziieren (das Objekt erstellen)
+        # 1. UI-Klasse instanziieren
         self.ui = Ui_frm_settings()
         
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
+        # 2. UI auf dieses QMainWindow-Objekt anwenden
         self.ui.setupUi(self)
         
-        self.setWindowTitle("eQSL Programm (Einstellungsfenster)")
+        self.setWindowTitle("eQSL Programm (Einstellungen)")
+
+        # Logik für das Einstellungsfenster kann hier hinzugefügt werden
+        self._setup_connections()
+
+    def _setup_connections(self):
+        # Beispiel: Wenn Sie einen Schließen-Button im Settings-Fenster hätten
+        # self.ui.btn_close.clicked.connect(self.close)
+        pass
 
 
-class EqslUploadWindow(QMainWindow):
+
+
+
+class EqslMainWindow(QMainWindow):
     """
-    Klasse zur Initialisierung des Upload-Fensters.
+    Klasse zur Initialisierung des Hauptfensters.
     Sie erbt von QMainWindow und bindet die kompilierte UI-Klasse ein.
     """
     def __init__(self):
         super().__init__()
         
-        # UI-Klasse instanziieren (das Objekt erstellen)
-        self.ui = Ui_frm_upload()
+        # Attribute zur Speicherung von Unterfenstern (verhindert Garbage Collection)
+        self.settings_window = None 
         
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
+        # 1. UI-Klasse instanziieren
+        self.ui = Ui_frm_main_window()
+        
+        # 2. UI auf dieses QMainWindow-Objekt anwenden
         self.ui.setupUi(self)
         
-        self.setWindowTitle("eQSL Programm (Upload-Fenster)")
+        self.setWindowTitle("eQSL Programm (Hauptfenster)")
 
+        # 3. Verbindungen zur Logik einrichten
+        self._setup_connections()
 
-class EqslImageViewWindow(QWidget):     
-    """
-    Klasse zur Initialisierung des Bildbetrachter-Fensters.
-    Sie erbt von QMainWindow und bindet die kompilierte UI-Klasse ein.
-    """
-    def __init__(self):
-        super().__init__()
+    def _setup_connections(self):
+        """Verbindet die UI-Elemente (Signale) mit den Methoden (Slots)."""
+        # Annahme: Im Designer gibt es eine QAction namens 'actionSettings'
+        if self.ui.actionSettings:
+            self.ui.actionSettings.triggered.connect(self.open_settings_window)
         
-        # UI-Klasse instanziieren (das Objekt erstellen)
-        self.ui = Ui_frm_image_view()
-        
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
-        self.ui.setupUi(self)
-        
-        self.setWindowTitle("eQSL Programm (Bildbetrachter-Fenster)")
+        # Beispiel für einen Exit-Button
+        # self.ui.actionExit.triggered.connect(self.close)
 
-class EqslHelpViewWindow(QWidget):     
-    """
-    Klasse zur Initialisierung des Hilfefensters.
-    Sie erbt von QMainWindow und bindet die kompilierte UI-Klasse ein.
-    """
-    def __init__(self):
-        super().__init__()
+    @Slot()
+    def open_settings_window(self):
+        """Öffnet das Einstellungsfenster als separates QMainWindow."""
         
-        # UI-Klasse instanziieren (das Objekt erstellen)
-        self.ui = Ui_frm_help_view()
+        if self.settings_window is None:
+            # Erstellt die Instanz nur, wenn sie noch nicht existiert
+            self.settings_window = EqslSettingsWindow()
         
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
-        self.ui.setupUi(self)
-        
-        self.setWindowTitle("eQSL Programm (Hilfefenster)")
+        # Zeigt das Fenster an und bringt es in den Vordergrund
+        self.settings_window.show()
 
-class EqslVersionWindow(QWidget):     
-    """
-    Klasse zur Initialisierung des Versionsfensters.
-    Sie erbt von QMainWindow und bindet die kompilierte UI-Klasse ein.
-    """
-    def __init__(self):
-        super().__init__()
-        
-        # UI-Klasse instanziieren (das Objekt erstellen)
-        self.ui = Ui_frm_version()
-        
-        # UI auf dieses QMainWindow-Objekt anwenden (Fenster wird gezeichnet)
-        self.ui.setupUi(self)
-        
-        self.setWindowTitle("eQSL Programm (Versionsfenster)")
-
-# -----------------------------------------------------------
-# ANWENDUNGSSTARTER UND KORREKTE AUSFÜHRUNG
-# -----------------------------------------------------------
 
 if __name__ == "__main__":
     # 1. QApplication Instanz erstellen
@@ -142,21 +84,9 @@ if __name__ == "__main__":
     
     # 2. Instanz des Hauptfensters erstellen
     window1 = EqslMainWindow()
-    window2 = EqslSqlCreateWindow()
-    window3 = EqslSettingsWindow()  
-    window4 = EqslUploadWindow()
-    window5 = EqslImageViewWindow()
-    window6 = EqslHelpViewWindow()
-    window7 = EqslVersionWindow()
     
     # 3. Fenster anzeigen
     window1.show()
-    window2.show()
-    window3.show()  
-    window4.show()
-    window5.show()
-    window6.show()
-    window7.show()
     
     # 4. Anwendungsschleife starten
     sys.exit(app.exec())
