@@ -18,26 +18,26 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QLabel, QSizePolicy, QVBoxLayout,
     QWidget)
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        if not Form.objectName():
-            Form.setObjectName(u"Form")
-        Form.resize(655, 460)
-        self.verticalLayout = QVBoxLayout(Form)
+class Ui_frm_image_view(object):
+    def setupUi(self, frm_image_view):
+        if not frm_image_view.objectName():
+            frm_image_view.setObjectName(u"frm_image_view")
+        frm_image_view.resize(655, 460)
+        self.verticalLayout = QVBoxLayout(frm_image_view)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.lb_image_view = QLabel(Form)
+        self.lb_image_view = QLabel(frm_image_view)
         self.lb_image_view.setObjectName(u"lb_image_view")
 
         self.verticalLayout.addWidget(self.lb_image_view)
 
 
-        self.retranslateUi(Form)
+        self.retranslateUi(frm_image_view)
 
-        QMetaObject.connectSlotsByName(Form)
+        QMetaObject.connectSlotsByName(frm_image_view)
     # setupUi
 
-    def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+    def retranslateUi(self, frm_image_view):
+        frm_image_view.setWindowTitle(QCoreApplication.translate("frm_image_view", u"Form", None))
         self.lb_image_view.setText("")
     # retranslateUi
 
