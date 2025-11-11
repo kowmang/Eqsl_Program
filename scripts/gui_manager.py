@@ -16,7 +16,7 @@ from ..gui_data.frm_version_ui import Ui_frm_version
 # 1. DEFINITION DER UNTERFENSTER (SettingsWindow)
 # ----------------------------------------------------
 
-class EqslSettingsWindow(QMainWindow):
+class EqslSettingsWindow(QDialog):
     """Das separate Fenster für die Einstellungen."""
     def __init__(self):
         super().__init__()
@@ -28,10 +28,14 @@ class EqslSettingsWindow(QMainWindow):
         self._setup_connections() 
 
     def _setup_connections(self):
-        # Verbindungen für dieses Fenster
+        # ANNAHME: Button im Designer heißt 'btn_cancel'
+        if hasattr(self.ui, 'btn_cancel_frm_settings'):
+            # Verbindet den Klick des Buttons direkt mit der close()-Methode des Dialogs
+            self.ui.btn_cancel_frm_settings.clicked.connect(self.reject)
+        # Wenn Sie eine QDialogButtonBox verwenden, ist die Verbindung anders (siehe unten)
         pass
 
-class EqslUploadWindow(QMainWindow):
+class EqslUploadWindow(QDialog):
     """Das separate Fenster für die Einstellungen."""
     def __init__(self):
         super().__init__()
@@ -43,6 +47,9 @@ class EqslUploadWindow(QMainWindow):
         self._setup_connections() 
 
     def _setup_connections(self):
+        if hasattr(self.ui, 'btn_cancel_frm_upload'):
+            # Verbindet den Klick des Buttons direkt mit der close()-Methode des Dialogs
+            self.ui.btn_cancel_frm_upload.clicked.connect(self.reject)
         # Verbindungen für dieses Fenster
         pass
 
