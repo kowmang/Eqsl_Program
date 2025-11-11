@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>frm_settings</class>
- <widget class="QMainWindow" name="frm_settings">
+ <class>frm_sql_create</class>
+ <widget class="QMainWindow" name="frm_sql_create">
   <property name="geometry">
    <rect>
     <x>0</x>

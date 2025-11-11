@@ -1,30 +1,92 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Eqsl Program Information</title>  //FIXME: im Code (<div style="text-align: center;">...</div>) verwenden, bevor du den String über setHtml() oder setText() übergibst, damit der Text zentriert angezeigt wird
+    <meta charset="utf-8">
+    <title>Version Info</title>
+    <style>
+        /* Basis: Typischer dunkler Fensterhintergrund von Qt/PySide */
+        body {
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #2b2b2b; /* Dunkelgrau */
+            color: #d0d0d0; /* Standardtextfarbe */
+            font-size: 13px; /* Stellt die Basisgröße für em-Berechnungen sicher (ca. 10pt) */
+        }
+
+        /* Der zentrale Kasten (Widget-Hintergrundfarbe) */
+        .content-box {
+            background-color: #3c3f41; /* Etwas helleres Dunkelgrau */
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* Dunklerer Schatten */
+            
+            /* Zentrierung des Kastens */
+            width: 90%;          
+            max-width: 600px;    
+            margin: 0 auto;      
+            text-align: center;
+        }
+        
+        /* Überschriften mit Akzentfarbe */
+        h1 {
+            color: #51a1e0; /* Akzentfarbe: Helles Blau */
+        }
+        h2 {
+            color: #ffffff; /* Weiß für gute Lesbarkeit */
+        }
+        
+        /* Liste: Text-Ausrichtung links beibehalten */
+        ul {
+            text-align: left; 
+            display: inline-block;
+            color: #d0d0d0;
+        }
+
+        /* Credits Text */
+        .credits {
+            margin-top: 20px; 
+            font-size: 0.9em; 
+            color: #a0a0a0; /* Gedämpftes Hellgrau */
+        }
+        
+        /* Fettdruck */
+        strong, b {
+             color: #ffffff; 
+        }
+
+        /* NEUE KLASSE FÜR NAMEN (Jetzt mit Pixel-Größe für Zuverlässigkeit) */
+        .creator-name {
+            font-size: 26px; /* Explizite Pixelgröße */
+            color: #51a1e0; /* Akzentfarbe */
+            font-weight: 900; /* Extra fett */
+        }
+    </style>
 </head>
 <body>
-
-    <h1>Eqsl Program</h1>
-    
-    <h2>Database and Administration</h2>
-
-    <p>
-        <strong>Released:</strong> 2025<br>
-        <strong>Version:</strong> 0.0.2
-    </p>
-
-    <p>
-        <strong>by:</strong> <h1>SuccuS</h1>
-    </p>
-
-    <hr>
-    <h2>Credits to:</h2>
-    <p>
-        <em>[Hier die Namen der Libraries, Tester oder Mitwirkenden einfügen, z.B. "The Qt Project", "Jane Doe", etc.]</em>
-    </p>
-    <hr>
-
+    <div class="content-box">
+        <h1>eQSL Programm Version 0.0.2</h1>
+        <p><strong>Release Datum:</strong> 11. November 2025</p>
+        
+        <h2>Neue Funktionen in 0.0.2:</h2>
+        <ul>
+            <li>Initiales GUI-Framework mit modularem GuiManager.</li>
+            <li>Implementierung der HTML-Anzeige für Versionsinformationen.</li>
+            <li>Vorlagen für Settings- und Upload-Fenster erstellt.</li>
+        </ul>
+        
+        <p class="credits">
+            Created by
+            <br>
+            <br>
+            <span class="creator-name">
+                <b>
+                    SuccuS
+                </b>
+            </span>
+            <br>
+            <br>
+            Credits to:
+        </p>
+    </div>
 </body>
 </html>
