@@ -19,12 +19,12 @@ from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit, QMainWindow,
     QMenuBar, QPushButton, QSizePolicy, QStatusBar,
     QWidget)
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(800, 600)
-        self.centralwidget = QWidget(MainWindow)
+class Ui_frm_upload(object):
+    def setupUi(self, frm_upload):
+        if not frm_upload.objectName():
+            frm_upload.setObjectName(u"frm_upload")
+        frm_upload.resize(800, 600)
+        self.centralwidget = QWidget(frm_upload)
         self.centralwidget.setObjectName(u"centralwidget")
         self.lb_single_card_upload_section = QLabel(self.centralwidget)
         self.lb_single_card_upload_section.setObjectName(u"lb_single_card_upload_section")
@@ -138,39 +138,39 @@ class Ui_MainWindow(object):
         self.lb_warning_bulk_upload_1 = QLabel(self.centralwidget)
         self.lb_warning_bulk_upload_1.setObjectName(u"lb_warning_bulk_upload_1")
         self.lb_warning_bulk_upload_1.setGeometry(QRect(68, 335, 671, 51))
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(MainWindow)
+        frm_upload.setCentralWidget(self.centralwidget)
+        self.menubar = QMenuBar(frm_upload)
         self.menubar.setObjectName(u"menubar")
         self.menubar.setGeometry(QRect(0, 0, 800, 33))
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QStatusBar(MainWindow)
+        frm_upload.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar(frm_upload)
         self.statusbar.setObjectName(u"statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        frm_upload.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
+        self.retranslateUi(frm_upload)
 
-        QMetaObject.connectSlotsByName(MainWindow)
+        QMetaObject.connectSlotsByName(frm_upload)
     # setupUi
 
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.lb_single_card_upload_section.setText(QCoreApplication.translate("MainWindow", u"Single Card Upload Section", None))
-        self.btn_cancel_frm_upload.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
-        self.btn_reset_bulkcard.setText(QCoreApplication.translate("MainWindow", u"Reset", None))
-        self.lb_callsign_1.setText(QCoreApplication.translate("MainWindow", u"Callsign", None))
-        self.lb_date_1.setText(QCoreApplication.translate("MainWindow", u"Date", None))
-        self.lb_time_1.setText(QCoreApplication.translate("MainWindow", u"Time", None))
-        self.lb_band_1.setText(QCoreApplication.translate("MainWindow", u"Band", None))
-        self.lb_mode_1.setText(QCoreApplication.translate("MainWindow", u"Mode", None))
-        self.lb_dxcc_number_1.setText(QCoreApplication.translate("MainWindow", u"DXCC Number", None))
-        self.lb_path_singlecard.setText(QCoreApplication.translate("MainWindow", u"Path for Single Card Upload", None))
-        self.btn_search_path_singlecard_upload.setText(QCoreApplication.translate("MainWindow", u"Search", None))
-        self.btn_upload_singlecard.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
-        self.lb_bulk_card_upload_section.setText(QCoreApplication.translate("MainWindow", u"Bulk Card Upload Section for Eqsl downloaded by Log4OM", None))
-        self.btn_reset_singlecard.setText(QCoreApplication.translate("MainWindow", u"Reset", None))
-        self.btn_upload_bulkcard.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
-        self.lb_path_bulkcard.setText(QCoreApplication.translate("MainWindow", u"Path for Bulk Card Upload", None))
-        self.btn_search_path_bulkcard_upload.setText(QCoreApplication.translate("MainWindow", u"Search", None))
-        self.lb_warning_bulk_upload_1.setText(QCoreApplication.translate("MainWindow", u"Warning for correct folder structure and filename syntax!!!", None))
+    def retranslateUi(self, frm_upload):
+        frm_upload.setWindowTitle(QCoreApplication.translate("frm_upload", u"MainWindow", None))
+        self.lb_single_card_upload_section.setText(QCoreApplication.translate("frm_upload", u"Single Card Upload Section", None))
+        self.btn_cancel_frm_upload.setText(QCoreApplication.translate("frm_upload", u"Cancel", None))
+        self.btn_reset_bulkcard.setText(QCoreApplication.translate("frm_upload", u"Reset", None))
+        self.lb_callsign_1.setText(QCoreApplication.translate("frm_upload", u"Callsign", None))
+        self.lb_date_1.setText(QCoreApplication.translate("frm_upload", u"Date", None))
+        self.lb_time_1.setText(QCoreApplication.translate("frm_upload", u"Time", None))
+        self.lb_band_1.setText(QCoreApplication.translate("frm_upload", u"Band", None))
+        self.lb_mode_1.setText(QCoreApplication.translate("frm_upload", u"Mode", None))
+        self.lb_dxcc_number_1.setText(QCoreApplication.translate("frm_upload", u"DXCC Number", None))
+        self.lb_path_singlecard.setText(QCoreApplication.translate("frm_upload", u"Path for Single Card Upload", None))
+        self.btn_search_path_singlecard_upload.setText(QCoreApplication.translate("frm_upload", u"Search", None))
+        self.btn_upload_singlecard.setText(QCoreApplication.translate("frm_upload", u"Upload", None))
+        self.lb_bulk_card_upload_section.setText(QCoreApplication.translate("frm_upload", u"Bulk Card Upload Section for Eqsl downloaded by Log4OM", None))
+        self.btn_reset_singlecard.setText(QCoreApplication.translate("frm_upload", u"Reset", None))
+        self.btn_upload_bulkcard.setText(QCoreApplication.translate("frm_upload", u"Upload", None))
+        self.lb_path_bulkcard.setText(QCoreApplication.translate("frm_upload", u"Path for Bulk Card Upload", None))
+        self.btn_search_path_bulkcard_upload.setText(QCoreApplication.translate("frm_upload", u"Search", None))
+        self.lb_warning_bulk_upload_1.setText(QCoreApplication.translate("frm_upload", u"Warning for correct folder structure and filename syntax!!!", None))
     # retranslateUi
 

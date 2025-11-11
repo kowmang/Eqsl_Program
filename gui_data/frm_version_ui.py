@@ -15,29 +15,23 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QSizePolicy, QTextEdit, QVBoxLayout,
+from PySide6.QtWidgets import (QApplication, QDialog, QSizePolicy, QVBoxLayout,
     QWidget)
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        if not Form.objectName():
-            Form.setObjectName(u"Form")
-        Form.resize(275, 394)
-        self.verticalLayout = QVBoxLayout(Form)
+class Ui_frm_version(object):
+    def setupUi(self, frm_version):
+        if not frm_version.objectName():
+            frm_version.setObjectName(u"frm_version")
+        frm_version.resize(500, 500)
+        self.verticalLayout = QVBoxLayout(frm_version)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.te_version = QTextEdit(Form)
-        self.te_version.setObjectName(u"te_version")
-        self.te_version.setReadOnly(True)
 
-        self.verticalLayout.addWidget(self.te_version)
+        self.retranslateUi(frm_version)
 
-
-        self.retranslateUi(Form)
-
-        QMetaObject.connectSlotsByName(Form)
+        QMetaObject.connectSlotsByName(frm_version)
     # setupUi
 
-    def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+    def retranslateUi(self, frm_version):
+        frm_version.setWindowTitle(QCoreApplication.translate("frm_version", u"Dialog", None))
     # retranslateUi
 

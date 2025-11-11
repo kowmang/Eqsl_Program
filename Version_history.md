@@ -1,16 +1,15 @@
 
 
 # Version 0.0.2
-### (start of coding)
+### (start of coding, in different branches)
 
 
 * **create_sql_db** created, script for first database creation
 * **gui_data** all .ui files are compiled to _ui.py for python use
 * **__init__.py** in all folders integrated to make folder as module for python
 * **file_structure** create to visualize the file structre 
-* **eqsl_main_prog** testscript for gui windows 
-
-
+* **eqsl_main_prog** now triggers a gui manager
+* **gui_manager** added in scripts
 
 
 

@@ -1,30 +1,67 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Eqsl Program Information</title>  //FIXME: im Code (<div style="text-align: center;">...</div>) verwenden, bevor du den String über setHtml() oder setText() übergibst, damit der Text zentriert angezeigt wird
+    <meta charset="utf-8">
+    <title>Version Info</title>
+    <style>
+        /* Optional: Grundschriftart für Lesbarkeit */
+        body {
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f4f4f4;
+        }
+
+        /* Der zentrale Kasten, der zentriert werden soll */
+        .content-box {
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            
+            /* --- ZENTRIERUNG HIER --- */
+            width: 90%;          /* Nimmt 90% der Breite ein */
+            max-width: 600px;    /* Wird nicht breiter als 600px */
+            margin: 0 auto;      /* Zentriert den Kasten im Fenster */
+            /* ------------------------ */
+            text-align: center;
+        }
+        
+        h1 {
+            color: #004d99;
+        }
+        h2 {
+            color: #333;
+        }
+        ul {
+            text-align: left; /* Listenpunkte linksbündig halten */
+        }
+    </style>
 </head>
 <body>
+    <div class="content-box">
+        <h1>eQSL Programm Version 0.0.2</h1>
+        <p><strong>Release Datum:</strong> 11. November 2025</p>
+        
+        <h2>Neue Funktionen in 0.0.2:</h2>
+        <ul>
+            <li>Initiales GUI-Framework mit modularem GuiManager.</li>
+            <li>Implementierung der HTML-Anzeige für Versionsinformationen.</li>
+            <li>Vorlagen für Settings- und Upload-Fenster erstellt.</li>
+        </ul>
+        
+        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+            Created by
+            <br>
+            <br>
+            <b>
+                SuccuS
+            </b>
+            <br>
+            <br>
+            Credits to:
 
-    <h1>Eqsl Program</h1>
-    
-    <h2>Database and Administration</h2>
 
-    <p>
-        <strong>Released:</strong> 2025<br>
-        <strong>Version:</strong> 0.0.2
-    </p>
-
-    <p>
-        <strong>by:</strong> <h1>SuccuS</h1>
-    </p>
-
-    <hr>
-    <h2>Credits to:</h2>
-    <p>
-        <em>[Hier die Namen der Libraries, Tester oder Mitwirkenden einfügen, z.B. "The Qt Project", "Jane Doe", etc.]</em>
-    </p>
-    <hr>
-
+        </p>
+    </div>
 </body>
 </html>
