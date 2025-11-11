@@ -46,7 +46,7 @@ class EqslUploadWindow(QMainWindow):
         # Verbindungen für dieses Fenster
         pass
 
-class EqslHelpWindow(QWidget):
+class EqslHelpWindow(QDialog):
     """Das separate Fenster für die Einstellungen."""
     def __init__(self):
         super().__init__()
@@ -55,7 +55,47 @@ class EqslHelpWindow(QWidget):
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Manual)")
         # Fügen Sie hier später die Logik für Einstellungs-Widgets hinzu
+        self._load_version_content() 
         self._setup_connections() 
+    
+    def _load_version_content(self):
+        """
+        Lädt den Inhalt der version.html aus support_data und zeigt ihn an.
+        """
+        # Pfad zur version.html relativ zum Hauptverzeichnis
+        # Der Pfad ist von 'Eqsl_Program/scripts' aus: '../../support_data/version.html'
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Springt zwei Ebenen hoch (Eqsl_Program) und dann in support_data
+        html_path = os.path.join(base_dir, '..', 'support_data', 'manual.html')
+
+        try:
+            with open(html_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+        except FileNotFoundError:
+            html_content = (
+                f"<h1>Fehler: version.html nicht gefunden!</h1>"
+                f"<p>Erwarteter Pfad: <code>{html_path}</code></p>"
+            )
+        
+        # QTextBrowser erstellen, um den HTML-Inhalt anzuzeigen
+        browser = QTextBrowser(self)
+        browser.setHtml(html_content)
+        browser.setFont(QFont("Arial", 10))
+
+        # Das ui-Objekt wird in QDialog nur als Container betrachtet.
+        # Wir müssen das Layout manuell setzen, da setupUi() hier wahrscheinlich
+        # nur die Steuerelemente initialisiert hat, aber nicht das gesamte Layout.
+        
+        # Sicherstellen, dass ein Layout gesetzt ist, um den Browser zu platzieren.
+        if self.layout() is None:
+            layout = QVBoxLayout(self)
+            self.setLayout(layout)
+        else:
+             layout = self.layout()
+
+        # Fügen Sie den Browser zum Layout hinzu (falls er nicht schon im Designer war)
+        layout.addWidget(browser)
 
     def _setup_connections(self):
         # Verbindungen für dieses Fenster
@@ -65,6 +105,7 @@ class EqslVersionWindow(QDialog): # Geändert auf QDialog
     """Das separate Fenster für die Versionsinformationen."""
     def __init__(self):
         super().__init__()
+
         self.ui = Ui_frm_version()
         self.ui.setupUi(self) 
         self.setWindowTitle("eQSL Programm (Version Info)")
