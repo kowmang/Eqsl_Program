@@ -4,36 +4,61 @@
     <meta charset="utf-8">
     <title>Version Info</title>
     <style>
-        /* Optional: Grundschriftart für Lesbarkeit */
+        /* Basis: Typischer dunkler Fensterhintergrund von Qt/PySide */
         body {
             font-family: Arial, sans-serif; 
             padding: 20px; 
-            background-color: #f4f4f4;
+            background-color: #2b2b2b; /* Dunkelgrau */
+            color: #d0d0d0; /* Standardtextfarbe */
+            font-size: 13px; /* Stellt die Basisgröße für em-Berechnungen sicher (ca. 10pt) */
         }
 
-        /* Der zentrale Kasten, der zentriert werden soll */
+        /* Der zentrale Kasten (Widget-Hintergrundfarbe) */
         .content-box {
-            background-color: white; 
+            background-color: #3c3f41; /* Etwas helleres Dunkelgrau */
             padding: 20px; 
             border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* Dunklerer Schatten */
             
-            /* --- ZENTRIERUNG HIER --- */
-            width: 90%;          /* Nimmt 90% der Breite ein */
-            max-width: 600px;    /* Wird nicht breiter als 600px */
-            margin: 0 auto;      /* Zentriert den Kasten im Fenster */
-            /* ------------------------ */
+            /* Zentrierung des Kastens */
+            width: 90%;          
+            max-width: 600px;    
+            margin: 0 auto;      
             text-align: center;
         }
         
+        /* Überschriften mit Akzentfarbe */
         h1 {
-            color: #004d99;
+            color: #51a1e0; /* Akzentfarbe: Helles Blau */
         }
         h2 {
-            color: #333;
+            color: #ffffff; /* Weiß für gute Lesbarkeit */
         }
+        
+        /* Liste: Text-Ausrichtung links beibehalten */
         ul {
-            text-align: left; /* Listenpunkte linksbündig halten */
+            text-align: left; 
+            display: inline-block;
+            color: #d0d0d0;
+        }
+
+        /* Credits Text */
+        .credits {
+            margin-top: 20px; 
+            font-size: 0.9em; 
+            color: #a0a0a0; /* Gedämpftes Hellgrau */
+        }
+        
+        /* Fettdruck */
+        strong, b {
+             color: #ffffff; 
+        }
+
+        /* NEUE KLASSE FÜR NAMEN (Jetzt mit Pixel-Größe für Zuverlässigkeit) */
+        .creator-name {
+            font-size: 26px; /* Explizite Pixelgröße */
+            color: #51a1e0; /* Akzentfarbe */
+            font-weight: 900; /* Extra fett */
         }
     </style>
 </head>
@@ -49,18 +74,18 @@
             <li>Vorlagen für Settings- und Upload-Fenster erstellt.</li>
         </ul>
         
-        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+        <p class="credits">
             Created by
             <br>
             <br>
-            <b>
-                SuccuS
-            </b>
+            <span class="creator-name">
+                <b>
+                    SuccuS
+                </b>
+            </span>
             <br>
             <br>
             Credits to:
-
-
         </p>
     </div>
 </body>
