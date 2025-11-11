@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>frm_help_view</class>
- <widget class="QWidget" name="frm_help_view">
+ <widget class="QDialog" name="frm_help_view">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>671</height>
+    <width>900</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QTextEdit" name="te_help_view">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-  </layout>
  </widget>
  <resources/>
  <connections/>
