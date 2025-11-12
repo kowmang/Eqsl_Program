@@ -17,6 +17,8 @@ C:\Users\oe4vm\Proggen\Eqsl-Program\
         |    |----.gitkeep
         |    |----__init__.py                   <-- to make it module
         |
+        |----settings.json                      <-- holds all path values
+        |
         |----gui.data                           <-- folder with QT GUI files>
         |    |----frm_help_view_ui.py
         |    |----frm_image_view_ui.py
@@ -31,13 +33,11 @@ C:\Users\oe4vm\Proggen\Eqsl-Program\
         |    |----create_sql_db.py
         |    |----__init__.py                   <-- to make it module
         |
-        |----settings_data                      <-- folder for settings files
-        |    |----settings.json
-        |    |----__init__.py                   <-- to make it module
-        |
         |----support_data                       <-- folder for support files
              |----dxcc_lookup.csv
              |----manual.html
              |----version.html
              |----__init__.py                   <-- to make it module
           
+
+//TODO: get file structure up to date
