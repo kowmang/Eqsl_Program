@@ -39,3 +39,5 @@ C:\Users\oe4vm\Proggen\Eqsl-Program\
              |----version.html
              |----__init__.py                   <-- to make it module
           
+
+//TODO: get file structure up to date
