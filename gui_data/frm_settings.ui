@@ -235,7 +235,7 @@
     </font>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_new_database">
+  <widget class="QPushButton" name="btn_new_db">
    <property name="geometry">
     <rect>
      <x>530</x>

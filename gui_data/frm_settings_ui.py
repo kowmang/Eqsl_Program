@@ -79,10 +79,10 @@ class Ui_frm_settings(object):
         self.le_downloadfolder_image.setObjectName(u"le_downloadfolder_image")
         self.le_downloadfolder_image.setGeometry(QRect(40, 330, 300, 30))
         self.le_downloadfolder_image.setFont(font)
-        self.btn_new_database = QPushButton(frm_settings)
-        self.btn_new_database.setObjectName(u"btn_new_database")
-        self.btn_new_database.setGeometry(QRect(530, 90, 85, 27))
-        self.btn_new_database.setFont(font1)
+        self.btn_new_db = QPushButton(frm_settings)
+        self.btn_new_db.setObjectName(u"btn_new_db")
+        self.btn_new_db.setGeometry(QRect(530, 90, 85, 27))
+        self.btn_new_db.setFont(font1)
 
         self.retranslateUi(frm_settings)
 
@@ -100,6 +100,6 @@ class Ui_frm_settings(object):
         self.btn_search_downloadfolder_image.setText(QCoreApplication.translate("frm_settings", u"Search", None))
         self.lb_dxcc_list_import.setText(QCoreApplication.translate("frm_settings", u"DXCC List Import", None))
         self.btn_search_database.setText(QCoreApplication.translate("frm_settings", u"Search", None))
-        self.btn_new_database.setText(QCoreApplication.translate("frm_settings", u"New DB", None))
+        self.btn_new_db.setText(QCoreApplication.translate("frm_settings", u"New DB", None))
     # retranslateUi
 
