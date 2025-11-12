@@ -53,7 +53,7 @@
     <string>Search</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_restore_frm_settings">
+  <widget class="QPushButton" name="btn_reset_db">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -70,25 +70,6 @@
    </property>
    <property name="text">
     <string>Restore</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_Save_frm_settings">
-   <property name="geometry">
-    <rect>
-     <x>660</x>
-     <y>510</y>
-     <width>85</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Save</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_downloadfolder_image">
@@ -112,7 +93,7 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_database_selection">
+  <widget class="QLineEdit" name="txt_db_selection">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -130,7 +111,7 @@
   <widget class="QPushButton" name="btn_cancel_frm_settings">
    <property name="geometry">
     <rect>
-     <x>530</x>
+     <x>640</x>
      <y>510</y>
      <width>85</width>
      <height>27</height>
@@ -201,7 +182,7 @@
     </font>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_search_database">
+  <widget class="QPushButton" name="btn_search_db">
    <property name="geometry">
     <rect>
      <x>370</x>
