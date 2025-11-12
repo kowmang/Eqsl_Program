@@ -7,6 +7,7 @@
 * **gui_data**  updated some name definition in all windows
 * **settings_manager** created for settings_window logic
 * **settings.json** for file path storage
+//TODO: Datenbankschema erstellen (spalten, definition, benennung)
 
 
 
