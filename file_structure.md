@@ -40,4 +40,4 @@ C:\Users\oe4vm\Proggen\Eqsl-Program\
              |----__init__.py                   <-- to make it module
           
 
-//TODO: get file structure up to date
+//TODO: get file structure up to date and include database schema and table structure
