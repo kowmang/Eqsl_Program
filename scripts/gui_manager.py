@@ -11,6 +11,7 @@ from ..gui_data.frm_help_view_ui import Ui_frm_help_view
 from ..gui_data.frm_version_ui import Ui_frm_version
 # Importieren des Logik-Managers
 from .settings_manager import SettingsManager 
+# from .database_handler import DatabaseHandler # AUSKOMMENTIERT: Der User möchte mit dem Datenbankzugriff warten
 
 
 # ----------------------------------------------------
@@ -21,13 +22,31 @@ class EqslSettingsWindow(QDialog):
     """Das separate Fenster für die Einstellungen."""
 
     new_db_selected = Signal(str)
+    existing_db_selected = Signal(str)
 
-    def __init__(self):
+    def __init__(self, settings_manager: SettingsManager):
         super().__init__()
         self.ui = Ui_frm_settings()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Settings)")
+        self.settings_manager = settings_manager
+        self._setup_ui_state() # Zeigt den aktuellen Pfad an
         self._setup_connections() 
+
+    def _setup_ui_state(self):
+        """Initialisiert den Zustand der UI-Elemente basierend auf den Einstellungen."""
+        current_db_path = self.settings_manager.get_current_db_path()
+        if hasattr(self.ui, 'txt_db_selection'):
+            if current_db_path and os.path.exists(current_db_path):
+                # Zeigt den aktuellen Pfad an
+                self.ui.txt_db_selection.setText(current_db_path)
+            else:
+                # Platzhalter, wenn keine gültige DB ausgewählt wurde
+                self.ui.txt_db_selection.setText("Bitte wählen Sie eine Datenbank aus...")
+            
+            # Das Textfeld ist nicht editierbar, nur zur Anzeige
+            self.ui.txt_db_selection.setReadOnly(True)
+
 
     def _setup_connections(self):
         # Verbindung für 'Abbrechen'
@@ -37,36 +56,83 @@ class EqslSettingsWindow(QDialog):
         # Verbindung für den "Neue Datenbank erstellen"-Button
         if hasattr(self.ui, 'btn_new_db'):
             self.ui.btn_new_db.clicked.connect(self._open_new_db_dialog)
-        pass
+            
+        # Verbindung für den "Bestehende Datenbank suchen"-Button
+        if hasattr(self.ui, 'btn_search_db'):
+            self.ui.btn_search_db.clicked.connect(self._open_existing_db_dialog)
+            
+        # NEU: Verbindung für den "Zurücksetzen"-Button
+        if hasattr(self.ui, 'btn_reset_db'):
+            self.ui.btn_reset_db.clicked.connect(self._handle_reset_db)
+
+
+    def _get_default_db_directory(self) -> str:
+        """Berechnet das Standardverzeichnis 'database_sql'."""
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        # Navigiert von 'scripts' in 'Eqsl_Program' und dann nach 'database_sql'
+        default_dir = os.path.join(base_dir, '..', 'database_sql')
+        
+        # Stellt sicher, dass der Ordner existiert (wichtig für das Speichern)
+        if not os.path.exists(default_dir):
+            os.makedirs(default_dir, exist_ok=True)
+            
+        return default_dir
+
 
     @Slot()
     def _open_new_db_dialog(self):
         """
-        Öffnet den Dateidialog, um einen Speicherort für die neue Datenbank 
-        auszuwählen und sendet das Signal. Schlägt den Ordner 'database_sql' vor.
+        Öffnet den 'Speichern unter'-Dialog für eine neue Datenbank und sendet das Signal.
         """
-        # 1. Berechnet den Pfad zum Ordner 'database_sql' relativ zum aktuellen Skript.
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        # Navigiert von 'scripts' in 'Eqsl_Program' und dann nach 'database_sql'
-        default_dir = os.path.join(base_dir, '..', 'database_sql')
+        default_dir = self._get_default_db_directory()
         default_filepath = os.path.join(default_dir, 'qsl_log.db')
 
-        # Stellt sicher, dass der Ordner existiert (optional, aber gut für UX)
-        if not os.path.exists(default_dir):
-            os.makedirs(default_dir, exist_ok=True)
-        
-        # 2. Öffnet den 'Speichern unter'-Dialog mit vorgeschlagenem Pfad/Dateiname
         filepath, _ = QFileDialog.getSaveFileName(
             self,
-            "Select new database file location",
-            default_filepath, # Startet im Ordner und schlägt den Dateinamen vor
-            "SQLite Database Files (*.db *.sqlite);;All Files (*)"
+            "Wählen Sie einen Speicherort für die neue Datenbank",
+            default_filepath, 
+            "SQLite Database Files (*.db *.sqlite);;Alle Dateien (*)"
         )
 
         if filepath:
             self.new_db_selected.emit(filepath)
+            # Aktualisiert die Anzeige sofort
+            self._setup_ui_state() 
         else:
-            print("New DB creation cancelled by user.")
+            print("Erstellung der neuen DB vom Benutzer abgebrochen.")
+
+    @Slot()
+    def _open_existing_db_dialog(self):
+        """
+        Öffnet den 'Öffnen'-Dialog, um eine bestehende Datenbank auszuwählen und sendet das Signal.
+        """
+        current_db_path = self.settings_manager.get_current_db_path()
+        
+        # Startpfad: Wenn eine DB ausgewählt ist, starte dort. Sonst im Standardordner.
+        start_dir = os.path.dirname(current_db_path) if current_db_path and os.path.exists(current_db_path) else self._get_default_db_directory()
+
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Wählen Sie eine bestehende Datenbankdatei",
+            start_dir,
+            "SQLite Database Files (*.db *.sqlite);;Alle Dateien (*)"
+        )
+
+        if filepath:
+            self.existing_db_selected.emit(filepath)
+            # Aktualisiert die Anzeige sofort
+            self._setup_ui_state() 
+        else:
+            print("Auswahl einer bestehenden DB vom Benutzer abgebrochen.")
+
+    @Slot()
+    def _handle_reset_db(self):
+        """
+        Ruft die Reset-Logik im SettingsManager auf und aktualisiert die UI.
+        """
+        self.settings_manager.reset_db_path()
+        self._setup_ui_state()
+        print("Datenbankpfad wurde zurückgesetzt.")
 
 
 class EqslUploadWindow(QDialog): 
@@ -195,18 +261,27 @@ class GuiManager:
         self.version_window = None  
         
         self.settings_manager = SettingsManager() 
+        # self.db_handler = DatabaseHandler(self.settings_manager) # Zugriffslogik ist aktuell deaktiviert
         
     @Slot()
     def open_settings(self):
         """Öffnet das Einstellungsfenster und verbindet die Signale."""
         if self.settings_window is None:
-            self.settings_window = EqslSettingsWindow()
+            self.settings_window = EqslSettingsWindow(self.settings_manager)
             
-            # SIGNAL VERBINDEN
+            # SIGNAL VERBINDEN: Neue DB erstellen
             self.settings_window.new_db_selected.connect(
                 self.settings_manager.handle_new_db_path
             )
+            # SIGNAL VERBINDEN: Bestehende DB auswählen
+            self.settings_window.existing_db_selected.connect(
+                self.settings_manager.handle_existing_db_path
+            )
+            # HINWEIS: Die Verbindung zum db_handler.connect muss hier wieder rein, 
+            # sobald wir die Zugriffslogik wieder aktivieren.
             
+        # Stellt sicher, dass die Anzeige bei jedem Öffnen aktuell ist
+        self.settings_window._setup_ui_state() 
         self.settings_window.show()
 
     @Slot()

@@ -1,54 +1,181 @@
+import sqlite3
+import os
+import json 
 from PySide6.QtCore import Slot
 
 class SettingsManager:
     """
-    Handles all application settings, including loading/saving the settings.json
-    and managing the path to the current SQLite database.
+    Verwaltet das Speichern und Laden der Programmeinstellungen (z.B. Pfade) 
+    und ist für die Erstellung neuer Datenbanken zuständig.
     """
     def __init__(self):
-        # Initialisierung des Einstellungszustands
-        # Später können hier die Einstellungen aus settings.json geladen werden.
         print("SettingsManager initialized.")
+        
+        # Den Pfad zur Konfigurationsdatei relativ zum aktuellen Skript festlegen
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.config_filepath = os.path.join(base_dir, '..', 'settings.json')
+        
+        # Standardeinstellungen oder geladene Einstellungen
+        self.settings = self.load_settings()
+
+    def get_current_db_path(self) -> str:
+        """Gibt den aktuell in den Einstellungen gespeicherten DB-Pfad zurück."""
+        return self.settings.get("database", "")
+
+    def load_settings(self) -> dict:
+        """Lädt Einstellungen aus settings.json oder gibt Standardwerte zurück."""
+        
+        # STANDARD-STRUKTUR, die das gewünschte JSON-Format widerspiegelt
+        default_settings = {
+            "dxcc_lookup_path": "", 
+            "database": "",       
+            "table_name": "eqsl_data", 
+            "last_upload_dir": ""   
+        }
+
+        if os.path.exists(self.config_filepath):
+            try:
+                with open(self.config_filepath, 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
+                    print(f"Settings loaded from: {self.config_filepath}")
+                    
+                    # Merge mit Defaults, um fehlende Schlüssel zu vermeiden
+                    default_settings.update(settings)
+                    return default_settings
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Error loading settings file: {e}. Using default settings.")
+        
+        return default_settings
+
+    def save_settings(self):
+        """Speichert die aktuellen Einstellungen in settings.json."""
+        try:
+            with open(self.config_filepath, 'w', encoding='utf-8') as f:
+                json.dump(self.settings, f, indent=4)
+            print(f"Settings successfully saved to: {self.config_filepath}")
+        except IOError as e:
+            print(f"Error saving settings file: {e}")
+
+    @Slot()
+    def reset_db_path(self):
+        """
+        Setzt den Datenbankpfad in den Einstellungen zurück auf einen leeren String und speichert.
+        """
+        if self.settings.get("database"):
+            self.settings["database"] = ""
+            self.save_settings()
+            print("Database path successfully reset to empty string.")
+        else:
+            print("Database path was already empty. No reset needed.")
+
 
     @Slot(str)
-    def handle_new_db_path(self, db_path: str):
+    def handle_new_db_path(self, db_filepath: str):
         """
-        Slot method called when the Settings Window emits a new database path.
-
-        Args:
-            db_path (str): The full path where the new database should be created.
+        Erstellt die Datenbankdatei, das Schema und speichert den Pfad unter 'database'.
         """
-        print(f"Received signal for new DB path: {db_path}")
+        if not db_filepath.lower().endswith(('.db', '.sqlite')):
+            print(f"Error: Database file path '{db_filepath}' does not have a valid extension.")
+            return
 
-        # 1. Datenbankerstellung (Logik)
-        success = self._create_database_file(db_path)
+        print(f"Attempting to create new database and schema at: {db_filepath}")
+
+        # 1. Datenbank-Datei anlegen und Schema erstellen
+        success = self._create_db_with_schema(db_filepath)
 
         if success:
-            # 2. Speichern in settings.json (Konfiguration)
-            self._save_default_db_path(db_path)
-            print("Database created and path saved successfully.")
+            # 2. Datenbankpfad in den Einstellungen unter dem Schlüssel 'database' aktualisieren
+            self.settings["database"] = db_filepath
+            
+            # 3. Einstellungen speichern (Automatisches Speichern)
+            self.save_settings()
+
+            print(f"New default database set to: {db_filepath}")
         else:
-            print("Error: Could not create the database.")
+            print("Failed to create database schema. Check file permissions.")
 
 
-    def _create_database_file(self, path: str) -> bool:
+    @Slot(str)
+    def handle_existing_db_path(self, db_filepath: str):
         """
-        Placeholder for the database creation logic (using sqlite3 later).
-        Returns True on success.
+        Speichert einen bereits existierenden Datenbankpfad als Standard.
         """
+        if not os.path.exists(db_filepath):
+             print(f"Error: Selected file does not exist: {db_filepath}")
+             return
+             
+        if not db_filepath.lower().endswith(('.db', '.sqlite')):
+            print(f"Error: Database file path '{db_filepath}' does not have a valid extension.")
+            return
+
+        print(f"Setting existing database path to: {db_filepath}")
+        
+        # 1. Datenbankpfad in den Einstellungen unter dem Schlüssel 'database' aktualisieren
+        self.settings["database"] = db_filepath
+        
+        # 2. Einstellungen speichern (Automatisches Speichern)
+        self.save_settings()
+
+        print(f"New default database set to: {db_filepath}")
+
+
+    def _create_db_with_schema(self, db_filepath: str) -> bool:
+        """
+        Stellt eine Verbindung zur Datenbank her und erstellt alle notwendigen Tabellen.
+        """
+        
+        # SQL-Befehl für die Nachschlagetabelle der DXCC-Länder
+        DXCC_LIST_SQL = """
+        CREATE TABLE IF NOT EXISTS dxcc_list (
+            dxcc_number INTEGER PRIMARY KEY NOT NULL,
+            prefix TEXT NOT NULL,
+            continent TEXT,
+            itu_zone INTEGER,
+            cq_zone INTEGER,
+            dxcc_name TEXT NOT NULL UNIQUE
+        );
+        """
+
+        # SQL-Befehl für die hochgeladenen eQSL-Daten
+        EQSL_DATA_SQL = """
+        CREATE TABLE IF NOT EXISTS eqsl_data (
+            primarykey TEXT PRIMARY KEY NOT NULL,
+            callsign TEXT NOT NULL,
+            date TEXT NOT NULL,
+            time TEXT NOT NULL,
+            year INTEGER NOT NULL,
+            band TEXT,
+            mode TEXT,
+            itu_zone INTEGER,
+            cq_zone INTEGER,
+            
+            -- Fremdschlüssel: Moderne SQLite-Definition
+            dxcc_number INTEGER REFERENCES dxcc_list(dxcc_number), 
+            
+            dxcc_name TEXT,
+            prefix TEXT,
+            continent TEXT
+        );
+        """
+
         try:
-            # Beispiel-Logik: Erstellt eine leere Datei zur Simulation
-            with open(path, 'w') as f:
-                f.write("# SQLite placeholder file")
-            # Später: Hier würde der sqlite3-Code die Tabellen erstellen.
+            # Stellt Verbindung her und aktiviert Foreign Keys (wichtig für SQLite)
+            conn = sqlite3.connect(db_filepath)
+            cursor = conn.cursor()
+            
+            # Foreign Keys MÜSSEN direkt nach dem Verbindungsaufbau aktiviert werden
+            cursor.execute("PRAGMA foreign_keys = ON;")
+            
+            # Tabellen erstellen
+            cursor.execute(DXCC_LIST_SQL)
+            cursor.execute(EQSL_DATA_SQL)
+            
+            # Speichert die Änderungen und schließt die Verbindung
+            conn.commit()
+            conn.close()
+            print("Schema created: dxcc_list and eqsl_data tables are now defined.")
             return True
-        except Exception as e:
-            print(f"Error creating file: {e}")
+            
+        except sqlite3.Error as e:
+            print(f"SQLite Error during schema creation: {e}")
             return False
-
-    def _save_default_db_path(self, path: str):
-        """
-        Placeholder: Saves the path to the persistent settings (settings.json).
-        """
-        # Später: Logik zum Speichern des Pfades in einer JSON-Datei.
-        print(f"Saved default DB path to settings: {path}")
