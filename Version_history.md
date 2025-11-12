@@ -1,4 +1,16 @@
+# Version 0.0.3
+### (start with logic)
 
+
+* **gui_manager** added all windows settings (open, close, reject)
+* **version.html** updated design (center text)
+* **gui_data**  updated some name definition in all windows
+* **settings_manager** created for settings_window logic
+* **settings.json** for file path storage
+
+
+
+---
 
 # Version 0.0.2
 ### (start of coding, in different branches)
