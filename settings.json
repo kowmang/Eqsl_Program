@@ -2,5 +2,6 @@
     "dxcc_lookup_path": "C:\\Users\\oe4vm\\Desktop\\Proggen\\eqsl_program\\Eqsl_Program\\scripts\\..\\support_data\\dxcc_lookup.csv",
     "database": "C:/Users/oe4vm/Desktop/Proggen/eqsl_program/Eqsl_Program/database_sql/new_test_db_41.db",
     "table_name": "eqsl_data",
-    "last_upload_dir": ""
+    "last_upload_dir": "",
+    "download_directory": "C:/Users/oe4vm/Desktop/Proggen"
 }

@@ -15,7 +15,6 @@ class SettingsManager:
         # Den Pfad zur Konfigurationsdatei relativ zum aktuellen Skript festlegen
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.config_filepath = os.path.join(base_dir, '..', 'settings.json')
-        # Pfad zum Ordner, in den die DXCC-Datei kopiert wird
         self.support_data_dir = os.path.join(base_dir, '..', 'support_data') 
         
         # Standardeinstellungen oder geladene Einstellungen
@@ -29,15 +28,20 @@ class SettingsManager:
         """Gibt den aktuell in den Einstellungen gespeicherten DXCC-Listenpfad zurück."""
         return self.settings.get("dxcc_lookup_path", "")
 
+    def get_current_download_dir(self) -> str:
+        """Gibt den aktuell in den Einstellungen gespeicherten Download-Pfad zurück."""
+        return self.settings.get("download_directory", "") # NEU
+
     def load_settings(self) -> dict:
         """Lädt Einstellungen aus settings.json oder gibt Standardwerte zurück."""
         
-        # STANDARD-STRUKTUR
+        # STANDARD-STRUKTUR (Hinzugefügt: download_directory)
         default_settings = {
             "dxcc_lookup_path": "", 
             "database": "",       
             "table_name": "eqsl_data", 
-            "last_upload_dir": ""   
+            "last_upload_dir": "",
+            "download_directory": "" # NEU
         }
 
         if os.path.exists(self.config_filepath):
@@ -97,8 +101,7 @@ class SettingsManager:
         # 1. Zielpfad definieren (immer 'dxcc_lookup.csv' im support_data Ordner)
         destination_filepath = os.path.join(self.support_data_dir, 'dxcc_lookup.csv')
         
-        # NEU: Prüfung, ob Quelle und Ziel identisch sind (Absolutpfad-Vergleich)
-        # Dies verhindert unnötiges Kopieren.
+        # Prüfung, ob Quelle und Ziel identisch sind (Absolutpfad-Vergleich)
         if os.path.abspath(source_filepath) == os.path.abspath(destination_filepath):
             print("DXCC list is already in the target location. Skipping copy operation.")
             self.settings["dxcc_lookup_path"] = destination_filepath
@@ -118,6 +121,21 @@ class SettingsManager:
 
         except Exception as e:
             print(f"Error during DXCC file copy: {e}")
+
+    # Slot für Download-Ordner (NEU)
+    @Slot(str)
+    def handle_new_download_dir(self, dir_path: str):
+        """
+        Speichert den ausgewählten Download-Ordner in den Einstellungen.
+        """
+        if not os.path.isdir(dir_path):
+             print(f"Error: Selected path is not a valid directory: {dir_path}")
+             return
+        
+        print(f"Setting new default download directory to: {dir_path}")
+        self.settings["download_directory"] = dir_path
+        self.save_settings()
+        print("Download directory successfully saved.")
 
 
     @Slot(str)

@@ -23,7 +23,8 @@ class EqslSettingsWindow(QDialog):
 
     new_db_selected = Signal(str)
     existing_db_selected = Signal(str)
-    new_dxcc_selected = Signal(str) # Signal für DXCC-Import
+    new_dxcc_selected = Signal(str)
+    new_download_dir_selected = Signal(str) # NEUES Signal für Download-Ordner
 
     def __init__(self, settings_manager: SettingsManager):
         super().__init__()
@@ -50,11 +51,20 @@ class EqslSettingsWindow(QDialog):
         current_dxcc_path = self.settings_manager.get_current_dxcc_path()
         if hasattr(self.ui, 'txt_dxcc_selection'):
             if current_dxcc_path and os.path.exists(current_dxcc_path):
-                # Zeigt den internen Pfad (support_data/dxcc_lookup.csv) an
+                # Zeigt den INTERNEN Pfad an, da die Datei dorthin kopiert wurde
                 self.ui.txt_dxcc_selection.setText(current_dxcc_path) 
             else:
                 self.ui.txt_dxcc_selection.setText("Bitte DXCC-CSV-Datei importieren...")
             self.ui.txt_dxcc_selection.setReadOnly(True)
+
+        # --- 3. Download-Ordner Pfad (NEU) ---
+        current_download_dir = self.settings_manager.get_current_download_dir()
+        if hasattr(self.ui, 'txt_download_dir'):
+            if current_download_dir and os.path.isdir(current_download_dir):
+                self.ui.txt_download_dir.setText(current_download_dir)
+            else:
+                self.ui.txt_download_dir.setText("Bitte wählen Sie den Download-Ordner aus...")
+            self.ui.txt_download_dir.setReadOnly(True)
 
 
     def _setup_connections(self):
@@ -73,8 +83,12 @@ class EqslSettingsWindow(QDialog):
             self.ui.btn_reset_db.clicked.connect(self._handle_reset_db)
             
         # DXCC-Verbindungen
-        if hasattr(self.ui, 'btn_search_dxcc'): # Annahme des Namens
+        if hasattr(self.ui, 'btn_search_dxcc'):
             self.ui.btn_search_dxcc.clicked.connect(self._open_dxcc_import_dialog)
+            
+        # Download-Ordner Verbindungen (NEU)
+        if hasattr(self.ui, 'btn_search_download_dir'): 
+            self.ui.btn_search_download_dir.clicked.connect(self._open_download_dir_dialog)
             
     # --- HELPER FUNKTIONEN ---
 
@@ -136,7 +150,7 @@ class EqslSettingsWindow(QDialog):
         self._setup_ui_state()
         print("Datenbankpfad wurde zurückgesetzt.")
         
-    # --- NEUER SLOT (DXCC) ---
+    # --- SLOTS (DXCC) ---
     
     @Slot()
     def _open_dxcc_import_dialog(self):
@@ -160,6 +174,30 @@ class EqslSettingsWindow(QDialog):
             self._setup_ui_state() 
         else:
             print("Import der DXCC-Liste vom Benutzer abgebrochen.")
+
+    # --- SLOTS (Download-Ordner) NEU ---
+    
+    @Slot()
+    def _open_download_dir_dialog(self):
+        """
+        Öffnet den Dialog zur Auswahl des Download-Ordners.
+        """
+        current_dir = self.settings_manager.get_current_download_dir()
+        # Startverzeichnis: Aktueller Ordner oder Benutzer-Home
+        start_dir = current_dir if current_dir and os.path.isdir(current_dir) else os.path.expanduser("~")
+        
+        dir_path = QFileDialog.getExistingDirectory(
+            self,
+            "Wählen Sie den Standard-Download-Ordner",
+            start_dir,
+            QFileDialog.ShowDirsOnly
+        )
+
+        if dir_path:
+            self.new_download_dir_selected.emit(dir_path)
+            self._setup_ui_state()
+        else:
+            print("Auswahl des Download-Ordners vom Benutzer abgebrochen.")
 
 
 # ... (Klassen EqslUploadWindow, EqslHelpWindow, EqslVersionWindow bleiben unverändert) ...
@@ -307,6 +345,11 @@ class GuiManager:
             # DXCC-Verbindung
             self.settings_window.new_dxcc_selected.connect(
                 self.settings_manager.handle_new_dxcc_path
+            )
+            
+            # Download-Ordner Verbindung (NEU)
+            self.settings_window.new_download_dir_selected.connect(
+                self.settings_manager.handle_new_download_dir
             )
             
         self.settings_window._setup_ui_state() 
