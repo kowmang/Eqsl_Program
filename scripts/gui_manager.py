@@ -3,6 +3,7 @@ import sys
 from PySide6.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QTextBrowser, QFileDialog
 from PySide6.QtCore import Slot, Signal
 from PySide6.QtGui import QFont
+import os.path
 
 # Die kompilierten UI-Klassen werden hier importiert (relativ zum 'scripts' Ordner)
 from ..gui_data.frm_settings_ui import Ui_frm_settings
@@ -11,8 +12,7 @@ from ..gui_data.frm_help_view_ui import Ui_frm_help_view
 from ..gui_data.frm_version_ui import Ui_frm_version
 # Importieren des Logik-Managers
 from .settings_manager import SettingsManager 
-# from .database_handler import DatabaseHandler # AUSKOMMENTIERT: Der User möchte mit dem Datenbankzugriff warten
-
+# from .database_handler import DatabaseHandler # AUSKOMMENTIERT
 
 # ----------------------------------------------------
 # 1. DEFINITION DER UNTERFENSTER
@@ -23,6 +23,7 @@ class EqslSettingsWindow(QDialog):
 
     new_db_selected = Signal(str)
     existing_db_selected = Signal(str)
+    new_dxcc_selected = Signal(str) # Signal für DXCC-Import
 
     def __init__(self, settings_manager: SettingsManager):
         super().__init__()
@@ -35,17 +36,25 @@ class EqslSettingsWindow(QDialog):
 
     def _setup_ui_state(self):
         """Initialisiert den Zustand der UI-Elemente basierend auf den Einstellungen."""
+        
+        # --- 1. Datenbank-Pfad ---
         current_db_path = self.settings_manager.get_current_db_path()
         if hasattr(self.ui, 'txt_db_selection'):
             if current_db_path and os.path.exists(current_db_path):
-                # Zeigt den aktuellen Pfad an
                 self.ui.txt_db_selection.setText(current_db_path)
             else:
-                # Platzhalter, wenn keine gültige DB ausgewählt wurde
                 self.ui.txt_db_selection.setText("Bitte wählen Sie eine Datenbank aus...")
-            
-            # Das Textfeld ist nicht editierbar, nur zur Anzeige
             self.ui.txt_db_selection.setReadOnly(True)
+            
+        # --- 2. DXCC-Listen-Pfad ---
+        current_dxcc_path = self.settings_manager.get_current_dxcc_path()
+        if hasattr(self.ui, 'txt_dxcc_selection'):
+            if current_dxcc_path and os.path.exists(current_dxcc_path):
+                # Zeigt den internen Pfad (support_data/dxcc_lookup.csv) an
+                self.ui.txt_dxcc_selection.setText(current_dxcc_path) 
+            else:
+                self.ui.txt_dxcc_selection.setText("Bitte DXCC-CSV-Datei importieren...")
+            self.ui.txt_dxcc_selection.setReadOnly(True)
 
 
     def _setup_connections(self):
@@ -53,37 +62,37 @@ class EqslSettingsWindow(QDialog):
         if hasattr(self.ui, 'btn_cancel_frm_settings'):
             self.ui.btn_cancel_frm_settings.clicked.connect(self.reject)
             
-        # Verbindung für den "Neue Datenbank erstellen"-Button
+        # Datenbank-Verbindungen
         if hasattr(self.ui, 'btn_new_db'):
             self.ui.btn_new_db.clicked.connect(self._open_new_db_dialog)
             
-        # Verbindung für den "Bestehende Datenbank suchen"-Button
         if hasattr(self.ui, 'btn_search_db'):
             self.ui.btn_search_db.clicked.connect(self._open_existing_db_dialog)
             
-        # NEU: Verbindung für den "Zurücksetzen"-Button
         if hasattr(self.ui, 'btn_reset_db'):
             self.ui.btn_reset_db.clicked.connect(self._handle_reset_db)
-
+            
+        # DXCC-Verbindungen
+        if hasattr(self.ui, 'btn_search_dxcc'): # Annahme des Namens
+            self.ui.btn_search_dxcc.clicked.connect(self._open_dxcc_import_dialog)
+            
+    # --- HELPER FUNKTIONEN ---
 
     def _get_default_db_directory(self) -> str:
         """Berechnet das Standardverzeichnis 'database_sql'."""
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        # Navigiert von 'scripts' in 'Eqsl_Program' und dann nach 'database_sql'
         default_dir = os.path.join(base_dir, '..', 'database_sql')
         
-        # Stellt sicher, dass der Ordner existiert (wichtig für das Speichern)
         if not os.path.exists(default_dir):
             os.makedirs(default_dir, exist_ok=True)
             
         return default_dir
-
+        
+    # --- SLOTS (Datenbank) ---
 
     @Slot()
     def _open_new_db_dialog(self):
-        """
-        Öffnet den 'Speichern unter'-Dialog für eine neue Datenbank und sendet das Signal.
-        """
+        """Öffnet den 'Speichern unter'-Dialog für eine neue Datenbank."""
         default_dir = self._get_default_db_directory()
         default_filepath = os.path.join(default_dir, 'qsl_log.db')
 
@@ -96,19 +105,15 @@ class EqslSettingsWindow(QDialog):
 
         if filepath:
             self.new_db_selected.emit(filepath)
-            # Aktualisiert die Anzeige sofort
             self._setup_ui_state() 
         else:
             print("Erstellung der neuen DB vom Benutzer abgebrochen.")
 
     @Slot()
     def _open_existing_db_dialog(self):
-        """
-        Öffnet den 'Öffnen'-Dialog, um eine bestehende Datenbank auszuwählen und sendet das Signal.
-        """
+        """Öffnet den 'Öffnen'-Dialog, um eine bestehende Datenbank auszuwählen."""
         current_db_path = self.settings_manager.get_current_db_path()
         
-        # Startpfad: Wenn eine DB ausgewählt ist, starte dort. Sonst im Standardordner.
         start_dir = os.path.dirname(current_db_path) if current_db_path and os.path.exists(current_db_path) else self._get_default_db_directory()
 
         filepath, _ = QFileDialog.getOpenFileName(
@@ -120,23 +125,46 @@ class EqslSettingsWindow(QDialog):
 
         if filepath:
             self.existing_db_selected.emit(filepath)
-            # Aktualisiert die Anzeige sofort
             self._setup_ui_state() 
         else:
             print("Auswahl einer bestehenden DB vom Benutzer abgebrochen.")
-
+            
     @Slot()
     def _handle_reset_db(self):
-        """
-        Ruft die Reset-Logik im SettingsManager auf und aktualisiert die UI.
-        """
+        """Ruft die Reset-Logik für den DB-Pfad auf und aktualisiert die UI."""
         self.settings_manager.reset_db_path()
         self._setup_ui_state()
         print("Datenbankpfad wurde zurückgesetzt.")
+        
+    # --- NEUER SLOT (DXCC) ---
+    
+    @Slot()
+    def _open_dxcc_import_dialog(self):
+        """
+        Öffnet den Dialog zur Auswahl der DXCC-CSV-Datei, die importiert werden soll.
+        """
+        current_dxcc_path = self.settings_manager.get_current_dxcc_path()
+        start_dir = os.path.dirname(current_dxcc_path) if current_dxcc_path and os.path.exists(current_dxcc_path) else os.path.expanduser("~") 
+        
+        filepath, _ = QFileDialog.getOpenFileName(
+            self,
+            "Wählen Sie die DXCC-CSV-Datei zum Importieren",
+            start_dir,
+            "CSV Files (*.csv);;Alle Dateien (*)"
+        )
+
+        if filepath:
+            # Sendet den Pfad der QUELLE (vom Benutzer ausgewählt) an den SettingsManager
+            self.new_dxcc_selected.emit(filepath) 
+            # Aktualisiert die Anzeige, um den neuen, internen Pfad anzuzeigen
+            self._setup_ui_state() 
+        else:
+            print("Import der DXCC-Liste vom Benutzer abgebrochen.")
 
 
+# ... (Klassen EqslUploadWindow, EqslHelpWindow, EqslVersionWindow bleiben unverändert) ...
 class EqslUploadWindow(QDialog): 
-    """Das separate Fenster für den QSL-Upload."""
+    # ... (Klasse bleibt unverändert) ...
     def __init__(self):
         super().__init__()
         self.ui = Ui_frm_upload()
@@ -150,7 +178,7 @@ class EqslUploadWindow(QDialog):
         pass 
 
 class EqslHelpWindow(QDialog): 
-    """Das separate Fenster für die Hilfe/das Handbuch."""
+    # ... (Klasse bleibt unverändert) ...
     def __init__(self):
         super().__init__()
         self.ui = Ui_frm_help_view()
@@ -199,7 +227,7 @@ class EqslHelpWindow(QDialog):
         pass
 
 class EqslVersionWindow(QDialog): 
-    """Das separate Fenster für die Versionsinformationen."""
+    # ... (Klasse bleibt unverändert) ...
     def __init__(self):
         super().__init__()
         self.ui = Ui_frm_version()
@@ -261,7 +289,6 @@ class GuiManager:
         self.version_window = None  
         
         self.settings_manager = SettingsManager() 
-        # self.db_handler = DatabaseHandler(self.settings_manager) # Zugriffslogik ist aktuell deaktiviert
         
     @Slot()
     def open_settings(self):
@@ -269,18 +296,19 @@ class GuiManager:
         if self.settings_window is None:
             self.settings_window = EqslSettingsWindow(self.settings_manager)
             
-            # SIGNAL VERBINDEN: Neue DB erstellen
+            # DB-Verbindungen
             self.settings_window.new_db_selected.connect(
                 self.settings_manager.handle_new_db_path
             )
-            # SIGNAL VERBINDEN: Bestehende DB auswählen
             self.settings_window.existing_db_selected.connect(
                 self.settings_manager.handle_existing_db_path
             )
-            # HINWEIS: Die Verbindung zum db_handler.connect muss hier wieder rein, 
-            # sobald wir die Zugriffslogik wieder aktivieren.
             
-        # Stellt sicher, dass die Anzeige bei jedem Öffnen aktuell ist
+            # DXCC-Verbindung
+            self.settings_window.new_dxcc_selected.connect(
+                self.settings_manager.handle_new_dxcc_path
+            )
+            
         self.settings_window._setup_ui_state() 
         self.settings_window.show()
 
