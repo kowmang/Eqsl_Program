@@ -127,7 +127,7 @@
     <string>Cancel</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_search_downloadfolder_image">
+  <widget class="QPushButton" name="btn_search_download_dir">
    <property name="geometry">
     <rect>
      <x>370</x>
@@ -201,7 +201,7 @@
     <string>Select</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_downloadfolder_image">
+  <widget class="QLineEdit" name="txt_download_dir">
    <property name="geometry">
     <rect>
      <x>40</x>
