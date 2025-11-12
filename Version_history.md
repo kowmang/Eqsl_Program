@@ -7,11 +7,12 @@
 * **gui_data**  updated some name definition in all windows
 * **settings_manager** created for settings_window logic
 * **settings.json** for file path storage
-* **settings_manager**  logic for database creation (db predefined with colums and tables);
-                        logic for dxcc list import (always overrides existing file!!);      //FIXME: only overwrite when newer or different 
-* **gui_manager**   function of button reset; new db; select db and text field for db path added;
-                    function of button select dxcc and text field for dxcc path added
-
+* **settings_manager** logic for database creation (db predefined with colums and tables);
+* **settings_manager** logic for dxcc list import (always overrides existing file!!);      //FIXME: only overwrite when newer or different 
+* **settings_manager** logic for download folder selection added
+* **gui_manager** function of button reset; new db; select db and text field for db path added;
+* **gui_manager** function of button select dxcc and text field for dxcc path added
+* **gui_manager** function of button select download folder and text field for download folder path added
 
 
 ---
