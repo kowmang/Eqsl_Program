@@ -34,7 +34,7 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_search_dxcc_list_import">
+  <widget class="QPushButton" name="btn_search_dxcc">
    <property name="geometry">
     <rect>
      <x>370</x>
@@ -50,7 +50,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Search</string>
+    <string>Select</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_reset_db">
@@ -143,7 +143,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Search</string>
+    <string>Select</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_dxcc_list_import">
@@ -167,7 +167,7 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_dxcc_list_import">
+  <widget class="QLineEdit" name="txt_dxcc_selection">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -198,7 +198,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Search</string>
+    <string>Select</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="le_downloadfolder_image">
