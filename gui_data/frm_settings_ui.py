@@ -79,6 +79,10 @@ class Ui_frm_settings(object):
         self.btn_new_db.setObjectName(u"btn_new_db")
         self.btn_new_db.setGeometry(QRect(530, 90, 85, 27))
         self.btn_new_db.setFont(font1)
+        self.btn_import_dxcc = QPushButton(frm_settings)
+        self.btn_import_dxcc.setObjectName(u"btn_import_dxcc")
+        self.btn_import_dxcc.setGeometry(QRect(530, 330, 85, 27))
+        self.btn_import_dxcc.setFont(font1)
 
         self.retranslateUi(frm_settings)
 
@@ -96,5 +100,6 @@ class Ui_frm_settings(object):
         self.lb_dxcc_list_import.setText(QCoreApplication.translate("frm_settings", u"DXCC List Import", None))
         self.btn_search_db.setText(QCoreApplication.translate("frm_settings", u"Select", None))
         self.btn_new_db.setText(QCoreApplication.translate("frm_settings", u"New DB", None))
+        self.btn_import_dxcc.setText(QCoreApplication.translate("frm_settings", u"Import", None))
     # retranslateUi
 
