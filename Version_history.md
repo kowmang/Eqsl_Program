@@ -10,7 +10,11 @@
                     also crosscheck for duplicates and if fields in adif are
                     not filled the field is NULL
 * **design**    added popup window when import data to see how many and if ready
+* **qsl_image_importer** added take qsl cards from folder and check with adif db 
+                         then when found image converted to blob and insert in db
 
+
+                        
 ---
 
 # Version 0.0.3

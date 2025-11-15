@@ -13,21 +13,17 @@ from ..gui_data.frm_help_view_ui import Ui_frm_help_view
 from ..gui_data.frm_version_ui import Ui_frm_version
 from ..gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
 
-# Importieren des Logik-Managers
+# Importieren der Logik-Manager
 from .settings_manager import SettingsManager 
-# Importieren des ADIF_Importer
 from .adif_importer import AdifImporter
+# NEU: Import des QSL Image Importers
+from .qsl_image_importer import QslImageImporter
 
 # ----------------------------------------------------
 # 1. DEFINITION DER UNTERFENSTER
 # ----------------------------------------------------
 
 class EqslSettingsWindow(QDialog):
-    """
-    Das separate Fenster für die Einstellungen. 
-    WICHTIG: Setzt die Modalität explizit auf ApplicationModal.
-    """
-
     new_db_selected = Signal(str)
     existing_db_selected = Signal(str)
     new_download_dir_selected = Signal(str) 
@@ -40,9 +36,7 @@ class EqslSettingsWindow(QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Settings)")
         
-        # FIX: Setze die Modalität explizit auf ApplicationModal.
-        # Dies blockiert ALLE Fenster der Anwendung, bis dieser Dialog geschlossen wird,
-        # und hält ihn garantiert im Vordergrund.
+        # Einstellungen: ApplicationModal, um die gesamte App für kritische Änderungen zu blockieren.
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         
         self.settings_manager = settings_manager
@@ -74,6 +68,7 @@ class EqslSettingsWindow(QDialog):
         # --- 4. ADIF-Listen-Pfad ---
         current_adif_path = self.settings_manager.get_current_adif_path()
         if hasattr(self.ui, 'txt_adif_selection'):
+            # Logik wie gewünscht: Zeige den gespeicherten Pfad immer an, wenn vorhanden.
             if current_adif_path:
                 self.ui.txt_adif_selection.setText(current_adif_path)
                 self.selected_adif_path = current_adif_path 
@@ -210,39 +205,138 @@ class EqslSettingsWindow(QDialog):
 
 
 class EqslSingleImportWindow(QDialog): 
-    """Fenster für den einzelnen QSO-Import."""
+    """
+    Fenster für den einzelnen QSO-Import. 
+    Wurde auf WindowModal umgestellt.
+    """
     def __init__(self, parent=None): 
-        super().__init__(parent)
+        super().__init>(parent)
         self.ui = Ui_frm_single_card_import()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Single Card Import)")
+        
+        # NEU: Setze die Modalität, um das Parent-Fenster zu blockieren.
+        self.setWindowModality(Qt.WindowModality.WindowModal) 
+        
         self._setup_connections() 
-
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-
+    
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_single_import'):
             self.ui.btn_cancel_frm_single_import.clicked.connect(self.reject)
         pass 
 
 class EqslBulkImportWindow(QDialog): 
-    """Fenster für den Bulk-Import von QSL-Karten."""
-    def __init__(self, parent=None): 
+    """
+    Fenster für den Bulk-Import von QSL-Karten.
+    Implementiert: Ordnerauswahl, Pfadanzeige, Reset und Import-Signale.
+    """
+    
+    # Signale für den GuiManager
+    new_bulk_card_dir_selected = Signal(str)
+    bulk_card_dir_reset = Signal()
+    bulk_card_import_requested = Signal(str)
+    
+    def __init__(self, settings_manager: SettingsManager, parent=None): 
         super().__init__(parent)
         self.ui = Ui_frm_bulk_card_import()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Bulk Card Import)")
-        self._setup_connections()
+        
+        self.settings_manager = settings_manager
+        
+        # Sicherstellen, dass das Fenster modal ist
+        self.setWindowModality(Qt.WindowModality.WindowModal)
+        
+        self._setup_ui_state()
+        self._setup_connections() 
+        
+    def _setup_ui_state(self):
+        """Initialisiert den Zustand der UI-Elemente basierend auf den Einstellungen."""
+        
+        # NEU: Konsistente Abfrage-Logik für den gespeicherten Pfad (wie bei ADIF)
+        try:
+            current_bulk_card_directory = self.settings_manager.get_bulk_card_dir()
+            
+            # --- DEBUGGING HINZUGEFÜGT ---
+            print(f"DEBUG (Bulk Card Dir): settings_manager.get_bulk_card_dir() returned: '{current_bulk_card_directory}' (Type: {type(current_bulk_card_directory)})")
+            # --- ENDE DEBUGGING ---
+            
+        except AttributeError:
+            current_bulk_card_directory = ""
+            print("DEBUG (Bulk Card Dir): settings_manager.get_bulk_card_dir() Methode fehlt (AttributeError).") 
 
-        self.setWindowModality(Qt.WindowModality.ApplicationModal) 
+        if hasattr(self.ui, 'txt_path_bulkcard'):
+            if current_bulk_card_directory:
+                self.ui.txt_path_bulkcard.setText(current_bulk_card_directory)
+            else:
+                self.ui.txt_path_bulkcard.setText("Bitte wählen Sie den Ordner für QSL-Bilder aus...")
+            self.ui.txt_path_bulkcard.setReadOnly(True)
 
     def _setup_connections(self):
+        # Cancel Button (bleibt)
         if hasattr(self.ui, 'btn_cancel_frm_bulk_import'):
             self.ui.btn_cancel_frm_bulk_import.clicked.connect(self.reject)
-        pass
+        
+        # Search/Select Button (umbenannt in der UI zu btn_search_path_bulkcard_upload)
+        if hasattr(self.ui, 'btn_select_path_bulkcard_upload'):
+             self.ui.btn_select_path_bulkcard_upload.clicked.connect(self._open_select_dir_dialog)
+             
+        # Reset Button
+        if hasattr(self.ui, 'btn_reset_bulkcard'):
+            self.ui.btn_reset_bulkcard.clicked.connect(self._handle_reset)
+            
+        # Upload/Import Button (umbenannt in der UI zu btn_upload_bulkcard)
+        if hasattr(self.ui, 'btn_import_bulkcard'):
+            self.ui.btn_import_bulkcard.clicked.connect(self._handle_import_request)
+            
+    @Slot()
+    def _open_select_dir_dialog(self):
+        """Öffnet den QFileDialog zur Auswahl des Ordners."""
+        # ANNAHME: Die Methode get_bulk_card_dir() ist im SettingsManager vorhanden.
+        try:
+            current_dir = self.settings_manager.get_bulk_card_dir()
+        except AttributeError:
+            current_dir = ""
+
+        start_dir = current_dir if current_dir and os.path.isdir(current_dir) else os.path.expanduser("~")
+        
+        dir_path = QFileDialog.getExistingDirectory(
+            self,
+            "Wählen Sie den Ordner mit den QSL-Bildern",
+            start_dir,
+            QFileDialog.ShowDirsOnly
+        )
+
+        if dir_path:
+            # Signal an GuiManager senden, um den Pfad zu speichern
+            self.new_bulk_card_dir_selected.emit(dir_path)
+            self._setup_ui_state()
+            
+    @Slot()
+    def _handle_reset(self):
+        """Setzt den Pfad zurück und aktualisiert die UI."""
+        self.bulk_card_dir_reset.emit()
+        self._setup_ui_state()
+
+    @Slot()
+    def _handle_import_request(self):
+        """Startet den Importvorgang, wenn ein gültiger Pfad gesetzt ist."""
+        # ANNAHME: Die Methode get_bulk_card_dir() ist im SettingsManager vorhanden.
+        try:
+            current_dir = self.settings_manager.get_bulk_card_dir()
+        except AttributeError:
+            current_dir = ""
+        
+        if not current_dir or not os.path.isdir(current_dir):
+            QMessageBox.warning(self, "Import Fehler", "Bitte zuerst einen gültigen Ordner auswählen.")
+            return
+
+        self.bulk_card_import_requested.emit(current_dir)
+
 
 class EqslHelpWindow(QDialog): 
-    """Fenster für die Manual-Anzeige."""
+    """Fenster für die Manual-Anzeige (Bleibt non-modal)."""
+    # ... (Unverändert) ...
     def __init__(self, parent=None): 
         super().__init__(parent)
         self.ui = Ui_frm_help_view()
@@ -291,7 +385,8 @@ class EqslHelpWindow(QDialog):
         pass
 
 class EqslVersionWindow(QDialog): 
-    """Fenster für die Versionsinformationen."""
+    """Fenster für die Versionsinformationen (Bleibt non-modal)."""
+    # ... (Unverändert) ...
     def __init__(self, parent=None): 
         super().__init__(parent)
         self.ui = Ui_frm_version()
@@ -300,9 +395,7 @@ class EqslVersionWindow(QDialog):
         
         self._load_version_content() 
         self._setup_connections() 
-
-        self.setWindowModality(Qt.WindowModality.WindowModal)
-    
+        
     def _load_version_content(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(base_dir, '..', 'support_data', 'version.html')
@@ -364,6 +457,26 @@ class GuiManager(QObject):
         
         initial_db_path = self.settings_manager.get_current_db_path()
         self.adif_importer = AdifImporter(initial_db_path)
+        # NEU: Initialisierung des QSL Image Importers
+        self.image_importer = QslImageImporter(initial_db_path) 
+        
+        # FIX: Das ist die Korrektur des ursprünglichen Fehlers.
+        # Statt der Slots handle_new_db_path/handle_existing_db_path zu verwenden,
+        # die keine connect-Methode haben, abonnieren wir das zentrale Signal 
+        # db_path_selected vom SettingsManager, das bei jeder DB-Änderung gesendet wird.
+        # ANNAHME: db_path_selected ist im SettingsManager als Signal(str) definiert.
+        try:
+            self.settings_manager.db_path_selected.connect(self._update_importers_db_path)
+        except AttributeError:
+             print("FEHLER: SettingsManager.db_path_selected Signal nicht gefunden! Importer werden nicht aktualisiert.")
+            
+        
+    @Slot(str)
+    def _update_importers_db_path(self, db_path: str):
+        """Aktualisiert den DB-Pfad in allen Logik-Services."""
+        self.adif_importer.db_filepath = db_path
+        self.image_importer.db_filepath = db_path
+        print(f"GuiManager: DB Pfad für Importer aktualisiert auf: {db_path}")
 
     @Slot(str)
     def _handle_adif_import_from_settings(self, adif_filepath: str):
@@ -389,9 +502,53 @@ class GuiManager(QObject):
         
         self.qso_data_updated.emit(new_records)
 
+    @Slot(str)
+    def _handle_bulk_card_import_request(self, dir_path: str):
+        """
+        Führt den eigentlichen Bulk-Import der Bilder durch.
+        """
+        db_path = self.settings_manager.get_current_db_path()
+        
+        if not db_path:
+            QMessageBox.critical(self.bulk_import_window, "Import Fehler", "Keine Datenbank ausgewählt. Import abgebrochen.")
+            return
+
+        QMessageBox.information(self.bulk_import_window, "Bulk Import gestartet", f"Starte den Import von Bildern aus:\n{dir_path}")
+        
+        # Sicherstellen, dass der Importer den aktuellen Pfad verwendet.
+        self.image_importer.db_filepath = db_path 
+
+        results = self.image_importer.bulk_import_images(dir_path)
+        
+        # Zeige die Ergebnisse an
+        if results['imported'] > 0:
+            QMessageBox.information(
+                self.bulk_import_window, 
+                "Import abgeschlossen", 
+                f"Bulk-Import erfolgreich abgeschlossen.\n"
+                f"Gesamtzahl Dateien: {results['total_files']}\n"
+                f"Neue Bilder importiert: {results['imported']}\n"
+                f"Bereits vorhandene Bilder: {results['already_present']}\n"
+                f"QSO nicht gefunden: {results['not_found']}\n"
+                f"Fehler (Parsen/Datei): {results['parse_error'] + results['file_error']}"
+            )
+            # Emit Signal, falls Hauptfenster Aktualisierung benötigt
+            self.qso_data_updated.emit(results['imported'])
+        else:
+             QMessageBox.warning(
+                self.bulk_import_window, 
+                "Import abgeschlossen", 
+                f"Bulk-Import abgeschlossen, aber keine neuen Bilder importiert.\n"
+                f"Details:\n"
+                f"Gesamtzahl Dateien: {results['total_files']}\n"
+                f"Bereits vorhanden: {results['already_present']}\n"
+                f"QSO nicht gefunden: {results['not_found']}"
+            )
+
+
     @Slot()
     def open_settings(self):
-        """Öffnet das Einstellungsfenster und verbindet die Signale. (MODAL mit exec)"""
+        """Öffnet das Einstellungsfenster (MODAL: ApplicationModal + .exec())."""
         if self.settings_window is None:
             # Das Hauptfenster (self.main_window) wird als Parent übergeben
             self.settings_window = EqslSettingsWindow(self.settings_manager, parent=self.main_window) 
@@ -403,7 +560,7 @@ class GuiManager(QObject):
             self.settings_window.existing_db_selected.connect(
                 self.settings_manager.handle_existing_db_path
             )
-        
+            
             # Download-Ordner Verbindung 
             self.settings_window.new_download_dir_selected.connect(
                 self.settings_manager.handle_new_download_dir
@@ -420,34 +577,56 @@ class GuiManager(QObject):
             
         self.settings_window._setup_ui_state() 
         
-        # Durch .exec() wird die Ausführung blockiert, bis der Dialog geschlossen wird, 
-        # und in Kombination mit ApplicationModal bleibt er definitiv im Vordergrund.
+        # NEU: .exec() blockiert die Ausführung.
         self.settings_window.exec() 
 
     @Slot()
     def open_single_import(self):
-        """Öffnet das Fenster für den einzelnen Import."""
+        """Öffnet das Fenster für den einzelnen Import (MODAL: WindowModal + .exec())."""
         if self.single_import_window is None:
+            # Übergabe des Parent-Fensters ist wichtig für WindowModal
             self.single_import_window = EqslSingleImportWindow(parent=self.main_window)
+            
+        # NEU: .exec() blockiert die Ausführung.
         self.single_import_window.exec() 
 
     @Slot()
     def open_bulk_import(self):
-        """Öffnet das Fenster für den Bulk-Import."""
+        """Öffnet das Fenster für den Bulk-Import (MODAL: WindowModal + .exec())."""
         if self.bulk_import_window is None:
-            self.bulk_import_window = EqslBulkImportWindow(parent=self.main_window)
+            self.bulk_import_window = EqslBulkImportWindow(self.settings_manager, parent=self.main_window)
+            
+            # Verbinde Bulk Import Signale
+            try:
+                # ANNAHME: Diese Slots sind im SettingsManager verfügbar
+                self.bulk_import_window.new_bulk_card_dir_selected.connect(
+                    self.settings_manager.handle_new_bulk_card_dir
+                )
+                self.bulk_import_window.bulk_card_dir_reset.connect(
+                    self.settings_manager.reset_bulk_card_dir
+                )
+            except AttributeError as e:
+                print(f"WARNUNG: Slots für Bulk Card Settings im SettingsManager fehlen. {e}")
+                
+            self.bulk_import_window.bulk_card_import_requested.connect(
+                self._handle_bulk_card_import_request
+            )
+            
+        self.bulk_import_window._setup_ui_state()
+        
+        # NEU: .exec() blockiert die Ausführung.
         self.bulk_import_window.exec() 
 
     @Slot()
     def open_help(self):
-        """Öffnet das Hilfefenster."""
+        """Öffnet das Hilfefenster (Bleibt non-modal)."""
         if self.help_window is None:
             self.help_window = EqslHelpWindow(parent=self.main_window)
         self.help_window.show() 
 
     @Slot()
     def open_version_info(self):
-        """Öffnet das Versionsfenster."""
+        """Öffnet das Versionsfenster (Bleibt non-modal)."""
         if self.version_window is None:
             self.version_window = EqslVersionWindow(parent=self.main_window)
-        self.version_window.exec()
+        self.version_window.show()

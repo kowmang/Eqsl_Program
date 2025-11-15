@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="btn_search_path_bulkcard_upload">
+  <widget class="QPushButton" name="btn_select_path_bulkcard_upload">
    <property name="geometry">
     <rect>
      <x>390</x>
@@ -29,10 +29,10 @@
     </font>
    </property>
    <property name="text">
-    <string>Search</string>
+    <string>Select</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_upload_bulkcard">
+  <widget class="QPushButton" name="btn_import_bulkcard">
    <property name="geometry">
     <rect>
      <x>660</x>
@@ -48,7 +48,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Upload</string>
+    <string>Import</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_reset_bulkcard">
@@ -91,7 +91,7 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_path_bulkcard">
+  <widget class="QLineEdit" name="txt_path_bulkcard">
    <property name="geometry">
     <rect>
      <x>70</x>
