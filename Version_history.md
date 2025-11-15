@@ -3,8 +3,9 @@
 ### (database handling)
 
 
-* **???** 
-
+* **all files** added adif file (from any logbook) import
+                deleted dxcc list query (not useful when adif import)
+* **gui_data**  some changes in design (only minor)
 
 
 ---
