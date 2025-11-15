@@ -23,21 +23,27 @@ class SettingsManager:
     def get_current_db_path(self) -> str:
         """Gibt den aktuell in den Einstellungen gespeicherten DB-Pfad zurück."""
         return self.settings.get("database", "")
-        
-    def get_current_dxcc_path(self) -> str:
-        """Gibt den aktuell in den Einstellungen gespeicherten DXCC-Listenpfad zurück."""
-        return self.settings.get("dxcc_lookup_path", "")
 
     def get_current_download_dir(self) -> str:
         """Gibt den aktuell in den Einstellungen gespeicherten Download-Pfad zurück."""
         return self.settings.get("download_directory", "") # NEU
+    
+    def get_current_adif_path(self) -> str:
+        """Gibt den aktuell in den Einstellungen gespeicherten ADIF-Pfad zurück."""
+        return self.settings.get("adif_path", "")
 
     def load_settings(self) -> dict:
         """Lädt Einstellungen aus settings.json oder gibt Standardwerte zurück."""
+        default_settings = {
+            "database": "",         
+            "table_name": "eqsl_data", 
+            "last_upload_dir": "",
+            "download_directory": "",
+            "adif_path": ""  # NEU: Standardpfad für ADIF-Import
+        }
         
         # STANDARD-STRUKTUR (Hinzugefügt: download_directory)
-        default_settings = {
-            "dxcc_lookup_path": "", 
+        default_settings = { 
             "database": "",       
             "table_name": "eqsl_data", 
             "last_upload_dir": "",
@@ -79,50 +85,7 @@ class SettingsManager:
         else:
             print("Database path was already empty. No reset needed.")
             
-    # Slot für DXCC-Pfad
-    @Slot(str)
-    def handle_new_dxcc_path(self, source_filepath: str):
-        """
-        Kopiert die ausgewählte DXCC-CSV-Datei in den support_data-Ordner und speichert 
-        den internen Pfad in den Einstellungen, außer die Datei ist bereits dort.
-        """
-        if not source_filepath or not os.path.exists(source_filepath):
-            print(f"Error: DXCC source file not found: {source_filepath}")
-            return
-            
-        if not source_filepath.lower().endswith('.csv'):
-            print(f"Error: Selected file '{source_filepath}' is not a CSV file.")
-            return
-
-        # Sicherstellen, dass der Zielordner existiert
-        if not os.path.exists(self.support_data_dir):
-            os.makedirs(self.support_data_dir, exist_ok=True)
-
-        # 1. Zielpfad definieren (immer 'dxcc_lookup.csv' im support_data Ordner)
-        destination_filepath = os.path.join(self.support_data_dir, 'dxcc_lookup.csv')
-        
-        # Prüfung, ob Quelle und Ziel identisch sind (Absolutpfad-Vergleich)
-        if os.path.abspath(source_filepath) == os.path.abspath(destination_filepath):
-            print("DXCC list is already in the target location. Skipping copy operation.")
-            self.settings["dxcc_lookup_path"] = destination_filepath
-            self.save_settings()
-            return
-        
-        # --- Kopiervorgang (nur wenn nötig) ---
-        try:
-            # 2. Datei kopieren (shutil.copy2 stellt sicher, dass Metadaten kopiert werden)
-            shutil.copy2(source_filepath, destination_filepath)
-            print(f"DXCC list copied from {source_filepath} to {destination_filepath}")
-
-            # 3. Internen Pfad in den Einstellungen speichern
-            self.settings["dxcc_lookup_path"] = destination_filepath
-            self.save_settings()
-            print("New DXCC lookup path set and saved.")
-
-        except Exception as e:
-            print(f"Error during DXCC file copy: {e}")
-
-    # Slot für Download-Ordner (NEU)
+       # Slot für Download-Ordner (NEU)
     @Slot(str)
     def handle_new_download_dir(self, dir_path: str):
         """
@@ -137,6 +100,17 @@ class SettingsManager:
         self.save_settings()
         print("Download directory successfully saved.")
 
+    @Slot(str)
+    def handle_new_adif_path(self, adif_filepath: str):
+        """Speichert den Pfad zur ADIF-Datei in den Settings."""
+        if not adif_filepath or not os.path.exists(adif_filepath):
+             print(f"Error: Selected ADIF file does not exist: {adif_filepath}")
+             return
+
+        print(f"Setting new default ADIF path to: {adif_filepath}")
+        self.settings["adif_path"] = adif_filepath
+        self.save_settings()
+        print("ADIF path successfully saved.")
 
     @Slot(str)
     def handle_new_db_path(self, db_filepath: str):
@@ -191,42 +165,64 @@ class SettingsManager:
         """
         Stellt eine Verbindung zur Datenbank her und erstellt alle notwendigen Tabellen.
         """
-        
-        # SQL-Befehl für die Nachschlagetabelle der DXCC-Länder
-        DXCC_LIST_SQL = """
-        CREATE TABLE IF NOT EXISTS dxcc_list (
-            dxcc_number INTEGER PRIMARY KEY NOT NULL,
-            prefix TEXT NOT NULL,
-            continent TEXT,
-            itu_zone INTEGER,
-            cq_zone INTEGER,
-            dxcc_name TEXT NOT NULL UNIQUE
-        );
-        """
 
         # SQL-Befehl für die hochgeladenen eQSL-Daten
         EQSL_DATA_SQL = """
         CREATE TABLE IF NOT EXISTS eqsl_data (
-            primarykey TEXT PRIMARY KEY NOT NULL,
-            callsign TEXT NOT NULL,
-            date TEXT NOT NULL,
-            time TEXT NOT NULL,
-            year INTEGER NOT NULL,
-            band TEXT,
-            mode TEXT,
-            itu_zone INTEGER,
-            cq_zone INTEGER,
-            sota_ref TEXT,
-            pota_ref TEXT,
-            iota_ref TEXT,
-            grid_locator TEXT,
-            
-            -- Fremdschlüssel: Moderne SQLite-Definition
-            dxcc_number INTEGER REFERENCES dxcc_list(dxcc_number), 
-            
-            dxcc_name TEXT,
-            prefix TEXT,
-            continent TEXT
+            qso_id INTEGER PRIMARY KEY,
+    
+            -- WICHTIGE QSO-DATEN FÜR UNIQUE KEY
+            CALL TEXT NOT NULL,         -- Rufzeichen des QSO-Partners
+            QSO_DATE TEXT NOT NULL,     -- Datum (YYYYMMDD)
+            TIME_ON TEXT NOT NULL,      -- Startzeit (HHMMSS)
+    
+            -- ALLGEMEINE QSO-DATEN
+            BAND TEXT,
+            MODE TEXT,
+            SUBMODE TEXT,
+            FREQ REAL,                  -- Frequenz (z.B. 14.0764)
+            RST_SENT TEXT,              -- Gesendetes Rapport
+            RST_RCVD TEXT,              -- Empfangenes Rapport
+            TX_PWR REAL,                -- Sendeleistung (z.B. 30.0)
+    
+            -- GEOGRAFISCHE DATEN DES PARTNERS
+            CONT TEXT,                  -- Kontinent
+            COUNTRY TEXT,               -- Land (Name)
+            DXCC INTEGER,               -- DXCC-Nummer
+            PFX TEXT,                   -- Präfix
+            CQZ INTEGER,                -- CQ Zone
+            ITUZ INTEGER,               -- ITU Zone
+            GRIDSQUARE TEXT,            -- Locator (z.B. JO55RM)
+            LAT REAL,                   -- Breitengrad (N050 51.151)
+            LON REAL,                   -- Längengrad (E004 49.287)
+
+            -- PERSÖNLICHE DATEN DES PARTNERS
+            NAME TEXT,                  -- Name (Vor- und Nachname)
+            QTH TEXT,                   -- Ort/City
+            ADDRESS TEXT,               -- Komplette Adresse
+            EMAIL TEXT,
+            AGE INTEGER,
+    
+            -- eQSL-STATUS
+            EQSL_QSL_SENT TEXT,
+            EQSL_QSLS_DATE TEXT,        -- Sendedatum (YYYYMMDD)
+            EQSL_QSL_RCVD TEXT,
+            EQSL_QSLR_DATE TEXT,        -- Empfangsdatum (YYYYMMDD)
+            EQSL_IMAGE_BLOB BLOB,        -- eQSL Bild als BLOB  
+
+           
+            -- DX-INDEXES (Wenn gewünscht, z.B. SOTA/POTA/IOTA)
+            SOTA_REF TEXT,              -- Obwohl in der Datei nicht explizit, beibehalten falls benötigt
+            POTA_REF TEXT,              -- Dito
+            IOTA_REF TEXT,              -- Dito
+
+            -- VERWALTUNG
+            QSO_COMPLETE TEXT,          -- Y/N
+            TIME_OFF TEXT,
+            QSO_DATE_OFF TEXT,
+    
+            -- UNIQUE Constraint zur Duplikat-Erkennung (wichtig!)
+            UNIQUE(CALL, QSO_DATE, TIME_ON) 
         );
         """
 
@@ -236,16 +232,15 @@ class SettingsManager:
             cursor = conn.cursor()
             
             # Foreign Keys MÜSSEN direkt nach dem Verbindungsaufbau aktiviert werden
-            cursor.execute("PRAGMA foreign_keys = ON;")
+            cursor.execute("PRAGMA foreign_keys = OFF;")
             
             # Tabellen erstellen
-            cursor.execute(DXCC_LIST_SQL)
             cursor.execute(EQSL_DATA_SQL)
             
             # Speichert die Änderungen und schließt die Verbindung
             conn.commit()
             conn.close()
-            print("Schema created: dxcc_list and eqsl_data tables are now defined.")
+            print("Schema created: eqsl_data tables are now defined.")
             return True
             
         except sqlite3.Error as e:
