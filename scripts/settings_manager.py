@@ -216,6 +216,10 @@ class SettingsManager:
             mode TEXT,
             itu_zone INTEGER,
             cq_zone INTEGER,
+            sota_ref TEXT,
+            pota_ref TEXT,
+            iota_ref TEXT,
+            grid_locator TEXT,
             
             -- Fremdschlüssel: Moderne SQLite-Definition
             dxcc_number INTEGER REFERENCES dxcc_list(dxcc_number), 
