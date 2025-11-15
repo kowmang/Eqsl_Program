@@ -1,7 +1,8 @@
 import os
 import sys
+# WICHTIGE ÄNDERUNG: Importiere Qt, um die WindowModality explizit setzen zu können.
 from PySide6.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QTextBrowser, QFileDialog, QMessageBox
-from PySide6.QtCore import Slot, Signal, QObject 
+from PySide6.QtCore import Slot, Signal, QObject, Qt 
 from PySide6.QtGui import QFont
 import os.path
 
@@ -22,7 +23,10 @@ from .adif_importer import AdifImporter
 # ----------------------------------------------------
 
 class EqslSettingsWindow(QDialog):
-    """Das separate Fenster für die Einstellungen."""
+    """
+    Das separate Fenster für die Einstellungen. 
+    WICHTIG: Setzt die Modalität explizit auf ApplicationModal.
+    """
 
     new_db_selected = Signal(str)
     existing_db_selected = Signal(str)
@@ -30,11 +34,17 @@ class EqslSettingsWindow(QDialog):
     adif_import_requested = Signal(str)
     new_adif_selected = Signal(str)
 
-    def __init__(self, settings_manager: SettingsManager):
-        super().__init__()
+    def __init__(self, settings_manager: SettingsManager, parent=None):
+        super().__init__(parent)
         self.ui = Ui_frm_settings()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Settings)")
+        
+        # FIX: Setze die Modalität explizit auf ApplicationModal.
+        # Dies blockiert ALLE Fenster der Anwendung, bis dieser Dialog geschlossen wird,
+        # und hält ihn garantiert im Vordergrund.
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        
         self.settings_manager = settings_manager
         self.selected_adif_path = self.settings_manager.get_current_adif_path()
         self._setup_ui_state() 
@@ -127,8 +137,6 @@ class EqslSettingsWindow(QDialog):
         if filepath:
             self.new_db_selected.emit(filepath)
             self._setup_ui_state() 
-        # else:
-            # print("Erstellung der neuen DB vom Benutzer abgebrochen.") # ENTFERNT
 
     @Slot()
     def _open_existing_db_dialog(self):
@@ -147,15 +155,12 @@ class EqslSettingsWindow(QDialog):
         if filepath:
             self.existing_db_selected.emit(filepath)
             self._setup_ui_state() 
-        # else:
-            # print("Auswahl einer bestehenden DB vom Benutzer abgebrochen.") # ENTFERNT
             
     @Slot()
     def _handle_reset_db(self):
         """Ruft die Reset-Logik für den DB-Pfad auf und aktualisiert die UI."""
         self.settings_manager.reset_db_path()
         self._setup_ui_state()
-        # print("Datenbankpfad wurde zurückgesetzt.") # ENTFERNT
 
     # --- SLOTS (Download-Ordner) ---
     
@@ -175,8 +180,6 @@ class EqslSettingsWindow(QDialog):
         if dir_path:
             self.new_download_dir_selected.emit(dir_path)
             self._setup_ui_state()
-        # else:
-            # print("Auswahl des Download-Ordners vom Benutzer abgebrochen.") # ENTFERNT
 
     # --- SLOTS (ADIF-Import) ---
     @Slot()
@@ -196,29 +199,26 @@ class EqslSettingsWindow(QDialog):
             self.new_adif_selected.emit(filepath) 
             self.ui.txt_adif_selection.setText(filepath)
             
-            # print(f"ADIF-Pfad ausgewählt und gespeichert: {filepath}") # ENTFERNT
-        # else:
-            # print("ADIF-Auswahl abgebrochen.") # ENTFERNT
-
     @Slot()
     def _handle_adif_import_click(self):
         """Sendet den aktuell ausgewählten/gespeicherten Pfad an den GuiManager, um den Import zu starten."""
         if not self.selected_adif_path or not os.path.exists(self.selected_adif_path):
-            # Statt print sollte ein Fehlerdialog erscheinen
             QMessageBox.warning(self, "Import Fehler", "Bitte zuerst eine gültige ADIF-Datei auswählen.")
             return
 
         self.adif_import_requested.emit(self.selected_adif_path)
 
-# ... (Unterfensterklassen bleiben unverändert, da sie keinen Debug-Print hatten) ...
+
 class EqslSingleImportWindow(QDialog): 
-    # ... (Klasse bleibt unverändert) ...
-    def __init__(self):
-        super().__init__()
+    """Fenster für den einzelnen QSO-Import."""
+    def __init__(self, parent=None): 
+        super().__init__(parent)
         self.ui = Ui_frm_single_card_import()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Single Card Import)")
         self._setup_connections() 
+
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_single_import'):
@@ -226,13 +226,15 @@ class EqslSingleImportWindow(QDialog):
         pass 
 
 class EqslBulkImportWindow(QDialog): 
-    # ... (Klasse bleibt unverändert) ...
-    def __init__(self):
-        super().__init__()
+    """Fenster für den Bulk-Import von QSL-Karten."""
+    def __init__(self, parent=None): 
+        super().__init__(parent)
         self.ui = Ui_frm_bulk_card_import()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Bulk Card Import)")
-        self._setup_connections() 
+        self._setup_connections()
+
+        self.setWindowModality(Qt.WindowModality.ApplicationModal) 
 
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_bulk_import'):
@@ -240,9 +242,9 @@ class EqslBulkImportWindow(QDialog):
         pass
 
 class EqslHelpWindow(QDialog): 
-    # ... (Klasse bleibt unverändert) ...
-    def __init__(self):
-        super().__init__()
+    """Fenster für die Manual-Anzeige."""
+    def __init__(self, parent=None): 
+        super().__init__(parent)
         self.ui = Ui_frm_help_view()
         self.ui.setupUi(self) 
         self.setWindowTitle("eQSL Programm (Manual)")
@@ -289,15 +291,17 @@ class EqslHelpWindow(QDialog):
         pass
 
 class EqslVersionWindow(QDialog): 
-    # ... (Klasse bleibt unverändert) ...
-    def __init__(self):
-        super().__init__()
+    """Fenster für die Versionsinformationen."""
+    def __init__(self, parent=None): 
+        super().__init__(parent)
         self.ui = Ui_frm_version()
         self.ui.setupUi(self) 
         self.setWindowTitle("eQSL Programm (Version Info)")
         
         self._load_version_content() 
         self._setup_connections() 
+
+        self.setWindowModality(Qt.WindowModality.WindowModal)
     
     def _load_version_content(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -347,8 +351,9 @@ class GuiManager(QObject):
     
     qso_data_updated = Signal(int)
 
-    def __init__(self): 
+    def __init__(self, main_window: QMainWindow = None): 
         super().__init__() 
+        self.main_window = main_window 
         self.settings_window = None 
         self.single_import_window = None
         self.bulk_import_window = None
@@ -356,25 +361,8 @@ class GuiManager(QObject):
         self.version_window = None 
         
         self.settings_manager = SettingsManager() 
-
-        # KORREKTUR: AdifImporter muss mit dem DB-Pfad-STRING initialisiert werden,
-        # nicht mit dem SettingsManager-Objekt selbst.
-        # Wir verwenden den Standard-DB-Pfad für die Initialisierung.
-        # Der AdifImporter sollte intern den Pfad jedes Mal abfragen,
-        # oder wir stellen sicher, dass wir hier einen Pfad-String übergeben.
-        # Da der Importer oft neu instanziiert werden muss, wenn sich der DB-Pfad ändert, 
-        # übergeben wir hier den aktuellen Pfad-String.
         
         initial_db_path = self.settings_manager.get_current_db_path()
-        
-        # Wenn kein Pfad in den Settings ist, geben wir einen leeren String oder
-        # einen Platzhalter an den Importer. Der Importer muss im Import-Slot 
-        # den aktuellen Pfad aus dem SettingsManager abfragen.
-        # WICHTIG: Die Klasse AdifImporter muss in der Lage sein, den DB-Pfad später 
-        # zu aktualisieren, falls er sich ändert.
-        
-        # Vereinfachte Lösung: Wir übergeben den initialen Pfad. Wenn dieser leer ist, 
-        # muss der Importer darauf reagieren.
         self.adif_importer = AdifImporter(initial_db_path)
 
     @Slot(str)
@@ -387,20 +375,14 @@ class GuiManager(QObject):
         db_path = self.settings_manager.get_current_db_path()
         
         if not db_path:
-            # Fehler: Keine DB, sollte aber durch die UI verhindert werden
             QMessageBox.critical(self.settings_window, "Import Fehler", "Keine Datenbank ausgewählt. Import abgebrochen.")
             return
 
         if not adif_filepath or not os.path.exists(adif_filepath):
-             # Fehler: Pfad ungültig
              QMessageBox.critical(self.settings_window, "Import Fehler", "Der ausgewählte ADIF-Pfad ist ungültig oder nicht vorhanden.")
              return
              
         # SICHERHEITS-UPDATE: Stellen Sie sicher, dass der AdifImporter den aktuellen Pfad verwendet.
-        # Da der AdifImporter im __init__ des GuiManager instanziiert wird, 
-        # muss er hier den Pfad aktualisieren, falls er sich seitdem geändert hat.
-        
-        # WICHTIG: Aktualisieren des DB-Pfades im AdifImporter vor dem Aufruf
         self.adif_importer.db_filepath = db_path 
 
         new_records = self.adif_importer.import_adif_file(adif_filepath)
@@ -409,9 +391,10 @@ class GuiManager(QObject):
 
     @Slot()
     def open_settings(self):
-        """Öffnet das Einstellungsfenster und verbindet die Signale."""
+        """Öffnet das Einstellungsfenster und verbindet die Signale. (MODAL mit exec)"""
         if self.settings_window is None:
-            self.settings_window = EqslSettingsWindow(self.settings_manager)
+            # Das Hauptfenster (self.main_window) wird als Parent übergeben
+            self.settings_window = EqslSettingsWindow(self.settings_manager, parent=self.main_window) 
             
             # DB-Verbindungen
             self.settings_window.new_db_selected.connect(
@@ -426,6 +409,7 @@ class GuiManager(QObject):
                 self.settings_manager.handle_new_download_dir
             )
             
+            # ADIF Import Verbindungen
             self.settings_window.adif_import_requested.connect(
                 self._handle_adif_import_from_settings
             )
@@ -435,32 +419,35 @@ class GuiManager(QObject):
             )
             
         self.settings_window._setup_ui_state() 
-        self.settings_window.show()
+        
+        # Durch .exec() wird die Ausführung blockiert, bis der Dialog geschlossen wird, 
+        # und in Kombination mit ApplicationModal bleibt er definitiv im Vordergrund.
+        self.settings_window.exec() 
 
     @Slot()
     def open_single_import(self):
-        """Öffnet das Upload-Fenster."""
+        """Öffnet das Fenster für den einzelnen Import."""
         if self.single_import_window is None:
-            self.single_import_window = EqslSingleImportWindow()
-        self.single_import_window.show() 
+            self.single_import_window = EqslSingleImportWindow(parent=self.main_window)
+        self.single_import_window.exec() 
 
     @Slot()
     def open_bulk_import(self):
-        """Öffnet das Upload-Fenster."""
+        """Öffnet das Fenster für den Bulk-Import."""
         if self.bulk_import_window is None:
-            self.bulk_import_window = EqslBulkImportWindow()
-        self.bulk_import_window.show() 
+            self.bulk_import_window = EqslBulkImportWindow(parent=self.main_window)
+        self.bulk_import_window.exec() 
 
     @Slot()
     def open_help(self):
         """Öffnet das Hilfefenster."""
         if self.help_window is None:
-            self.help_window = EqslHelpWindow()
+            self.help_window = EqslHelpWindow(parent=self.main_window)
         self.help_window.show() 
 
     @Slot()
     def open_version_info(self):
         """Öffnet das Versionsfenster."""
         if self.version_window is None:
-            self.version_window = EqslVersionWindow()
-        self.version_window.show()
+            self.version_window = EqslVersionWindow(parent=self.main_window)
+        self.version_window.exec()

@@ -445,7 +445,7 @@
    </widget>
    <widget class="QMenu" name="menuUpload">
     <property name="title">
-     <string>Upload</string>
+     <string>Import</string>
     </property>
     <addaction name="actionSingle_Card_Import"/>
     <addaction name="actionBulk_Card_Import"/>

@@ -22,6 +22,7 @@ class Ui_frm_settings(object):
     def setupUi(self, frm_settings):
         if not frm_settings.objectName():
             frm_settings.setObjectName(u"frm_settings")
+        frm_settings.setWindowModality(Qt.WindowModality.WindowModal)
         frm_settings.resize(800, 596)
         self.lb_database_selection = QLabel(frm_settings)
         self.lb_database_selection.setObjectName(u"lb_database_selection")

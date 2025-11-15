@@ -206,7 +206,7 @@ class Ui_frm_main_window(object):
         self.btn_mark_all.setText(QCoreApplication.translate("frm_main_window", u"Mark all", None))
         self.btn_exit_program.setText(QCoreApplication.translate("frm_main_window", u"EXIT", None))
         self.menuFile.setTitle(QCoreApplication.translate("frm_main_window", u"File", None))
-        self.menuUpload.setTitle(QCoreApplication.translate("frm_main_window", u"Upload", None))
+        self.menuUpload.setTitle(QCoreApplication.translate("frm_main_window", u"Import", None))
         self.menuHelp.setTitle(QCoreApplication.translate("frm_main_window", u"Help", None))
     # retranslateUi
 
