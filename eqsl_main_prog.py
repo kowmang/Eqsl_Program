@@ -33,7 +33,9 @@ class EqslMainWindow(QMainWindow):
 
     def _setup_connections(self):
         """Verbindet die UI-Elemente (Menü, Buttons) mit dem GuiManager oder lokalen Slots."""
-        
+        if hasattr(self.ui, 'btn_exit_program'):
+            self.ui.btn_exit_program.clicked.connect(self.close)
+        pass     
         # ----------------------------------------------------------------------
         # A) VERBINDUNGEN ZU UNTERFENSTERN (GuiManager)
         # ----------------------------------------------------------------------
@@ -43,9 +45,13 @@ class EqslMainWindow(QMainWindow):
         if hasattr(self.ui, 'actionSettings'):
             self.ui.actionSettings.triggered.connect(self.gui_manager.open_settings)
             
-        # Verbindung: Datei -> QSL Upload
-        if hasattr(self.ui, 'actionUpload'):
-            self.ui.actionUpload.triggered.connect(self.gui_manager.open_upload)
+        # Verbindung: Datei -> Single Card Import
+        if hasattr(self.ui, 'actionSingle_Card_Import'):
+            self.ui.actionSingle_Card_Import.triggered.connect(self.gui_manager.open_single_import)
+
+        # Verbindung: Datei -> Bulk Card Import
+        if hasattr(self.ui, 'actionBulk_Card_Import'):
+            self.ui.actionBulk_Card_Import.triggered.connect(self.gui_manager.open_bulk_import)
 
         # Verbindung: Hilfe -> Manual
         if hasattr(self.ui, 'actionManual'):

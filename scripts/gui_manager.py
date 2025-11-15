@@ -7,9 +7,10 @@ import os.path
 
 # Die kompilierten UI-Klassen werden hier importiert (relativ zum 'scripts' Ordner)
 from ..gui_data.frm_settings_ui import Ui_frm_settings
-from ..gui_data.frm_upload_ui import Ui_frm_upload
+from ..gui_data.frm_single_card_import_ui import Ui_frm_single_card_import
 from ..gui_data.frm_help_view_ui import Ui_frm_help_view
 from ..gui_data.frm_version_ui import Ui_frm_version
+from ..gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
 # Importieren des Logik-Managers
 from .settings_manager import SettingsManager 
 # from .database_handler import DatabaseHandler # AUSKOMMENTIERT
@@ -201,19 +202,33 @@ class EqslSettingsWindow(QDialog):
 
 
 # ... (Klassen EqslUploadWindow, EqslHelpWindow, EqslVersionWindow bleiben unverändert) ...
-class EqslUploadWindow(QDialog): 
+class EqslSingleImportWindow(QDialog): 
     # ... (Klasse bleibt unverändert) ...
     def __init__(self):
         super().__init__()
-        self.ui = Ui_frm_upload()
+        self.ui = Ui_frm_single_card_import()
         self.ui.setupUi(self)
-        self.setWindowTitle("eQSL Programm (QSL Upload)")
+        self.setWindowTitle("eQSL Programm (Single Card Import)")
         self._setup_connections() 
 
     def _setup_connections(self):
-        if hasattr(self.ui, 'btn_cancel'):
-            self.ui.btn_cancel.clicked.connect(self.reject)
+        if hasattr(self.ui, 'btn_cancel_frm_single_import'):
+            self.ui.btn_cancel_frm_single_import.clicked.connect(self.reject)
         pass 
+
+class EqslBulkImportWindow(QDialog): 
+    # ... (Klasse bleibt unverändert) ...
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_frm_bulk_card_import()
+        self.ui.setupUi(self)
+        self.setWindowTitle("eQSL Programm (Bulk Card Import)")
+        self._setup_connections() 
+
+    def _setup_connections(self):
+        if hasattr(self.ui, 'btn_cancel_frm_bulk_import'):
+            self.ui.btn_cancel_frm_bulk_import.clicked.connect(self.reject)
+        pass     
 
 class EqslHelpWindow(QDialog): 
     # ... (Klasse bleibt unverändert) ...
@@ -322,7 +337,8 @@ class GuiManager:
     """Verwaltet die Instanzen aller sekundären Fenster und die Logik-Manager."""
     def __init__(self): 
         self.settings_window = None 
-        self.upload_window = None  
+        self.single_import_window = None  
+        self.bulk_import_window = None
         self.help_window = None     
         self.version_window = None  
         
@@ -356,11 +372,18 @@ class GuiManager:
         self.settings_window.show()
 
     @Slot()
-    def open_upload(self):
+    def open_single_import(self):
         """Öffnet das Upload-Fenster."""
-        if self.upload_window is None:
-            self.upload_window = EqslUploadWindow()
-        self.upload_window.show() 
+        if self.single_import_window is None:
+            self.single_import_window = EqslSingleImportWindow()
+        self.single_import_window.show() 
+
+    @Slot()
+    def open_bulk_import(self):
+        """Öffnet das Upload-Fenster."""
+        if self.bulk_import_window is None:
+            self.bulk_import_window = EqslBulkImportWindow()
+        self.bulk_import_window.show() 
 
     @Slot()
     def open_help(self):
