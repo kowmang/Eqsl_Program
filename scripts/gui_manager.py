@@ -1,7 +1,7 @@
 import os
 import sys
-from PySide6.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QTextBrowser, QFileDialog
-from PySide6.QtCore import Slot, Signal
+from PySide6.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QTextBrowser, QFileDialog, QMessageBox
+from PySide6.QtCore import Slot, Signal, QObject 
 from PySide6.QtGui import QFont
 import os.path
 
@@ -26,7 +26,7 @@ class EqslSettingsWindow(QDialog):
 
     new_db_selected = Signal(str)
     existing_db_selected = Signal(str)
-    new_download_dir_selected = Signal(str) # NEUES Signal für Download-Ordner
+    new_download_dir_selected = Signal(str) 
     adif_import_requested = Signal(str)
     new_adif_selected = Signal(str)
 
@@ -37,7 +37,7 @@ class EqslSettingsWindow(QDialog):
         self.setWindowTitle("eQSL Programm (Settings)")
         self.settings_manager = settings_manager
         self.selected_adif_path = self.settings_manager.get_current_adif_path()
-        self._setup_ui_state() # Zeigt den aktuellen Pfad an
+        self._setup_ui_state() 
         self._setup_connections() 
 
     def _setup_ui_state(self):
@@ -52,7 +52,7 @@ class EqslSettingsWindow(QDialog):
                 self.ui.txt_db_selection.setText("Bitte wählen Sie eine Datenbank aus...")
             self.ui.txt_db_selection.setReadOnly(True)
 
-        # --- 3. Download-Ordner Pfad (NEU) ---
+        # --- 3. Download-Ordner Pfad ---
         current_download_dir = self.settings_manager.get_current_download_dir()
         if hasattr(self.ui, 'txt_download_dir'):
             if current_download_dir and os.path.isdir(current_download_dir):
@@ -61,12 +61,12 @@ class EqslSettingsWindow(QDialog):
                 self.ui.txt_download_dir.setText("Bitte wählen Sie den Download-Ordner aus...")
             self.ui.txt_download_dir.setReadOnly(True)
             
-        # --- 4. ADIF-Listen-Pfad (NEU) ---
+        # --- 4. ADIF-Listen-Pfad ---
         current_adif_path = self.settings_manager.get_current_adif_path()
         if hasattr(self.ui, 'txt_adif_selection'):
             if current_adif_path:
                 self.ui.txt_adif_selection.setText(current_adif_path)
-                self.selected_adif_path = current_adif_path # Lokalen Pfad setzen
+                self.selected_adif_path = current_adif_path 
             else:
                 self.ui.txt_adif_selection.setText("Bitte wählen Sie die ADIF-Datei aus...")
             self.ui.txt_adif_selection.setReadOnly(True)
@@ -91,14 +91,11 @@ class EqslSettingsWindow(QDialog):
             self.ui.btn_search_download_dir.clicked.connect(self._open_download_dir_dialog)
 
         # ADIF-Import Verbindung
-        if hasattr(self.ui, 'btn_search_adif'): # NEU: Für die Pfadauswahl
+        if hasattr(self.ui, 'btn_search_adif'): 
              self.ui.btn_search_adif.clicked.connect(self._open_adif_select_dialog)
              
         if hasattr(self.ui, 'btn_import_adif'): 
-            # Der Import-Button ruft NICHT den Dialog auf, sondern löst den Import aus
             self.ui.btn_import_adif.clicked.connect(self._handle_adif_import_click)
-
-        
 
     # --- HELPER FUNKTIONEN ---
 
@@ -130,8 +127,8 @@ class EqslSettingsWindow(QDialog):
         if filepath:
             self.new_db_selected.emit(filepath)
             self._setup_ui_state() 
-        else:
-            print("Erstellung der neuen DB vom Benutzer abgebrochen.")
+        # else:
+            # print("Erstellung der neuen DB vom Benutzer abgebrochen.") # ENTFERNT
 
     @Slot()
     def _open_existing_db_dialog(self):
@@ -150,25 +147,22 @@ class EqslSettingsWindow(QDialog):
         if filepath:
             self.existing_db_selected.emit(filepath)
             self._setup_ui_state() 
-        else:
-            print("Auswahl einer bestehenden DB vom Benutzer abgebrochen.")
+        # else:
+            # print("Auswahl einer bestehenden DB vom Benutzer abgebrochen.") # ENTFERNT
             
     @Slot()
     def _handle_reset_db(self):
         """Ruft die Reset-Logik für den DB-Pfad auf und aktualisiert die UI."""
         self.settings_manager.reset_db_path()
         self._setup_ui_state()
-        print("Datenbankpfad wurde zurückgesetzt.")
+        # print("Datenbankpfad wurde zurückgesetzt.") # ENTFERNT
 
-    # --- SLOTS (Download-Ordner) NEU ---
+    # --- SLOTS (Download-Ordner) ---
     
     @Slot()
     def _open_download_dir_dialog(self):
-        """
-        Öffnet den Dialog zur Auswahl des Download-Ordners.
-        """
+        """Öffnet den Dialog zur Auswahl des Download-Ordners."""
         current_dir = self.settings_manager.get_current_download_dir()
-        # Startverzeichnis: Aktueller Ordner oder Benutzer-Home
         start_dir = current_dir if current_dir and os.path.isdir(current_dir) else os.path.expanduser("~")
         
         dir_path = QFileDialog.getExistingDirectory(
@@ -181,8 +175,8 @@ class EqslSettingsWindow(QDialog):
         if dir_path:
             self.new_download_dir_selected.emit(dir_path)
             self._setup_ui_state()
-        else:
-            print("Auswahl des Download-Ordners vom Benutzer abgebrochen.")
+        # else:
+            # print("Auswahl des Download-Ordners vom Benutzer abgebrochen.") # ENTFERNT
 
     # --- SLOTS (ADIF-Import) ---
     @Slot()
@@ -198,28 +192,25 @@ class EqslSettingsWindow(QDialog):
         )
         
         if filepath:
-            # 1. Speichert den Pfad lokal und sendet ihn an den SettingsManager
             self.selected_adif_path = filepath
             self.new_adif_selected.emit(filepath) 
-            
-            # 2. Aktualisiert das Textfeld sofort
             self.ui.txt_adif_selection.setText(filepath)
             
-            print(f"ADIF-Pfad ausgewählt und gespeichert: {filepath}")
-        else:
-            print("ADIF-Auswahl abgebrochen.")
+            # print(f"ADIF-Pfad ausgewählt und gespeichert: {filepath}") # ENTFERNT
+        # else:
+            # print("ADIF-Auswahl abgebrochen.") # ENTFERNT
 
     @Slot()
     def _handle_adif_import_click(self):
         """Sendet den aktuell ausgewählten/gespeicherten Pfad an den GuiManager, um den Import zu starten."""
         if not self.selected_adif_path or not os.path.exists(self.selected_adif_path):
-            print("Import Error: Bitte zuerst eine gültige ADIF-Datei auswählen.")
+            # Statt print sollte ein Fehlerdialog erscheinen
+            QMessageBox.warning(self, "Import Fehler", "Bitte zuerst eine gültige ADIF-Datei auswählen.")
             return
 
-        # Signal an den GuiManager senden, um den Import zu starten
         self.adif_import_requested.emit(self.selected_adif_path)
 
-# ... (Klassen EqslUploadWindow, EqslHelpWindow, EqslVersionWindow bleiben unverändert) ...
+# ... (Unterfensterklassen bleiben unverändert, da sie keinen Debug-Print hatten) ...
 class EqslSingleImportWindow(QDialog): 
     # ... (Klasse bleibt unverändert) ...
     def __init__(self):
@@ -246,7 +237,7 @@ class EqslBulkImportWindow(QDialog):
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_bulk_import'):
             self.ui.btn_cancel_frm_bulk_import.clicked.connect(self.reject)
-        pass     
+        pass
 
 class EqslHelpWindow(QDialog): 
     # ... (Klasse bleibt unverändert) ...
@@ -342,7 +333,7 @@ class EqslVersionWindow(QDialog):
                 layout = QVBoxLayout(self)
                 self.setLayout(layout)
             self.layout().addWidget(browser)
-        
+            
     def _setup_connections(self):
         pass
 
@@ -351,38 +342,70 @@ class EqslVersionWindow(QDialog):
 # 2. MANAGER-KLASSE ZUR KONTROLLE DER FENSTER
 # ----------------------------------------------------
 
-class GuiManager:
+class GuiManager(QObject): 
     """Verwaltet die Instanzen aller sekundären Fenster und die Logik-Manager."""
+    
+    qso_data_updated = Signal(int)
+
     def __init__(self): 
+        super().__init__() 
         self.settings_window = None 
-        self.single_import_window = None  
+        self.single_import_window = None
         self.bulk_import_window = None
-        self.help_window = None     
-        self.version_window = None  
+        self.help_window = None 
+        self.version_window = None 
         
         self.settings_manager = SettingsManager() 
 
-        self.adif_importer = AdifImporter(self.settings_manager)
+        # KORREKTUR: AdifImporter muss mit dem DB-Pfad-STRING initialisiert werden,
+        # nicht mit dem SettingsManager-Objekt selbst.
+        # Wir verwenden den Standard-DB-Pfad für die Initialisierung.
+        # Der AdifImporter sollte intern den Pfad jedes Mal abfragen,
+        # oder wir stellen sicher, dass wir hier einen Pfad-String übergeben.
+        # Da der Importer oft neu instanziiert werden muss, wenn sich der DB-Pfad ändert, 
+        # übergeben wir hier den aktuellen Pfad-String.
+        
+        initial_db_path = self.settings_manager.get_current_db_path()
+        
+        # Wenn kein Pfad in den Settings ist, geben wir einen leeren String oder
+        # einen Platzhalter an den Importer. Der Importer muss im Import-Slot 
+        # den aktuellen Pfad aus dem SettingsManager abfragen.
+        # WICHTIG: Die Klasse AdifImporter muss in der Lage sein, den DB-Pfad später 
+        # zu aktualisieren, falls er sich ändert.
+        
+        # Vereinfachte Lösung: Wir übergeben den initialen Pfad. Wenn dieser leer ist, 
+        # muss der Importer darauf reagieren.
+        self.adif_importer = AdifImporter(initial_db_path)
 
     @Slot(str)
     def _handle_adif_import_from_settings(self, adif_filepath: str):
         """
         Interne Methode, die vom SettingsWindow aufgerufen wird, 
-        um den Import über den AdifImporter zu starten (verwendet den GESPEICHERTEN Pfad).
+        um den Import über den AdifImporter zu starten.
         """
+        # Holen Sie den AKTUELLEN Datenbankpfad JEDES MAL, bevor Sie importieren.
         db_path = self.settings_manager.get_current_db_path()
+        
         if not db_path:
-            print("Import Error: Keine Datenbank ausgewählt.")
+            # Fehler: Keine DB, sollte aber durch die UI verhindert werden
+            QMessageBox.critical(self.settings_window, "Import Fehler", "Keine Datenbank ausgewählt. Import abgebrochen.")
             return
 
         if not adif_filepath or not os.path.exists(adif_filepath):
-             print("Import Error: Der ausgewählte ADIF-Pfad ist ungültig oder nicht vorhanden.")
+             # Fehler: Pfad ungültig
+             QMessageBox.critical(self.settings_window, "Import Fehler", "Der ausgewählte ADIF-Pfad ist ungültig oder nicht vorhanden.")
              return
              
-        print(f"ADIF-Import gestartet für Datei: {adif_filepath}")
+        # SICHERHEITS-UPDATE: Stellen Sie sicher, dass der AdifImporter den aktuellen Pfad verwendet.
+        # Da der AdifImporter im __init__ des GuiManager instanziiert wird, 
+        # muss er hier den Pfad aktualisieren, falls er sich seitdem geändert hat.
+        
+        # WICHTIG: Aktualisieren des DB-Pfades im AdifImporter vor dem Aufruf
+        self.adif_importer.db_filepath = db_path 
+
         new_records = self.adif_importer.import_adif_file(adif_filepath)
-        print(f"ADIF-Import aus Settings beendet. {new_records} neue QSOs.")
-        # TODO: Signal an das Hauptfenster senden, um die Datenansicht zu aktualisieren.
+        
+        self.qso_data_updated.emit(new_records)
 
     @Slot()
     def open_settings(self):
@@ -397,14 +420,18 @@ class GuiManager:
             self.settings_window.existing_db_selected.connect(
                 self.settings_manager.handle_existing_db_path
             )
-    
-            # Download-Ordner Verbindung (NEU)
+        
+            # Download-Ordner Verbindung 
             self.settings_window.new_download_dir_selected.connect(
                 self.settings_manager.handle_new_download_dir
             )
             
             self.settings_window.adif_import_requested.connect(
                 self._handle_adif_import_from_settings
+            )
+            
+            self.settings_window.new_adif_selected.connect(
+                self.settings_manager.handle_new_adif_path
             )
             
         self.settings_window._setup_ui_state() 

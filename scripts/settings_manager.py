@@ -215,11 +215,6 @@ class SettingsManager:
             SOTA_REF TEXT,              -- Obwohl in der Datei nicht explizit, beibehalten falls benötigt
             POTA_REF TEXT,              -- Dito
             IOTA_REF TEXT,              -- Dito
-
-            -- VERWALTUNG
-            QSO_COMPLETE TEXT,          -- Y/N
-            TIME_OFF TEXT,
-            QSO_DATE_OFF TEXT,
     
             -- UNIQUE Constraint zur Duplikat-Erkennung (wichtig!)
             UNIQUE(CALL, QSO_DATE, TIME_ON) 
