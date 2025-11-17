@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import re
-import sys
+
 from typing import List, Dict, Tuple
 
 # --------------------------------------------------------------------------------
@@ -113,52 +113,52 @@ class AdifImporter:
         # Nur Kombinationen von CALL, QSO_DATE und TIME_ON, die noch nicht existieren, werden eingefügt.
         sql_create_table = f"""
         CREATE TABLE IF NOT EXISTS {self.table_name} (
-           qso_id INTEGER PRIMARY KEY,
+            qso_id INTEGER PRIMARY KEY,
     
             -- WICHTIGE QSO-DATEN FÜR UNIQUE KEY
-            CALL TEXT NOT NULL,         -- Rufzeichen des QSO-Partners
-            QSO_DATE TEXT NOT NULL,     -- Datum (YYYYMMDD)
-            TIME_ON TEXT NOT NULL,      -- Startzeit (HHMMSS)
+            CALL TEXT NOT NULL, 	 	-- Rufzeichen des QSO-Partners
+            QSO_DATE TEXT NOT NULL, 	-- Datum (YYYYMMDD)
+            TIME_ON TEXT NOT NULL, 		-- Startzeit (HHMMSS)
     
             -- ALLGEMEINE QSO-DATEN
             BAND TEXT,
             MODE TEXT,
             SUBMODE TEXT,
-            FREQ REAL,                  -- Frequenz (z.B. 14.0764)
-            RST_SENT TEXT,              -- Gesendetes Rapport
-            RST_RCVD TEXT,              -- Empfangenes Rapport
-            TX_PWR REAL,                -- Sendeleistung (z.B. 30.0)
+            FREQ REAL, 				-- Frequenz (z.B. 14.0764)
+            RST_SENT TEXT, 			-- Gesendetes Rapport
+            RST_RCVD TEXT, 			-- Empfangenes Rapport
+            TX_PWR REAL, 			-- Sendeleistung (z.B. 30.0)
     
             -- GEOGRAFISCHE DATEN DES PARTNERS
-            CONT TEXT,                  -- Kontinent
-            COUNTRY TEXT,               -- Land (Name)
-            DXCC INTEGER,               -- DXCC-Nummer
-            PFX TEXT,                   -- Präfix
-            CQZ INTEGER,                -- CQ Zone
-            ITUZ INTEGER,               -- ITU Zone
-            GRIDSQUARE TEXT,            -- Locator (z.B. JO55RM)
-            LAT REAL,                   -- Breitengrad (N050 51.151)
-            LON REAL,                   -- Längengrad (E004 49.287)
+            CONT TEXT, 				-- Kontinent
+            COUNTRY TEXT, 			-- Land (Name)
+            DXCC INTEGER, 			-- DXCC-Nummer
+            PFX TEXT, 				-- Präfix
+            CQZ INTEGER, 			-- CQ Zone
+            ITUZ INTEGER, 			-- ITU Zone
+            GRIDSQUARE TEXT, 		-- Locator (z.B. JO55RM)
+            LAT REAL, 				-- Breitengrad (N050 51.151)
+            LON REAL, 				-- Längengrad (E004 49.287)
 
             -- PERSÖNLICHE DATEN DES PARTNERS
-            NAME TEXT,                  -- Name (Vor- und Nachname)
-            QTH TEXT,                   -- Ort/City
-            ADDRESS TEXT,               -- Komplette Adresse
+            NAME TEXT, 				-- Name (Vor- und Nachname)
+            QTH TEXT, 				-- Ort/City
+            ADDRESS TEXT, 			-- Komplette Adresse
             EMAIL TEXT,
             AGE INTEGER,
     
             -- eQSL-STATUS
             EQSL_QSL_SENT TEXT,
-            EQSL_QSLS_DATE TEXT,        -- Sendedatum (YYYYMMDD)
+            EQSL_QSLS_DATE TEXT, 	-- Sendedatum (YYYYMMDD)
             EQSL_QSL_RCVD TEXT,
-            EQSL_QSLR_DATE TEXT,        -- Empfangsdatum (YYYYMMDD)
-            EQSL_IMAGE_BLOB BLOB,        -- eQSL Bild als BLOB  
+            EQSL_QSLR_DATE TEXT, 	-- Empfangsdatum (YYYYMMDD)
+            EQSL_IMAGE_BLOB BLOB, 	-- eQSL Bild als BLOB 	
 
-           
+            
             -- DX-INDEXES (Wenn gewünscht, z.B. SOTA/POTA/IOTA)
-            SOTA_REF TEXT,              -- Obwohl in der Datei nicht explizit, beibehalten falls benötigt
-            POTA_REF TEXT,              -- Dito
-            IOTA_REF TEXT,              -- Dito
+            SOTA_REF TEXT, 			-- Obwohl in der Datei nicht explizit, beibehalten falls benötigt
+            POTA_REF TEXT, 			-- Dito
+            IOTA_REF TEXT, 			-- Dito
     
             -- UNIQUE Constraint zur Duplikat-Erkennung (wichtig!)
             UNIQUE(CALL, QSO_DATE, TIME_ON) 
@@ -196,8 +196,17 @@ class AdifImporter:
             for record in qso_records:
                 full_record = {}
                 for col in DB_COLUMNS:
-                    # Stelle sicher, dass jeder Datensatz alle Spalten enthält (fehlende als leere Strings)
-                    full_record[col] = record.get(col, '')
+                    value = record.get(col, '')
+                    
+                    # <<< HIER IST DIE GEÄNDERTE LOGIK FÜR NULL-WERTE BEI BLOB >>>
+                    # Wenn die Spalte EQSL_IMAGE_BLOB ist UND der Wert ein leerer String ist (aus dem Parser),
+                    # setzen wir den Wert auf None. Python None wird in SQLite zu NULL.
+                    if col == 'EQSL_IMAGE_BLOB' and value == '':
+                        full_record[col] = None
+                    # Für alle anderen Spalten und wenn ein Wert für BLOB vorhanden ist, verwenden wir den gelesenen Wert
+                    else:
+                        full_record[col] = value
+                        
                 data_for_insert.append(full_record)
 
             placeholders = ', '.join([f':{col}' for col in DB_COLUMNS])
@@ -234,7 +243,7 @@ class AdifImporter:
             print(f"[KRITISCH] Ein unerwarteter Fehler ist aufgetreten: {e}")
             return 0
         finally:
-             if conn:
+            if conn:
                 conn.close()
 
 
@@ -242,7 +251,7 @@ def main():
     """Führt den Importprozess mit den Standardpfaden aus."""
     print("--- ADIF Import Debug-Modus ---")
     print(f"ADIF-Pfad: {DEFAULT_ADIF_PATH}")
-    print(f"DB-Pfad:   {DEFAULT_DB_PATH}")
+    print(f"DB-Pfad:   {DEFAULT_DB_PATH}")
     print("-------------------------------")
 
     # Stellen Sie sicher, dass die Datenbank existiert, falls sie nicht im Pfad liegt
