@@ -8,11 +8,14 @@
 * **gui_data**  some changes in design (only minor)
 * **adif_importer** added and logic for import adif into database included
                     also crosscheck for duplicates and if fields in adif are
-                    not filled the field is NULL
+                    not filled the field is empty
 * **design**    added popup window when import data to see how many and if ready
 * **qsl_image_importer** added take qsl cards from folder and check with adif db 
                          then when found image converted to blob and insert in db
-
+* **adif_importer** at adif import check when image field is not filled with .blob
+                    then fill with Sqlite "NULL";
+                    at adif import check when band is not in adif file take frequency
+                    and calculate band form this and write both to database;
 
                         
 ---
