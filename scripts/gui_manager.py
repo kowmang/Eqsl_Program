@@ -79,7 +79,7 @@ class EqslSettingsWindow(QDialog):
     def _setup_connections(self):
         # Verbindung für 'Abbrechen'
         if hasattr(self.ui, 'btn_cancel_frm_settings'):
-            self.ui.btn_cancel_frm_settings.clicked.connect(self.reject)
+            self.ui.btn_cancel_frm_settings.clicked.connect(self.close)
             
         # Datenbank-Verbindungen
         if hasattr(self.ui, 'btn_new_db'):
@@ -210,19 +210,19 @@ class EqslSingleImportWindow(QDialog):
     Wurde auf WindowModal umgestellt.
     """
     def __init__(self, parent=None): 
-        super().__init>(parent)
+        super().__init__(parent)
         self.ui = Ui_frm_single_card_import()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Single Card Import)")
         
         # NEU: Setze die Modalität, um das Parent-Fenster zu blockieren.
-        self.setWindowModality(Qt.WindowModality.WindowModal) 
+        self.setWindowModality(Qt.WindowModality.ApplicationModal) 
         
         self._setup_connections() 
     
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_single_import'):
-            self.ui.btn_cancel_frm_single_import.clicked.connect(self.reject)
+            self.ui.btn_cancel_frm_single_import.clicked.connect(self.close)
         pass 
 
 class EqslBulkImportWindow(QDialog): 
@@ -245,7 +245,7 @@ class EqslBulkImportWindow(QDialog):
         self.settings_manager = settings_manager
         
         # Sicherstellen, dass das Fenster modal ist
-        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         
         self._setup_ui_state()
         self._setup_connections() 
@@ -275,7 +275,7 @@ class EqslBulkImportWindow(QDialog):
     def _setup_connections(self):
         # Cancel Button (bleibt)
         if hasattr(self.ui, 'btn_cancel_frm_bulk_import'):
-            self.ui.btn_cancel_frm_bulk_import.clicked.connect(self.reject)
+            self.ui.btn_cancel_frm_bulk_import.clicked.connect(self.close)
         
         # Search/Select Button (umbenannt in der UI zu btn_search_path_bulkcard_upload)
         if hasattr(self.ui, 'btn_select_path_bulkcard_upload'):
