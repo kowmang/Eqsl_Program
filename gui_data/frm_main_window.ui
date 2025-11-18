@@ -334,7 +334,7 @@
    <widget class="QPushButton" name="btn_show">
     <property name="geometry">
      <rect>
-      <x>1040</x>
+      <x>600</x>
       <y>690</y>
       <width>85</width>
       <height>27</height>
@@ -353,7 +353,7 @@
    <widget class="QPushButton" name="btn_download">
     <property name="geometry">
      <rect>
-      <x>910</x>
+      <x>470</x>
       <y>690</y>
       <width>85</width>
       <height>27</height>
@@ -407,6 +407,25 @@
      <string>Mark all</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_exit_program">
+    <property name="geometry">
+     <rect>
+      <x>1040</x>
+      <y>690</y>
+      <width>85</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>EXIT</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -426,9 +445,10 @@
    </widget>
    <widget class="QMenu" name="menuUpload">
     <property name="title">
-     <string>Upload</string>
+     <string>Import</string>
     </property>
-    <addaction name="actionUpload"/>
+    <addaction name="actionSingle_Card_Import"/>
+    <addaction name="actionBulk_Card_Import"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -452,9 +472,9 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionUpload">
+  <action name="actionSingle_Card_Import">
    <property name="text">
-    <string>Upload</string>
+    <string>Single Card Import</string>
    </property>
   </action>
   <action name="actionBulk_Upload">
@@ -470,6 +490,11 @@
   <action name="actionVersionInfo">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionBulk_Card_Import">
+   <property name="text">
+    <string>Bulk Card Import</string>
    </property>
   </action>
  </widget>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>frm_upload</class>
- <widget class="QDialog" name="frm_upload">
+ <class>frm_single_card_import</class>
+ <widget class="QDialog" name="frm_single_card_import">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -16,62 +16,11 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="btn_upload_bulkcard">
+  <widget class="QPushButton" name="btn_cancel_frm_single_import">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>450</y>
-     <width>85</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Upload</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_reset_bulkcard">
-   <property name="geometry">
-    <rect>
-     <x>530</x>
-     <y>450</y>
-     <width>85</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Reset</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lb_warning_bulk_upload_1">
-   <property name="geometry">
-    <rect>
-     <x>78</x>
-     <y>365</y>
-     <width>671</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Warning for correct folder structure and filename syntax!!!</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_cancel_frm_upload">
-   <property name="geometry">
-    <rect>
-     <x>670</x>
-     <y>520</y>
+     <x>340</x>
+     <y>550</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -107,27 +56,6 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_path_bulkcard">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>420</y>
-     <width>301</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Path for Bulk Card Upload</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignmentFlag::AlignCenter</set>
-   </property>
-  </widget>
   <widget class="QLineEdit" name="le_date_1">
    <property name="geometry">
     <rect>
@@ -141,8 +69,8 @@
   <widget class="QPushButton" name="btn_reset_singlecard">
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>250</y>
+     <x>530</x>
+     <y>440</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -186,21 +114,6 @@
      <width>101</width>
      <height>30</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="le_path_bulkcard">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>450</y>
-     <width>300</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
    </property>
   </widget>
   <widget class="QLineEdit" name="le_dxcc_number_1">
@@ -248,7 +161,7 @@
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>210</y>
+     <y>440</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -266,8 +179,8 @@
   <widget class="QPushButton" name="btn_upload_singlecard">
    <property name="geometry">
     <rect>
-     <x>660</x>
-     <y>250</y>
+     <x>650</x>
+     <y>440</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -280,27 +193,6 @@
    </property>
    <property name="text">
     <string>Upload</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lb_bulk_card_upload_section">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>310</y>
-     <width>601</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Bulk Card Upload Section for Eqsl downloaded by Log4OM</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="lb_date_1">
@@ -338,7 +230,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>180</y>
+     <y>410</y>
      <width>301</width>
      <height>27</height>
     </rect>
@@ -359,7 +251,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>210</y>
+     <y>440</y>
      <width>300</width>
      <height>30</height>
     </rect>
@@ -406,7 +298,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Single Card Upload Section</string>
+    <string>Single Card Import</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -431,25 +323,6 @@
    </property>
    <property name="alignment">
     <set>Qt::AlignmentFlag::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_search_path_bulkcard_upload">
-   <property name="geometry">
-    <rect>
-     <x>380</x>
-     <y>450</y>
-     <width>85</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Search</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="le_mode_1">
