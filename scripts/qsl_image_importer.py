@@ -51,8 +51,8 @@ class QslImageImporter:
             return {
                 'qso_date': qso_date_str,
                 'qso_time': qso_time_str,
-                'call1': data['CALL'].upper(), 
-                'call2': data['V_CALL'].upper(), 
+                'call1': data['CALL'].upper(),
+                'call2': data['V_CALL'].upper(),
                 'mode': data['MODE'].upper(),
                 'band': data['BAND'].upper()
             }
@@ -64,42 +64,39 @@ class QslImageImporter:
 
     def _get_qso_id(self, conn: sqlite3.Connection, qso_data: dict) -> int | None:
         """
-        Findet die ROWID des QSO-Eintrags basierend auf den Schlüsseln.
-        Aktueller Abgleich nur über CALL (Partner-Rufzeichen).
+        Findet die ROWID des QSO-Eintrags basierend auf den Schlüsseln (CALL, QSO_DATE, BAND und MODE).
         """
         
-        # Auf Band nur die Zahl extrahieren, obwohl es in dieser Abfrage nicht verwendet wird
-        # band_num = qso_data['band'].replace('M', '').replace('CM', '')
+        # 1. Daten vorbereiten
+        band_val = qso_data['band'].replace('M', '').replace('CM', '')
         
-        # NEUE SQL-ABFRAGE NUR MIT CALL
-        # Es wird nur nach dem Rufzeichen (UPPER(CALL) = ?) gesucht.
-        # Das erste passende QSO in der Datenbank wird verwendet.
+        # 2. SQL-Abfrage
+        # Die Abfrage sucht nach (Call1 ODER Call2) UND QSO_DATE UND BAND UND MODE.
         sql = f"""
         SELECT ROWID FROM {self.table_name}
         WHERE (UPPER(CALL) = ? OR UPPER(CALL) = ?)
-        /*
-        -- Auskommentierte Bedingungen für präziseren Abgleich:
         AND QSO_DATE = ? 
-        AND BAND = ?  
-        AND UPPER(MODE) = ?
-        */
+        AND BAND = ? 
+        AND UPPER(MODE) = ? 
         LIMIT 1
         """
         
-        # Parameterliste für die Abfrage
+        # 3. Parameterliste für die Abfrage (5 Werte: Call1, Call2, Date, Band, Mode)
         params = (
-            qso_data['call1'], qso_data['call2']
-            # qso_data['qso_date'], 
-            # band_num,  
-            # qso_data['mode'],
+            qso_data['call1'], 
+            qso_data['call2'],
+            qso_data['qso_date'],  # <-- NEU: Dritter Wert für QSO_DATE
+            band_val,              # <-- Vierter Wert für BAND
+            qso_data['mode']       # <-- Fünfter Wert für MODE
         )
         
         try:
             cursor = conn.execute(sql, params)
             result = cursor.fetchone()
-            # print(f"-> Erfolg: QSO gefunden mit ID {result[0]} (Nur CALL-Abgleich)") # Optional: Debug-Ausgabe für Erfolg
+            # print(f"-> Erfolg: QSO gefunden mit ID {result[0]} (CALL, DATE, BAND und MODE-Abgleich)") # Optional: Debug-Ausgabe
             return result[0] if result else None
         except Exception as e:
+            # Der Fehler tritt nun hoffentlich nicht mehr auf, aber die Ausgabe bleibt
             print(f"Fehler bei der DB-Abfrage für {qso_data['call1']}/{qso_data['call2']}: {e}")
             return None
 
@@ -170,7 +167,7 @@ class QslImageImporter:
                 qso_id = self._get_qso_id(conn, qso_data)
                 
                 if qso_id is None:
-                    # print(f"-> QSO nicht gefunden: {qso_data['call1']}/{qso_data['call2']} (Nur CALL-Abgleich)")
+                    # print(f"-> QSO nicht gefunden: {qso_data['call1']}/{qso_data['call2']} (CALL, DATE, BAND und MODE-Abgleich)")
                     results['not_found'] += 1
                     continue
                     
