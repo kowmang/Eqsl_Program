@@ -14,12 +14,20 @@ from .scripts.settings_manager import SettingsManager
 from .scripts.image_viewer_dialog import ImageViewerDialog 
 
 # Definition der Spalten-Indizes (0-basiert, basierend auf der 31er Liste)
-COL_CALL = 0
-COL_QSO_DATE = 1
-COL_TIME_ON = 2
-COL_BAND = 3
-COL_MODE = 4
-COL_IMAGE_BLOB = 28 # EQSL_IMAGE_BLOB ist die 29. Spalte -> Index 28
+# Die Indizes sind nun korrekt basierend auf Ihrer DB_COLUMNS-Liste:
+COL_CALL = 1
+COL_QSO_DATE = 2
+COL_TIME_ON = 3
+COL_BAND = 4
+COL_MODE = 5
+COL_SUB_MODE = 6
+COL_FREQ = 7        # Entspricht 'FREQ' in Ihrer DB_COLUMNS-Liste
+COL_COUNTRY = 12    # Entspricht 'COUNTRY' in Ihrer DB_COLUMNS-Liste
+COL_CQZ = 15        # Entspricht 'CQZ' in Ihrer DB_COLUMNS-Liste
+COL_ITUZ = 16       # Entspricht 'ITUZ' in Ihrer DB_COLUMNS-Liste
+COL_GRID = 17       # Entspricht 'GRIDSQUARE' in Ihrer DB_COLUMNS-Liste
+
+COL_IMAGE_BLOB = 29 # EQSL_IMAGE_BLOB ist die 29. Spalte
 
 class EqslMainWindow(QMainWindow):
     
@@ -46,7 +54,7 @@ class EqslMainWindow(QMainWindow):
         # 3. NEU: Models und UI-Elemente initialisieren
         self._setup_models()
         self._setup_ui_elements()
-       
+        
         # 4. Verbindungen zur Logik einrichten
         self._setup_connections()
 
@@ -57,6 +65,20 @@ class EqslMainWindow(QMainWindow):
         self.source_model = QSqlTableModel(db=self.db)
         self.source_model.setTable(table_name)
         self.source_model.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
+        
+        # ----------------------------------------------------------------------
+        # TEIL A: SPALTENÜBERSCHRIFTEN SETZEN
+        # ----------------------------------------------------------------------
+        self.source_model.setHeaderData(COL_CALL, Qt.Orientation.Horizontal, "Call")
+        self.source_model.setHeaderData(COL_QSO_DATE, Qt.Orientation.Horizontal, "Date")
+        self.source_model.setHeaderData(COL_TIME_ON, Qt.Orientation.Horizontal, "Time")
+        self.source_model.setHeaderData(COL_BAND, Qt.Orientation.Horizontal, "Band")
+        self.source_model.setHeaderData(COL_MODE, Qt.Orientation.Horizontal, "Mode")
+        # NEUE HEADER
+        self.source_model.setHeaderData(COL_FREQ, Qt.Orientation.Horizontal, "Frequenz")
+        self.source_model.setHeaderData(COL_ITUZ, Qt.Orientation.Horizontal, "ITU Zone")
+        self.source_model.setHeaderData(COL_CQZ, Qt.Orientation.Horizontal, "CQ Zone")
+        self.source_model.setHeaderData(COL_GRID, Qt.Orientation.Horizontal, "Grid")
         
         # Statische Vorfilterung: Nur Einträge mit einem Bild anzeigen
         self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
@@ -71,6 +93,27 @@ class EqslMainWindow(QMainWindow):
         self.ui.tbl_data_view_main.setModel(self.proxy_model)
         self.ui.tbl_data_view_main.setSelectionBehavior(self.ui.tbl_data_view_main.SelectionBehavior.SelectRows)
         self.ui.tbl_data_view_main.setSortingEnabled(True)
+
+        # ----------------------------------------------------------------------
+        # TEIL B: NICHT GEWÜNSCHTE SPALTEN AUSBLENDEN (Muss NACH setModel() erfolgen)
+        # ----------------------------------------------------------------------
+        total_columns = self.source_model.columnCount()
+        
+        # Liste aller Spalten, die in der View sichtbar sein sollen
+        visible_indices = {
+            COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE,
+            COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_ITUZ, COL_CQZ,
+            COL_GRID, COL_IMAGE_BLOB
+        }
+
+        for col_index in range(total_columns):
+            # Wir blenden alle Spalten aus, die nicht in der Liste der sichtbaren Indizes sind.
+            # Der COL_IMAGE_BLOB (Index 28) ist auch nicht in der visible_indices Liste.
+            if col_index not in visible_indices:
+                self.ui.tbl_data_view_main.setColumnHidden(col_index, True)
+            else:
+                self.ui.tbl_data_view_main.setColumnHidden(col_index, False)
+
 
     def _setup_ui_elements(self):
         # Preview Label für die Bildanzeige konfigurieren
@@ -140,11 +183,10 @@ class EqslMainWindow(QMainWindow):
         self.gui_manager.qso_data_updated.connect(self._refresh_model)
 
 
-
     # ----------------------------------------------------------------------
     # LOKALE SLOTS (Unverändert)
     # ----------------------------------------------------------------------
- 
+    
     @Slot()
     def filter_data_flex(self, text: str):
         """Implementiert UND/ODER-Filterlogik mittels regulärer Ausdrücke."""
@@ -315,17 +357,25 @@ class EqslMainWindow(QMainWindow):
         # 3. Neue Verbindung öffnen
         if self.db.open():
             # 4. Modell neu initialisieren (muss mit neuer DB-Verbindung arbeiten)
-            # Das QSqlTableModel muss neu initialisiert oder zumindest neu selektiert werden
             table_name = self.settings_manager.settings.get("table_name", "eqsl_data")
-            
-            # Da self.db ein Singleton ist, sollte ein einfaches select() funktionieren,
-            # aber zur Sicherheit initialisieren wir das Model neu.
             
             self.source_model.setTable(table_name)
             self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
             self.source_model.select()
             
             self.ui.tbl_data_view_main.setModel(self.proxy_model) # View muss das ProxyModel wieder erhalten
+            
+            # **Wichtig: Die Spalten müssen nach dem Neusetzen des Models erneut ausgeblendet werden.**
+            total_columns = self.source_model.columnCount()
+            visible_indices = {COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE,
+                               COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_ITUZ, COL_CQZ,
+                               COL_GRID, COL_IMAGE_BLOB}
+            for col_index in range(total_columns):
+                 if col_index not in visible_indices:
+                    self.ui.tbl_data_view_main.setColumnHidden(col_index, True)
+                 else:
+                    self.ui.tbl_data_view_main.setColumnHidden(col_index, False)
+                    
             self.setWindowTitle(f"eQSL Programm (Hauptfenster) - DB: {os.path.basename(new_db_path)}")
             QMessageBox.information(self, "Datenbankwechsel", 
                                     "Datenbankverbindung erfolgreich gewechselt und Ansicht aktualisiert.")
@@ -336,10 +386,8 @@ class EqslMainWindow(QMainWindow):
             # Da das kritisch ist, ist es besser, den Fehler zu melden.
 
 
-
-
 # ----------------------------------------------------------------------
-# main() Funktion für den Programmstart (Unverändert)
+# main() Funktion für den Programmstart (KORRIGIERT)
 # ----------------------------------------------------------------------
 
 def main():
@@ -352,24 +400,29 @@ def main():
     except Exception as e:
         QMessageBox.critical(None, "Startfehler", 
                              f"Konnte SettingsManager nicht initialisieren: {e}")
-        sys.exit(1)
+        sys.exit(1) # Hier ist sys.exit(1) richtig, da der SettingsManager kritisch ist
         
     db_path = settings_manager.get_current_db_path() 
     
-    if not db_path:
-        QMessageBox.critical(None, "Datenbankfehler", 
-                             "Datenbankpfad in Settings.json nicht definiert. Bitte in den Settings festlegen.")
-        sys.exit(1)
-
     # 2. Datenbankverbindung herstellen
     db = QSqlDatabase.addDatabase("QSQLITE")
     db.setDatabaseName(db_path) 
     
-    if not db.open():
+    db_ok = True
+    if not db_path:
         QMessageBox.critical(None, "Datenbankfehler", 
-                             f"Konnte Datenbank '{db_path}' nicht öffnen. Beende Programm.")
-        sys.exit(1)
-
+                             "Datenbankpfad in Settings.json nicht definiert. Bitte in den Settings festlegen. Die Anwendung startet ohne Datenzugriff.")
+        db_ok = False
+        
+    if db_path and not db.open():
+        QMessageBox.critical(None, "Datenbankfehler", 
+                             f"Konnte Datenbank '{db_path}' nicht öffnen. Bitte überprüfen Sie den Pfad in den Settings. Die Anwendung startet ohne Datenzugriff.")
+        db_ok = False
+        
+    # Wenn die DB nicht geöffnet werden konnte, ist das Objekt `db` immer noch ein 
+    # gültiges QSqlDatabase-Objekt, das wir dem Hauptfenster übergeben.
+    # Die Datenansicht wird dann leer sein, bis der Benutzer in den Settings den Pfad korrigiert.
+    
     # 3. Hauptfenster mit DB-Verbindung UND Settings Manager instanziieren
     main_window = EqslMainWindow(db, settings_manager) 
     
