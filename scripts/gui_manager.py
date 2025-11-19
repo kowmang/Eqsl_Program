@@ -706,3 +706,5 @@ class GuiManager(QObject):
         if self.version_window is None:
             self.version_window = EqslVersionWindow(parent=self.main_window)
         self.version_window.show()
+
+        

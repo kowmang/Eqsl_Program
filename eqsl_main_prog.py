@@ -214,8 +214,8 @@ class EqslMainWindow(QMainWindow):
             self.ui.actionBulk_Card_Import.triggered.connect(self.gui_manager.open_bulk_import)
         if hasattr(self.ui, 'actionManual'):
             self.ui.actionManual.triggered.connect(self.gui_manager.open_help) 
-        if hasattr(self.ui, 'actionVersion_Info'):
-            self.ui.actionVersion_Info.triggered.connect(self.gui_manager.open_version_info)
+        if hasattr(self.ui, 'actionVersionInfo'):
+            self.ui.actionVersionInfo.triggered.connect(self.gui_manager.open_version_info)
         if hasattr(self.ui, 'actionExit'):
             self.ui.actionExit.triggered.connect(self.close)
 
