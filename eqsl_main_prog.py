@@ -13,22 +13,82 @@ from .scripts.gui_manager import GuiManager
 from .scripts.settings_manager import SettingsManager 
 from .scripts.image_viewer_dialog import ImageViewerDialog 
 
-# Definition der Spalten-Indizes (0-basiert, basierend auf der 31er Liste)
-# Die Indizes sind nun korrekt basierend auf Ihrer DB_COLUMNS-Liste:
+# Definition der Spalten-Indizes (0-basiert, basierend auf Ihrer DB_COLUMNS-Liste)
 COL_CALL = 1
 COL_QSO_DATE = 2
 COL_TIME_ON = 3
 COL_BAND = 4
 COL_MODE = 5
 COL_SUB_MODE = 6
-COL_FREQ = 7        # Entspricht 'FREQ' in Ihrer DB_COLUMNS-Liste
-COL_COUNTRY = 12    # Entspricht 'COUNTRY' in Ihrer DB_COLUMNS-Liste
-COL_CQZ = 15        # Entspricht 'CQZ' in Ihrer DB_COLUMNS-Liste
-COL_ITUZ = 16       # Entspricht 'ITUZ' in Ihrer DB_COLUMNS-Liste
-COL_GRID = 17       # Entspricht 'GRIDSQUARE' in Ihrer DB_COLUMNS-Liste
+COL_FREQ = 7        
+COL_COUNTRY = 12    
+COL_CQZ = 15        
+COL_ITUZ = 16       
+COL_GRID = 17       
 
-COL_IMAGE_BLOB = 29 # EQSL_IMAGE_BLOB ist die 29. Spalte
+COL_IMAGE_BLOB = 29 
 
+# Liste der durchsuchbaren Spalten (die sichtbar sein sollen)
+SEARCHABLE_COLUMN_INDICES = [
+    COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE, 
+    COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_CQZ, COL_ITUZ, COL_GRID
+]
+
+
+# ======================================================================
+# NEUE KLASSE: Benutzerdefiniertes Proxy-Modell für Multi-Spalten-ODER-Filterung
+# ======================================================================
+class MultiColumnFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self, parent=None, searchable_indices=None):
+        super().__init__(parent)
+        self.search_terms = []
+        self.searchable_indices = searchable_indices if searchable_indices is not None else []
+
+    def setFilterString(self, text: str):
+        """
+        Setzt den Suchtext. Leerzeichen dienen nun als ODER-Trenner.
+        """
+        # Teilt den Text in Begriffe auf und konvertiert in Kleinbuchstaben
+        self.search_terms = [term.strip().lower() for term in text.split() if term.strip()]
+        # Filterung neu starten
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
+        """
+        Implementiert die ODER-Logik über alle definierten Spalten: 
+        Die Zeile wird akzeptiert, wenn EINER der Suchbegriffe in EINER der Spalten gefunden wird.
+        """
+        if not self.search_terms:
+            return True # Keine Suchbegriffe => Zeile akzeptiert
+
+        source_model = self.sourceModel()
+        
+        # ODER-Logik: Prüfen, ob MINDESTENS EIN Suchbegriff in irgendeiner Spalte gefunden wird
+        for term in self.search_terms:
+            # Suche nach diesem EINEN Begriff in allen durchsuchbaren Spalten der Zeile
+            for col_index in self.searchable_indices:
+                index = source_model.index(source_row, col_index, source_parent)
+                # Daten abrufen (DisplayRole ist robuster für QSqlTableModel-Werte)
+                data = source_model.data(index, Qt.ItemDataRole.DisplayRole)
+                
+                if data is None:
+                    continue
+                
+                try:
+                    data_str = str(data).lower()
+                    if term in data_str:
+                        # Begriff gefunden => Zeile akzeptieren (ODER-Bedingung erfüllt)
+                        return True 
+                except:
+                    continue
+
+        # Keiner der Suchbegriffe wurde in irgendeiner Spalte gefunden => Zeile ablehnen
+        return False
+
+
+# ======================================================================
+# EqslMainWindow
+# ======================================================================
 class EqslMainWindow(QMainWindow):
     
     # Konstruktor akzeptiert DB und SettingsManager
@@ -38,24 +98,23 @@ class EqslMainWindow(QMainWindow):
         self.db = db_conn
         self.settings_manager = settings_manager 
         
-        # 1. KORREKTUR: Instanziierung des GuiManagers MUSS mit seinen Abhängigkeiten 
-        # UND dem Hauptfenster (self) erfolgen!
+        # Instanziierung des GuiManagers
         self.gui_manager = GuiManager(
             db_conn=self.db, 
             settings_manager=self.settings_manager,
-            main_window=self # <--- KRITISCHE ÄNDERUNG: Übergabe des Hauptfensters
+            main_window=self 
         ) 
 
-        # 2. UI-Klasse instanziieren und anwenden
+        # UI-Klasse instanziieren und anwenden
         self.ui = Ui_frm_main_window()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Hauptfenster)")
 
-        # 3. NEU: Models und UI-Elemente initialisieren
+        # Models und UI-Elemente initialisieren
         self._setup_models()
         self._setup_ui_elements()
         
-        # 4. Verbindungen zur Logik einrichten
+        # Verbindungen zur Logik einrichten
         self._setup_connections()
 
     def _setup_models(self):
@@ -84,10 +143,9 @@ class EqslMainWindow(QMainWindow):
         self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
         self.source_model.select()
 
-        # 2. QSortFilterProxyModel initialisieren
-        self.proxy_model = QSortFilterProxyModel(self)
+        # 2. MultiColumnFilterProxyModel initialisieren (NEU)
+        self.proxy_model = MultiColumnFilterProxyModel(self, searchable_indices=SEARCHABLE_COLUMN_INDICES) 
         self.proxy_model.setSourceModel(self.source_model)
-        self.proxy_model.setFilterKeyColumn(COL_CALL) 
         
         # 3. View setzen
         self.ui.tbl_data_view_main.setModel(self.proxy_model)
@@ -95,21 +153,16 @@ class EqslMainWindow(QMainWindow):
         self.ui.tbl_data_view_main.setSortingEnabled(True)
 
         # ----------------------------------------------------------------------
-        # TEIL B: NICHT GEWÜNSCHTE SPALTEN AUSBLENDEN (Muss NACH setModel() erfolgen)
+        # TEIL B: NICHT GEWÜNSCHTE SPALTEN AUSBLENDEN
         # ----------------------------------------------------------------------
         total_columns = self.source_model.columnCount()
         
-        # Liste aller Spalten, die in der View sichtbar sein sollen
-        visible_indices = {
-            COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE,
-            COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_ITUZ, COL_CQZ,
-            COL_GRID, COL_IMAGE_BLOB
-        }
+        # Liste aller Spalten, die in der View sichtbar oder für die Vorschau relevant sein sollen
+        visible_indices = set(SEARCHABLE_COLUMN_INDICES + [COL_IMAGE_BLOB]) 
 
         for col_index in range(total_columns):
-            # Wir blenden alle Spalten aus, die nicht in der Liste der sichtbaren Indizes sind.
-            # Der COL_IMAGE_BLOB (Index 28) ist auch nicht in der visible_indices Liste.
-            if col_index not in visible_indices:
+            # Wir blenden Spalten aus, die nicht in der Liste der sichtbaren/relevanten Indizes sind.
+            if col_index not in visible_indices or col_index == COL_IMAGE_BLOB:
                 self.ui.tbl_data_view_main.setColumnHidden(col_index, True)
             else:
                 self.ui.tbl_data_view_main.setColumnHidden(col_index, False)
@@ -128,7 +181,7 @@ class EqslMainWindow(QMainWindow):
         # A) LOKALE AKTIONEN (Filterung, Markierung, Export)
         # ----------------------------------------------------------------------
         
-        # Filterung
+        # Filterung (VERWENDET JETZT DIE NEUE PROXY-KLASSE)
         self.ui.btn_search_main.clicked.connect(lambda: self.filter_data_flex(self.ui.txt_search_field_main.text()))
         self.ui.btn_reset_main.clicked.connect(self.reset_filter)
 
@@ -172,35 +225,24 @@ class EqslMainWindow(QMainWindow):
             self.ui.actionExit.triggered.connect(self.close)
 
         # ----------------------------------------------------------------------
-        # C) NEUE KRITISCHE VERBINDUNG: DB-PFAD-ÄNDERUNG
+        # C) KRITISCHE VERBINDUNG: DB-PFAD-ÄNDERUNG
         # ----------------------------------------------------------------------
         
-        # **WICHTIG:** Wenn der DB-Pfad in den Settings geändert wird, muss 
-        # das Hauptfenster darauf reagieren.
+        # Wenn der DB-Pfad in den Settings geändert wird
         self.settings_manager.db_path_selected.connect(self._handle_db_path_changed)
 
-        # Zusätzlich das Signal des GuiManagers für Datenaktualisierung verbinden
+        # Signal des GuiManagers für Datenaktualisierung verbinden
         self.gui_manager.qso_data_updated.connect(self._refresh_model)
 
 
     # ----------------------------------------------------------------------
-    # LOKALE SLOTS (Unverändert)
+    # LOKALE SLOTS
     # ----------------------------------------------------------------------
     
     @Slot()
     def filter_data_flex(self, text: str):
-        """Implementiert UND/ODER-Filterlogik mittels regulärer Ausdrücke."""
-        terms = [term.strip() for term in text.split() if term.strip()]
-        
-        if not terms:
-            regex = ""
-        else:
-            # Erstellt einen Lookahead-Ausdruck für UND-Logik: (?=.*Begriff1)(?=.*Begriff2)...
-            lookaheads = "".join(f"(?=.*{re.escape(term)})" for term in terms)
-            regex = lookaheads
-        
-        self.proxy_model.setFilterRegularExpression(regex)
-        self.proxy_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        """Übergibt den Suchtext an das benutzerdefinierte Proxy-Modell zur Multi-Spalten-ODER-Suche."""
+        self.proxy_model.setFilterString(text)
         
     @Slot()
     def reset_filter(self):
@@ -237,21 +279,33 @@ class EqslMainWindow(QMainWindow):
             self.ui.lb_preview_image_main.setText("Kein Bild ausgewählt.")
             return
 
+        # 1. Index vom Proxy-Modell auf das Quellmodell mappen (wichtig!)
         source_index = self.proxy_model.mapToSource(current_index)
         
-        # Daten abrufen (Spalte 28 EQSL_IMAGE_BLOB)
+        # 2. Den Index für die BLOB-Spalte (COL_IMAGE_BLOB) im SOURCE-MODELL erstellen
         blob_index = self.source_model.index(source_index.row(), COL_IMAGE_BLOB)
-        blob_data = self.source_model.data(blob_index) 
+        
+        # 3. Daten abrufen. Hier liegt der Schlüssel: Wir verwenden Qt.ItemDataRole.DisplayRole.
+        blob_data = self.source_model.data(blob_index, Qt.ItemDataRole.DisplayRole)
 
+        # 4. Prüfen, ob die Daten vom Typ QByteArray sind und nicht leer
         if isinstance(blob_data, QByteArray) and not blob_data.isEmpty():
             pixmap = QPixmap()
+            
+            # WICHTIG: loadFromData muss den Typ QByteArray erwarten
             if pixmap.loadFromData(blob_data):
-                self.ui.lb_preview_image_main.setPixmap(pixmap)
+                # Bild proportional skalieren, um in das Label zu passen
+                scaled_pixmap = pixmap.scaled(
+                    self.ui.lb_preview_image_main.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self.ui.lb_preview_image_main.setPixmap(scaled_pixmap)
             else:
                 self.ui.lb_preview_image_main.setText("Fehler beim Laden des Bildformats.")
         else:
             self.ui.lb_preview_image_main.clear()
-            self.ui.lb_preview_image_main.setText("Kein Bild vorhanden.")
+            self.ui.lb_preview_image_main.setText("Kein Bild vorhanden oder Fehler beim Laden.")
 
     @Slot()
     def show_selected_images(self):
@@ -341,7 +395,7 @@ class EqslMainWindow(QMainWindow):
     @Slot(str)
     def _handle_db_path_changed(self, new_db_path: str):
         """
-        **NEUER SLOT:** Wird aufgerufen, wenn der DB-Pfad über die Settings geändert wird.
+        Wird aufgerufen, wenn der DB-Pfad über die Settings geändert wird.
         Schließt die alte Verbindung und versucht, die neue zu öffnen.
         """
         QMessageBox.information(self, "Datenbankwechsel", 
@@ -363,15 +417,16 @@ class EqslMainWindow(QMainWindow):
             self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
             self.source_model.select()
             
-            self.ui.tbl_data_view_main.setModel(self.proxy_model) # View muss das ProxyModel wieder erhalten
+            # Das Proxy-Model erkennt das neue Source-Model automatisch
+            self.ui.tbl_data_view_main.setModel(self.proxy_model) 
             
             # **Wichtig: Die Spalten müssen nach dem Neusetzen des Models erneut ausgeblendet werden.**
             total_columns = self.source_model.columnCount()
-            visible_indices = {COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE,
-                               COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_ITUZ, COL_CQZ,
-                               COL_GRID, COL_IMAGE_BLOB}
+            visible_indices = set(SEARCHABLE_COLUMN_INDICES + [COL_IMAGE_BLOB])
+            
             for col_index in range(total_columns):
-                 if col_index not in visible_indices:
+                 # Wir blenden Spalten aus, die nicht in der Liste der sichtbaren/relevanten Indizes sind.
+                 if col_index not in visible_indices or col_index == COL_IMAGE_BLOB:
                     self.ui.tbl_data_view_main.setColumnHidden(col_index, True)
                  else:
                     self.ui.tbl_data_view_main.setColumnHidden(col_index, False)
@@ -382,12 +437,10 @@ class EqslMainWindow(QMainWindow):
         else:
             QMessageBox.critical(self, "Datenbankfehler", 
                                  f"Konnte neue Datenbank '{new_db_path}' nicht öffnen. Behalte alten Zustand bei (falls möglich).")
-            # Fehlerbehandlung: Wenn möglich, müsste hier die alte Verbindung wiederhergestellt werden.
-            # Da das kritisch ist, ist es besser, den Fehler zu melden.
 
 
 # ----------------------------------------------------------------------
-# main() Funktion für den Programmstart (KORRIGIERT)
+# main() Funktion für den Programmstart 
 # ----------------------------------------------------------------------
 
 def main():
@@ -400,7 +453,7 @@ def main():
     except Exception as e:
         QMessageBox.critical(None, "Startfehler", 
                              f"Konnte SettingsManager nicht initialisieren: {e}")
-        sys.exit(1) # Hier ist sys.exit(1) richtig, da der SettingsManager kritisch ist
+        sys.exit(1) 
         
     db_path = settings_manager.get_current_db_path() 
     
@@ -419,10 +472,6 @@ def main():
                              f"Konnte Datenbank '{db_path}' nicht öffnen. Bitte überprüfen Sie den Pfad in den Settings. Die Anwendung startet ohne Datenzugriff.")
         db_ok = False
         
-    # Wenn die DB nicht geöffnet werden konnte, ist das Objekt `db` immer noch ein 
-    # gültiges QSqlDatabase-Objekt, das wir dem Hauptfenster übergeben.
-    # Die Datenansicht wird dann leer sein, bis der Benutzer in den Settings den Pfad korrigiert.
-    
     # 3. Hauptfenster mit DB-Verbindung UND Settings Manager instanziieren
     main_window = EqslMainWindow(db, settings_manager) 
     
