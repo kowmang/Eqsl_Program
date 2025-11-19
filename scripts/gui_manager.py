@@ -16,8 +16,10 @@ from ..gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
 # Importieren der Logik-Manager
 from .settings_manager import SettingsManager 
 from .adif_importer import AdifImporter
-# NEU: Import des QSL Image Importers
-from .qsl_image_importer import QslImageImporter
+# WICHTIGE ANPASSUNG 1: Import des QSL Image Importers (Bulk)
+from .qsl_image_importer import QslImageImporter 
+# NEU: Import des QSL Single Image Importers
+from .qsl_single_image_importer import QslSingleImageImporter 
 
 # ----------------------------------------------------
 # 1. DEFINITION DER UNTERFENSTER
@@ -208,14 +210,18 @@ class EqslSingleImportWindow(QDialog):
     """
     Fenster für den einzelnen QSO-Import. 
     Wurde auf WindowModal umgestellt.
+    NEU: Enthält Logik für Pfadauswahl und Import-Signal.
     """
+    
+    # NEU: Signal für den Einzelimport an den GuiManager
+    single_card_import_requested = Signal(str, str, str, str, str) # Call, Date, Band, Mode, Path
+    
     def __init__(self, parent=None): 
         super().__init__(parent)
         self.ui = Ui_frm_single_card_import()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Single Card Import)")
         
-        # NEU: Setze die Modalität, um das Parent-Fenster zu blockieren.
         self.setWindowModality(Qt.WindowModality.ApplicationModal) 
         
         self._setup_connections() 
@@ -223,14 +229,66 @@ class EqslSingleImportWindow(QDialog):
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_single_import'):
             self.ui.btn_cancel_frm_single_import.clicked.connect(self.close)
-        pass 
+            
+        # NEU: Verbindung für den 'Select' Button (Pfadauswahl)
+        if hasattr(self.ui, 'btn_select_path_single'):
+             self.ui.btn_select_path_single.clicked.connect(self._open_select_path_dialog)
 
+        # NEU: Verbindung für den 'Import' Button
+        if hasattr(self.ui, 'btn_singlecard_import'):
+             self.ui.btn_singlecard_import.clicked.connect(self._handle_single_import_request)
+             
+        # NEU: Verbindung für den 'Reset' Button
+        if hasattr(self.ui, 'btn_reset_path_single'):
+             self.ui.btn_reset_path_single.clicked.connect(lambda: self.ui.txt_path_singlecard_import.setText(""))
+
+
+    @Slot()
+    def _open_select_path_dialog(self):
+        """Öffnet den Dateidialog zur Auswahl des Bildpfads und setzt das Textfeld."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Bilddatei auswählen", 
+            "", 
+            "Image Files (*.jpg *.jpeg *.png);;Alle Dateien (*)"
+        )
+        if file_path and hasattr(self.ui, 'txt_path_singlecard_import'):
+            self.ui.txt_path_singlecard_import.setText(file_path)
+
+
+    @Slot()
+    def _handle_single_import_request(self):
+        """Sammelt Daten aus den Textfeldern und sendet das Import-Signal."""
+        
+        # Sicherstellen, dass die UI-Elemente existieren, bevor darauf zugegriffen wird
+        if not (hasattr(self.ui, 'txt_callsign_single') and 
+                hasattr(self.ui, 'txt_date_single') and
+                hasattr(self.ui, 'txt_band_single') and
+                hasattr(self.ui, 'txt_mode_single') and
+                hasattr(self.ui, 'txt_path_singlecard_import')):
+            QMessageBox.critical(self, "Fehler", "UI-Elemente sind nicht korrekt definiert.")
+            return
+
+        callsign = self.ui.txt_callsign_single.text().strip()
+        date = self.ui.txt_date_single.text().strip()
+        band = self.ui.txt_band_single.text().strip()
+        mode = self.ui.txt_mode_single.text().strip()
+        image_path = self.ui.txt_path_singlecard_import.text().strip()
+
+        # Einfache Validierung vor dem Senden
+        if not all([callsign, date, band, mode, image_path]):
+            QMessageBox.warning(self, "Import Fehler", "Bitte alle Felder ausfüllen und einen Bildpfad auswählen.")
+            return
+            
+        # Signal senden
+        self.single_card_import_requested.emit(callsign, date, band, mode, image_path)
+        
+        # Der Dialog wird vom GuiManager geschlossen, nachdem das Ergebnis verarbeitet wurde.
+        # Hier schließen wir ihn nicht direkt, um das Ergebnis anzuzeigen.
+
+# ... (EqslBulkImportWindow und andere Fenster unverändert) ...
 class EqslBulkImportWindow(QDialog): 
-    """
-    Fenster für den Bulk-Import von QSL-Karten.
-    Implementiert: Ordnerauswahl, Pfadanzeige, Reset und Import-Signale.
-    """
-    
+    # ... (Unverändert) ...
     # Signale für den GuiManager
     new_bulk_card_dir_selected = Signal(str)
     bulk_card_dir_reset = Signal()
@@ -335,7 +393,6 @@ class EqslBulkImportWindow(QDialog):
 
 
 class EqslHelpWindow(QDialog): 
-    """Fenster für die Manual-Anzeige (Bleibt non-modal)."""
     # ... (Unverändert) ...
     def __init__(self, parent=None): 
         super().__init__(parent)
@@ -385,7 +442,6 @@ class EqslHelpWindow(QDialog):
         pass
 
 class EqslVersionWindow(QDialog): 
-    """Fenster für die Versionsinformationen (Bleibt non-modal)."""
     # ... (Unverändert) ...
     def __init__(self, parent=None): 
         super().__init__(parent)
@@ -457,8 +513,10 @@ class GuiManager(QObject):
         
         initial_db_path = self.settings_manager.get_current_db_path()
         self.adif_importer = AdifImporter(initial_db_path)
-        # NEU: Initialisierung des QSL Image Importers
+        # NEU: Initialisierung des QSL Image Importers (Bulk)
         self.image_importer = QslImageImporter(initial_db_path) 
+        # NEU: Initialisierung des QSL Single Image Importers
+        self.single_image_importer = QslSingleImageImporter(initial_db_path) 
         
         # FIX: Das ist die Korrektur des ursprünglichen Fehlers.
         # Statt der Slots handle_new_db_path/handle_existing_db_path zu verwenden,
@@ -476,6 +534,8 @@ class GuiManager(QObject):
         """Aktualisiert den DB-Pfad in allen Logik-Services."""
         self.adif_importer.db_filepath = db_path
         self.image_importer.db_filepath = db_path
+        # NEU: Single Importer aktualisieren
+        self.single_image_importer.db_filepath = db_path 
         print(f"GuiManager: DB Pfad für Importer aktualisiert auf: {db_path}")
 
     @Slot(str)
@@ -501,6 +561,45 @@ class GuiManager(QObject):
         new_records = self.adif_importer.import_adif_file(adif_filepath)
         
         self.qso_data_updated.emit(new_records)
+        
+    
+    @Slot(str, str, str, str, str)
+    def _handle_single_card_import_request(self, callsign: str, date: str, band: str, mode: str, image_path: str):
+        """
+        Führt den eigentlichen Einzelimport der Bilder durch.
+        """
+        db_path = self.settings_manager.get_current_db_path()
+        
+        if not db_path:
+            QMessageBox.critical(self.single_import_window, "Import Fehler", "Keine Datenbank ausgewählt. Import abgebrochen.")
+            return
+            
+        # Sicherstellen, dass der Importer den aktuellen Pfad verwendet.
+        self.single_image_importer.db_filepath = db_path 
+
+        results = self.single_image_importer.import_single_image(callsign, date, band, mode, image_path)
+        
+        # Zeige die Ergebnisse an und schließe den Dialog
+        if results['success']:
+            QMessageBox.information(
+                self.single_import_window, 
+                "Import erfolgreich", 
+                results['message']
+            )
+            # Schließe den Dialog nach Erfolg
+            self.single_import_window.close()
+            
+            # Emit Signal, falls Hauptfenster Aktualisierung benötigt
+            if results.get('qso_id'):
+                self.qso_data_updated.emit(1)
+                
+        else:
+             QMessageBox.warning(
+                 self.single_import_window, 
+                 "Import fehlgeschlagen", 
+                 f"{results['message']}\n\nDetails: {results['reason']}"
+             )
+
 
     @Slot(str)
     def _handle_bulk_card_import_request(self, dir_path: str):
@@ -536,14 +635,14 @@ class GuiManager(QObject):
             self.qso_data_updated.emit(results['imported'])
         else:
              QMessageBox.warning(
-                self.bulk_import_window, 
-                "Import abgeschlossen", 
-                f"Bulk-Import abgeschlossen, aber keine neuen Bilder importiert.\n"
-                f"Details:\n"
-                f"Gesamtzahl Dateien: {results['total_files']}\n"
-                f"Bereits vorhanden: {results['already_present']}\n"
-                f"QSO nicht gefunden: {results['not_found']}"
-            )
+                 self.bulk_import_window, 
+                 "Import abgeschlossen", 
+                 f"Bulk-Import abgeschlossen, aber keine neuen Bilder importiert.\n"
+                 f"Details:\n"
+                 f"Gesamtzahl Dateien: {results['total_files']}\n"
+                 f"Bereits vorhanden: {results['already_present']}\n"
+                 f"QSO nicht gefunden: {results['not_found']}"
+             )
 
 
     @Slot()
@@ -586,6 +685,11 @@ class GuiManager(QObject):
         if self.single_import_window is None:
             # Übergabe des Parent-Fensters ist wichtig für WindowModal
             self.single_import_window = EqslSingleImportWindow(parent=self.main_window)
+            
+            # NEU: Verbindung für den Einzelimport-Request
+            self.single_import_window.single_card_import_requested.connect(
+                self._handle_single_card_import_request
+            )
             
         # NEU: .exec() blockiert die Ausführung.
         self.single_import_window.exec() 
