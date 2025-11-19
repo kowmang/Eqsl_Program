@@ -16,7 +16,7 @@ class ImageViewerDialog(QDialog):
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setScaledContents(True)
         self.image_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
-        self.image_label.setMinimumSize(400, 400)
+        self.image_label.setMinimumSize(700, 400)
         
         self.prev_button = QPushButton("<- Zurück")
         self.next_button = QPushButton("Weiter ->")
