@@ -35,42 +35,21 @@
     <string>Cancel</string>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_time_1">
+  <widget class="QLineEdit" name="txt_date_single">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>100</y>
-     <width>111</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Time</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignmentFlag::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="le_date_1">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>130</y>
+     <x>260</x>
+     <y>150</y>
      <width>111</width>
      <height>30</height>
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_reset_singlecard">
+  <widget class="QPushButton" name="btn_reset_path_single">
    <property name="geometry">
     <rect>
-     <x>530</x>
-     <y>440</y>
+     <x>500</x>
+     <y>330</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -85,11 +64,11 @@
     <string>Reset</string>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_mode_1">
+  <widget class="QLabel" name="lb_mode_single">
    <property name="geometry">
     <rect>
-     <x>520</x>
-     <y>100</y>
+     <x>630</x>
+     <y>120</y>
      <width>101</width>
      <height>27</height>
     </rect>
@@ -106,31 +85,21 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_callsign_5">
+  <widget class="QLineEdit" name="txt_mode_single">
    <property name="geometry">
     <rect>
-     <x>520</x>
-     <y>130</y>
+     <x>630</x>
+     <y>150</y>
      <width>101</width>
      <height>30</height>
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_dxcc_number_1">
+  <widget class="QLabel" name="lb_band_single">
    <property name="geometry">
     <rect>
-     <x>630</x>
-     <y>130</y>
-     <width>111</width>
-     <height>30</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lb_band_1">
-   <property name="geometry">
-    <rect>
-     <x>410</x>
-     <y>100</y>
+     <x>450</x>
+     <y>120</y>
      <width>101</width>
      <height>27</height>
     </rect>
@@ -147,21 +116,11 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_time_1">
-   <property name="geometry">
-    <rect>
-     <x>310</x>
-     <y>130</y>
-     <width>91</width>
-     <height>30</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_search_path_singlecard_upload">
+  <widget class="QPushButton" name="btn_select_path_single">
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>440</y>
+     <y>330</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -173,14 +132,14 @@
     </font>
    </property>
    <property name="text">
-    <string>Search</string>
+    <string>Select</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_upload_singlecard">
+  <widget class="QPushButton" name="btn_singlecard_import">
    <property name="geometry">
     <rect>
      <x>650</x>
-     <y>440</y>
+     <y>330</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -192,14 +151,14 @@
     </font>
    </property>
    <property name="text">
-    <string>Upload</string>
+    <string>Import</string>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_date_1">
+  <widget class="QLabel" name="lb_date_single">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>100</y>
+     <x>250</x>
+     <y>120</y>
      <width>127</width>
      <height>27</height>
     </rect>
@@ -216,11 +175,11 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_callsign_1">
+  <widget class="QLineEdit" name="txt_callsign_single">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>130</y>
+     <y>150</y>
      <width>111</width>
      <height>30</height>
     </rect>
@@ -230,7 +189,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>410</y>
+     <y>300</y>
      <width>301</width>
      <height>27</height>
     </rect>
@@ -241,17 +200,17 @@
     </font>
    </property>
    <property name="text">
-    <string>Path for Single Card Upload</string>
+    <string>Path for Single Card Import</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_path_singlecard">
+  <widget class="QLineEdit" name="txt_path_singlecard_import">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>440</y>
+     <y>330</y>
      <width>300</width>
      <height>30</height>
     </rect>
@@ -262,31 +221,10 @@
     </font>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_dxcc_number_1">
-   <property name="geometry">
-    <rect>
-     <x>630</x>
-     <y>100</y>
-     <width>111</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>DXCC Number</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignmentFlag::AlignCenter</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="lb_single_card_upload_section">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>50</y>
      <width>601</width>
      <height>27</height>
@@ -304,11 +242,11 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_callsign_1">
+  <widget class="QLabel" name="lb_callsign_single">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>100</y>
+     <x>60</x>
+     <y>120</y>
      <width>127</width>
      <height>27</height>
     </rect>
@@ -325,11 +263,11 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="le_mode_1">
+  <widget class="QLineEdit" name="txt_band_single">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>130</y>
+     <x>450</x>
+     <y>150</y>
      <width>101</width>
      <height>30</height>
     </rect>
