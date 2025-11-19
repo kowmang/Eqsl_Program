@@ -232,15 +232,31 @@ class EqslSingleImportWindow(QDialog):
             
         # NEU: Verbindung für den 'Select' Button (Pfadauswahl)
         if hasattr(self.ui, 'btn_select_path_single'):
-             self.ui.btn_select_path_single.clicked.connect(self._open_select_path_dialog)
+            self.ui.btn_select_path_single.clicked.connect(self._open_select_path_dialog)
 
         # NEU: Verbindung für den 'Import' Button
         if hasattr(self.ui, 'btn_singlecard_import'):
-             self.ui.btn_singlecard_import.clicked.connect(self._handle_single_import_request)
-             
+            self.ui.btn_singlecard_import.clicked.connect(self._handle_single_import_request)
+            
         # NEU: Verbindung für den 'Reset' Button
         if hasattr(self.ui, 'btn_reset_path_single'):
-             self.ui.btn_reset_path_single.clicked.connect(lambda: self.ui.txt_path_singlecard_import.setText(""))
+            # self.ui.btn_reset_path_single.clicked.connect(lambda: self.ui.txt_path_singlecard_import.setText("")) # ALTE ZEILE
+            self.ui.btn_reset_path_single.clicked.connect(self._reset_all_fields) # NEUE ZEILE
+
+    @Slot()
+    def _reset_all_fields(self):
+        """Setzt alle Eingabefelder im Einzelimport-Fenster zurück."""
+        # Setzt Call, Date, Band, Mode und Path zurück
+        if hasattr(self.ui, 'txt_callsign_single'):
+            self.ui.txt_callsign_single.setText("")
+        if hasattr(self.ui, 'txt_date_single'):
+            self.ui.txt_date_single.setText("")
+        if hasattr(self.ui, 'txt_band_single'):
+            self.ui.txt_band_single.setText("")
+        if hasattr(self.ui, 'txt_mode_single'):
+            self.ui.txt_mode_single.setText("")
+        if hasattr(self.ui, 'txt_path_singlecard_import'):
+            self.ui.txt_path_singlecard_import.setText("")
 
 
     @Slot()
