@@ -13,7 +13,7 @@ from .scripts.gui_manager import GuiManager
 from .scripts.settings_manager import SettingsManager 
 from .scripts.image_viewer_dialog import ImageViewerDialog 
 
-# Definition der Spalten-Indizes (0-basiert, basierend auf Ihrer DB_COLUMNS-Liste)
+# Definition der Spalten-Indizes (0-basiert)
 COL_CALL = 1
 COL_QSO_DATE = 2
 COL_TIME_ON = 3
@@ -28,7 +28,7 @@ COL_GRID = 17
 
 COL_IMAGE_BLOB = 29 
 
-# Liste der durchsuchbaren Spalten (die sichtbar sein sollen)
+# Liste der durchsuchbaren Spalten
 SEARCHABLE_COLUMN_INDICES = [
     COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE, 
     COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_CQZ, COL_ITUZ, COL_GRID
@@ -36,7 +36,7 @@ SEARCHABLE_COLUMN_INDICES = [
 
 
 # ======================================================================
-# NEUE KLASSE: Benutzerdefiniertes Proxy-Modell für Multi-Spalten-ODER-Filterung
+# Benutzerdefiniertes Proxy-Modell für Multi-Spalten-ODER-Filterung
 # ======================================================================
 class MultiColumnFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None, searchable_indices=None):
@@ -55,20 +55,18 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         """
-        Implementiert die ODER-Logik über alle definierten Spalten: 
-        Die Zeile wird akzeptiert, wenn EINER der Suchbegriffe in EINER der Spalten gefunden wird.
+        Implementiert die ODER-Logik: Zeile wird akzeptiert, wenn EINER der Suchbegriffe 
+        in EINER der definierten Spalten gefunden wird.
         """
         if not self.search_terms:
-            return True # Keine Suchbegriffe => Zeile akzeptiert
+            return True 
 
         source_model = self.sourceModel()
         
-        # ODER-Logik: Prüfen, ob MINDESTENS EIN Suchbegriff in irgendeiner Spalte gefunden wird
+        # ODER-Logik
         for term in self.search_terms:
-            # Suche nach diesem EINEN Begriff in allen durchsuchbaren Spalten der Zeile
             for col_index in self.searchable_indices:
                 index = source_model.index(source_row, col_index, source_parent)
-                # Daten abrufen (DisplayRole ist robuster für QSqlTableModel-Werte)
                 data = source_model.data(index, Qt.ItemDataRole.DisplayRole)
                 
                 if data is None:
@@ -82,7 +80,7 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
                 except:
                     continue
 
-        # Keiner der Suchbegriffe wurde in irgendeiner Spalte gefunden => Zeile ablehnen
+        # Keiner der Suchbegriffe wurde gefunden => Zeile ablehnen
         return False
 
 
@@ -91,30 +89,28 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
 # ======================================================================
 class EqslMainWindow(QMainWindow):
     
-    # Konstruktor akzeptiert DB und SettingsManager
     def __init__(self, db_conn: QSqlDatabase, settings_manager: SettingsManager): 
         super().__init__()
         
         self.db = db_conn
         self.settings_manager = settings_manager 
         
-        # Instanziierung des GuiManagers
+        # NEU: Speichervariable für die Standard-Pixmap
+        self.default_pixmap = QPixmap() 
+        
         self.gui_manager = GuiManager(
             db_conn=self.db, 
             settings_manager=self.settings_manager,
             main_window=self 
         ) 
 
-        # UI-Klasse instanziieren und anwenden
         self.ui = Ui_frm_main_window()
         self.ui.setupUi(self)
         self.setWindowTitle("eQSL Programm (Hauptfenster)")
 
-        # Models und UI-Elemente initialisieren
         self._setup_models()
         self._setup_ui_elements()
         
-        # Verbindungen zur Logik einrichten
         self._setup_connections()
 
     def _setup_models(self):
@@ -125,15 +121,12 @@ class EqslMainWindow(QMainWindow):
         self.source_model.setTable(table_name)
         self.source_model.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
         
-        # ----------------------------------------------------------------------
-        # TEIL A: SPALTENÜBERSCHRIFTEN SETZEN
-        # ----------------------------------------------------------------------
+        # Spaltenüberschriften setzen
         self.source_model.setHeaderData(COL_CALL, Qt.Orientation.Horizontal, "Call")
         self.source_model.setHeaderData(COL_QSO_DATE, Qt.Orientation.Horizontal, "Date")
         self.source_model.setHeaderData(COL_TIME_ON, Qt.Orientation.Horizontal, "Time")
         self.source_model.setHeaderData(COL_BAND, Qt.Orientation.Horizontal, "Band")
         self.source_model.setHeaderData(COL_MODE, Qt.Orientation.Horizontal, "Mode")
-        # NEUE HEADER
         self.source_model.setHeaderData(COL_FREQ, Qt.Orientation.Horizontal, "Frequenz")
         self.source_model.setHeaderData(COL_ITUZ, Qt.Orientation.Horizontal, "ITU Zone")
         self.source_model.setHeaderData(COL_CQZ, Qt.Orientation.Horizontal, "CQ Zone")
@@ -143,7 +136,7 @@ class EqslMainWindow(QMainWindow):
         self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
         self.source_model.select()
 
-        # 2. MultiColumnFilterProxyModel initialisieren (NEU)
+        # 2. MultiColumnFilterProxyModel initialisieren
         self.proxy_model = MultiColumnFilterProxyModel(self, searchable_indices=SEARCHABLE_COLUMN_INDICES) 
         self.proxy_model.setSourceModel(self.source_model)
         
@@ -152,16 +145,11 @@ class EqslMainWindow(QMainWindow):
         self.ui.tbl_data_view_main.setSelectionBehavior(self.ui.tbl_data_view_main.SelectionBehavior.SelectRows)
         self.ui.tbl_data_view_main.setSortingEnabled(True)
 
-        # ----------------------------------------------------------------------
-        # TEIL B: NICHT GEWÜNSCHTE SPALTEN AUSBLENDEN
-        # ----------------------------------------------------------------------
+        # Spalten ausblenden
         total_columns = self.source_model.columnCount()
-        
-        # Liste aller Spalten, die in der View sichtbar oder für die Vorschau relevant sein sollen
         visible_indices = set(SEARCHABLE_COLUMN_INDICES + [COL_IMAGE_BLOB]) 
 
         for col_index in range(total_columns):
-            # Wir blenden Spalten aus, die nicht in der Liste der sichtbaren/relevanten Indizes sind.
             if col_index not in visible_indices or col_index == COL_IMAGE_BLOB:
                 self.ui.tbl_data_view_main.setColumnHidden(col_index, True)
             else:
@@ -169,25 +157,46 @@ class EqslMainWindow(QMainWindow):
 
 
     def _setup_ui_elements(self):
+        """Konfiguriert UI-Elemente und lädt das Standardbild."""
         # Preview Label für die Bildanzeige konfigurieren
         self.ui.lb_preview_image_main.setScaledContents(True)
         self.ui.lb_preview_image_main.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.ui.lb_preview_image_main.setText("Wählen Sie eine Zeile, um die Bildvorschau zu sehen.")
+        
+        # NEU: Standardbild laden
+        # HINWEIS: Passen Sie diesen Pfad an, falls Ihr Standardbild woanders liegt!
+        # Beispiel: 'support_data/default_preview.png'
+        default_image_path = os.path.join(os.path.dirname(__file__), 'support_data', 'default_preview.png')
+        
+        if self.default_pixmap.load(default_image_path):
+             self._set_default_preview()
+        else:
+             self.ui.lb_preview_image_main.setText("Kein Bild ausgewählt. (Default-Bild fehlt.)")
+
+
+    def _set_default_preview(self):
+        """Hilfsfunktion, um das skalierte Standardbild zu setzen."""
+        if not self.default_pixmap.isNull():
+             # Bild proportional skalieren, um in das Label zu passen
+             scaled_pixmap = self.default_pixmap.scaled(
+                 self.ui.lb_preview_image_main.size(),
+                 Qt.AspectRatioMode.KeepAspectRatio,
+                 Qt.TransformationMode.SmoothTransformation
+             )
+             self.ui.lb_preview_image_main.setPixmap(scaled_pixmap)
+        else:
+            self.ui.lb_preview_image_main.setText("Kein Bild ausgewählt.")
+
 
     def _setup_connections(self):
-        """Verbindet die UI-Elemente mit dem GuiManager oder lokalen Slots (inkl. neuer Logik)."""
+        """Verbindet die UI-Elemente mit dem GuiManager oder lokalen Slots."""
         
-        # ----------------------------------------------------------------------
-        # A) LOKALE AKTIONEN (Filterung, Markierung, Export)
-        # ----------------------------------------------------------------------
-        
-        # Filterung (VERWENDET JETZT DIE NEUE PROXY-KLASSE)
+        # Filterung
         self.ui.btn_search_main.clicked.connect(lambda: self.filter_data_flex(self.ui.txt_search_field_main.text()))
-        self.ui.btn_reset_main.clicked.connect(self.reset_filter)
-
+        self.ui.btn_reset_main.clicked.connect(self.reset_filter) # ANGEPASST
+        
         # Selektion
         self.ui.btn_markall_main.clicked.connect(self.mark_all)
-        self.ui.btn_unmarkall_main.clicked.connect(self.unmark_all)
+        self.ui.btn_unmarkall_main.clicked.connect(self.unmark_all) # ANGEPASST
         
         # Aktionen für Bilder
         self.ui.btn_show_image.clicked.connect(self.show_selected_images)
@@ -196,42 +205,22 @@ class EqslMainWindow(QMainWindow):
         # Vorschau bei Auswahländerung
         self.ui.tbl_data_view_main.selectionModel().currentChanged.connect(self.show_preview)
         
-        # ----------------------------------------------------------------------
-        # B) KRITISCHE AKTIONEN (Menü-Bar) ZUM GuiManager
-        # ----------------------------------------------------------------------
-        
-        # Settings
+        # Menü-Aktionen (zum GuiManager)
         if hasattr(self.ui, 'actionSettings'):
             self.ui.actionSettings.triggered.connect(self.gui_manager.open_settings)
-            
-        # Single Card Import
         if hasattr(self.ui, 'actionSingle_Card_Import'):
             self.ui.actionSingle_Card_Import.triggered.connect(self.gui_manager.open_single_import)
-            
-        # Bulk Import
         if hasattr(self.ui, 'actionBulk_Card_Import'):
             self.ui.actionBulk_Card_Import.triggered.connect(self.gui_manager.open_bulk_import)
-            
-        # Hilfe
         if hasattr(self.ui, 'actionManual'):
             self.ui.actionManual.triggered.connect(self.gui_manager.open_help) 
-            
-        # Version
         if hasattr(self.ui, 'actionVersion_Info'):
             self.ui.actionVersion_Info.triggered.connect(self.gui_manager.open_version_info)
-        
-        # Exit (Annahme: actionExit existiert)
         if hasattr(self.ui, 'actionExit'):
             self.ui.actionExit.triggered.connect(self.close)
 
-        # ----------------------------------------------------------------------
-        # C) KRITISCHE VERBINDUNG: DB-PFAD-ÄNDERUNG
-        # ----------------------------------------------------------------------
-        
-        # Wenn der DB-Pfad in den Settings geändert wird
+        # DB-Pfad-Änderung & Datenaktualisierung
         self.settings_manager.db_path_selected.connect(self._handle_db_path_changed)
-
-        # Signal des GuiManagers für Datenaktualisierung verbinden
         self.gui_manager.qso_data_updated.connect(self._refresh_model)
 
 
@@ -246,14 +235,19 @@ class EqslMainWindow(QMainWindow):
         
     @Slot()
     def reset_filter(self):
-        """Setzt das Textfeld zurück und entfernt den dynamischen Filter."""
+        """Setzt das Textfeld zurück, entfernt den dynamischen Filter UND setzt die Vorschau zurück."""
         self.ui.txt_search_field_main.clear()
         self.filter_data_flex("") 
+        
+        # NEU: Auswahl löschen und Default-Bild setzen
+        self.ui.tbl_data_view_main.selectionModel().clearSelection()
+        self._set_default_preview()
         
     @Slot()
     def mark_all(self):
         """Wählt alle aktuell sichtbaren Zeilen aus."""
-        self.ui.tbl_data_view_main.selectionModel().clearSelection()
+        # Das Löschen der Auswahl ist am Anfang nötig, da sonst die Auswahl im SelectionModel bestehen bleibt
+        self.ui.tbl_data_view_main.selectionModel().clearSelection() 
         
         row_count = self.proxy_model.rowCount()
         if row_count > 0:
@@ -268,33 +262,29 @@ class EqslMainWindow(QMainWindow):
 
     @Slot()
     def unmark_all(self):
-        """Hebt die gesamte Auswahl auf."""
+        """Hebt die gesamte Auswahl auf UND setzt die Vorschau zurück."""
         self.ui.tbl_data_view_main.selectionModel().clearSelection()
+        # NEU: Default-Bild setzen, nachdem die Auswahl aufgehoben wurde
+        self._set_default_preview()
+
 
     @Slot(QModelIndex, QModelIndex)
     def show_preview(self, current_index: QModelIndex, previous_index: QModelIndex):
-        """Zeigt das Bild des aktuell ausgewählten Datensatzes in der Vorschau an."""
+        """Zeigt das Bild des aktuell ausgewählten Datensatzes oder das Standardbild an."""
+        
+        # Wichtig: Wenn current_index ungültig ist (z.B. nach Filter-Reset), wird der Default gesetzt
         if not current_index.isValid():
-            self.ui.lb_preview_image_main.clear()
-            self.ui.lb_preview_image_main.setText("Kein Bild ausgewählt.")
+            self._set_default_preview() 
             return
 
-        # 1. Index vom Proxy-Modell auf das Quellmodell mappen (wichtig!)
         source_index = self.proxy_model.mapToSource(current_index)
-        
-        # 2. Den Index für die BLOB-Spalte (COL_IMAGE_BLOB) im SOURCE-MODELL erstellen
         blob_index = self.source_model.index(source_index.row(), COL_IMAGE_BLOB)
-        
-        # 3. Daten abrufen. Hier liegt der Schlüssel: Wir verwenden Qt.ItemDataRole.DisplayRole.
         blob_data = self.source_model.data(blob_index, Qt.ItemDataRole.DisplayRole)
 
-        # 4. Prüfen, ob die Daten vom Typ QByteArray sind und nicht leer
         if isinstance(blob_data, QByteArray) and not blob_data.isEmpty():
             pixmap = QPixmap()
             
-            # WICHTIG: loadFromData muss den Typ QByteArray erwarten
             if pixmap.loadFromData(blob_data):
-                # Bild proportional skalieren, um in das Label zu passen
                 scaled_pixmap = pixmap.scaled(
                     self.ui.lb_preview_image_main.size(),
                     Qt.AspectRatioMode.KeepAspectRatio,
@@ -302,10 +292,13 @@ class EqslMainWindow(QMainWindow):
                 )
                 self.ui.lb_preview_image_main.setPixmap(scaled_pixmap)
             else:
+                 # Fehler beim Laden des Bildformats, zeige Standardbild
                 self.ui.lb_preview_image_main.setText("Fehler beim Laden des Bildformats.")
+                self._set_default_preview() 
         else:
-            self.ui.lb_preview_image_main.clear()
-            self.ui.lb_preview_image_main.setText("Kein Bild vorhanden oder Fehler beim Laden.")
+            # Kein Bild vorhanden oder BLOB leer, zeige Standardbild
+            self._set_default_preview()
+
 
     @Slot()
     def show_selected_images(self):
@@ -331,16 +324,13 @@ class EqslMainWindow(QMainWindow):
     def download_selected_images(self):
         """Lädt ausgewählte Bilder in den Settings-definierten Ordner herunter."""
         
-        # 1. Download-Pfad aus den Settings holen
         download_folder = self.settings_manager.get_current_download_dir()
         
-        # 2. Prüfen, ob der Download-Pfad gesetzt und gültig ist
         if not download_folder or not os.path.isdir(download_folder):
             QMessageBox.critical(self, "Download-Fehler", 
                                  "Der Download-Pfad ist in den Settings nicht gesetzt oder ungültig. Bitte prüfen Sie die Einstellungen.")
             return
         
-        # ANNAHME: Das Exportformat muss fest im Code oder in den Settings definiert sein.
         file_format = "PNG" 
 
         selected_rows = self.ui.tbl_data_view_main.selectionModel().selectedRows()
@@ -370,7 +360,6 @@ class EqslMainWindow(QMainWindow):
             filename_base = f"{call}_{date}_{time}_{band}_{mode}"
             safe_filename = re.sub(r'[^\w\-]', '_', str(filename_base)) 
             
-            # Pfad mit os.path.join() erstellen (besser für OS-Kompatibilität)
             file_path = os.path.join(download_folder, f"{safe_filename}.{file_format.lower()}")
 
             # Speichern
@@ -386,7 +375,6 @@ class EqslMainWindow(QMainWindow):
     @Slot()
     def _refresh_model(self):
         """Aktualisiert das Datenmodell, z.B. nach einem Import."""
-        # WICHTIG: select() muss aufgerufen werden, damit das QSqlTableModel die DB neu abfragt.
         self.source_model.select()
         print("EqslMainWindow: Datenmodell nach Import aktualisiert.")
         QMessageBox.information(self, "Aktualisierung", "Die Datenansicht wurde erfolgreich aktualisiert.")
@@ -396,7 +384,6 @@ class EqslMainWindow(QMainWindow):
     def _handle_db_path_changed(self, new_db_path: str):
         """
         Wird aufgerufen, wenn der DB-Pfad über die Settings geändert wird.
-        Schließt die alte Verbindung und versucht, die neue zu öffnen.
         """
         QMessageBox.information(self, "Datenbankwechsel", 
                                 f"Versuche, die Datenbankverbindung zu wechseln: {new_db_path}")
@@ -410,22 +397,20 @@ class EqslMainWindow(QMainWindow):
         
         # 3. Neue Verbindung öffnen
         if self.db.open():
-            # 4. Modell neu initialisieren (muss mit neuer DB-Verbindung arbeiten)
+            # 4. Modell neu initialisieren 
             table_name = self.settings_manager.settings.get("table_name", "eqsl_data")
             
             self.source_model.setTable(table_name)
             self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
             self.source_model.select()
             
-            # Das Proxy-Model erkennt das neue Source-Model automatisch
             self.ui.tbl_data_view_main.setModel(self.proxy_model) 
             
-            # **Wichtig: Die Spalten müssen nach dem Neusetzen des Models erneut ausgeblendet werden.**
+            # Spalten erneut ausblenden.
             total_columns = self.source_model.columnCount()
             visible_indices = set(SEARCHABLE_COLUMN_INDICES + [COL_IMAGE_BLOB])
             
             for col_index in range(total_columns):
-                 # Wir blenden Spalten aus, die nicht in der Liste der sichtbaren/relevanten Indizes sind.
                  if col_index not in visible_indices or col_index == COL_IMAGE_BLOB:
                     self.ui.tbl_data_view_main.setColumnHidden(col_index, True)
                  else:
