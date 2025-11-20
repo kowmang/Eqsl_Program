@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDialog, QSizePolicy, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QDialog, QSizePolicy, QTextEdit,
+    QVBoxLayout, QWidget)
 
 class Ui_frm_version(object):
     def setupUi(self, frm_version):
@@ -25,6 +25,11 @@ class Ui_frm_version(object):
         frm_version.resize(500, 500)
         self.verticalLayout = QVBoxLayout(frm_version)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.txt_version_credits = QTextEdit(frm_version)
+        self.txt_version_credits.setObjectName(u"txt_version_credits")
+
+        self.verticalLayout.addWidget(self.txt_version_credits)
+
 
         self.retranslateUi(frm_version)
 

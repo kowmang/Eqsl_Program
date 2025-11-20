@@ -4,22 +4,22 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt, QByteArray
 
 class ImageViewerDialog(QDialog):
-    """Zeigt eine Liste von Bildern (als QByteArray) in einer durchklickbaren Galerie."""
+    """Displays a list of images (as QByteArray) in a clickable gallery."""
     def __init__(self, image_data_list: list[QByteArray], parent=None):
         super().__init__(parent)
-        self.setWindowTitle("eQSL Galerieansicht")
+        self.setWindowTitle("eQSL Gallery View")
         self.image_data_list = image_data_list
         self.current_index = 0
         
-        # --- UI-Elemente ---
+        # --- UI Elements ---
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setScaledContents(True)
         self.image_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
         self.image_label.setMinimumSize(700, 400)
         
-        self.prev_button = QPushButton("<- Zurück")
-        self.next_button = QPushButton("Weiter ->")
+        self.prev_button = QPushButton("<- Back")
+        self.next_button = QPushButton("Next ->")
         self.counter_label = QLabel()
         self.counter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
@@ -33,38 +33,38 @@ class ImageViewerDialog(QDialog):
         main_layout.addWidget(self.image_label)
         main_layout.addLayout(button_layout)
         
-        # --- Verbindungen ---
+        # --- Connections ---
         self.prev_button.clicked.connect(self.show_previous)
         self.next_button.clicked.connect(self.show_next)
         
         self.update_viewer()
 
     def update_viewer(self):
-        """Lädt das aktuelle Bild und aktualisiert die Steuerelemente."""
+        """Loads the current image and updates the controls."""
         if not self.image_data_list:
-            self.image_label.setText("Keine Bilder vorhanden.")
+            self.image_label.setText("No images available.")
             self.prev_button.setEnabled(False)
             self.next_button.setEnabled(False)
             return
 
-        # QPixmap aus dem QByteArray laden
+        # Load QPixmap from QByteArray
         pixmap = QPixmap()
         blob_data = self.image_data_list[self.current_index]
         
         if pixmap.loadFromData(blob_data):
-            # Skaliert das Bild auf die Größe des Labels
+            # Scales the image to the size of the label
             self.image_label.setPixmap(pixmap.scaled(
                 self.image_label.size(), 
                 Qt.AspectRatioMode.KeepAspectRatio, 
                 Qt.TransformationMode.SmoothTransformation
             ))
         else:
-            self.image_label.setText("Ladefehler (Ungültiges Bildformat).")
+            self.image_label.setText("Load error (Invalid image format).")
         
-        # Button-Status und Zähler aktualisieren
+        # Update button status and counter
         self.prev_button.setEnabled(self.current_index > 0)
         self.next_button.setEnabled(self.current_index < len(self.image_data_list) - 1)
-        self.counter_label.setText(f"Bild {self.current_index + 1} von {len(self.image_data_list)}")
+        self.counter_label.setText(f"Image {self.current_index + 1} of {len(self.image_data_list)}")
 
     def show_previous(self):
         if self.current_index > 0:
@@ -77,6 +77,6 @@ class ImageViewerDialog(QDialog):
             self.update_viewer()
 
     def resizeEvent(self, event):
-        """Stellt sicher, dass das Bild beim Ändern der Fenstergröße skaliert wird."""
+        """Ensures the image scales when the window size changes."""
         super().resizeEvent(event)
         self.update_viewer()
