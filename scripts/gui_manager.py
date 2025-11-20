@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (
     QMainWindow, QDialog, QVBoxLayout, QTextBrowser, 
-    QFileDialog, QMessageBox, QWidget 
+    QFileDialog, QMessageBox, QWidget, QTextEdit
 )
 from PySide6.QtCore import Slot, Signal, QObject, Qt 
 from PySide6.QtGui import QFont
@@ -425,50 +425,80 @@ class EqslHelpWindow(QDialog):
 
 class EqslVersionWindow(QDialog): 
     def __init__(self, parent: Optional[QWidget] = None): 
+        # Da Sie die Klasse außerhalb des globalen Scopes definiert haben, 
+        # müssen wir die Typ-Imports beibehalten.
         super().__init__(parent)
         self.ui: Ui_frm_version = Ui_frm_version()
         self.ui.setupUi(self) # type: ignore
-        self.setWindowTitle("eQSL Programm (Version Info)")
         
-        self._load_version_content() 
+        # Titel gemäß Ihrem Wunsch setzen
+        self.setWindowTitle("eQSL Programm (Version und Credits)")
+        
+        # NEU: Direkte Zuweisung des formatierten Inhalts
+        self._setup_text_content() 
         self._setup_connections() 
         
-    def _load_version_content(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        html_path = os.path.join(base_dir, '..', 'support_data', 'version.html')
-
-        html_content = ""
-        if not os.path.exists(html_path):
-            html_content = (
-                f"<h1>Fehler: version.html nicht gefunden!</h1>"
-                f"<p>Erwarteter Pfad: <code>{html_path}</code></p>"
-            )
-        else:
-            try:
-                with open(html_path, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
-            except Exception as e:
-                html_content = f"<h1>Fehler beim Lesen der Datei!</h1><p>{e}</p>"
+    def _setup_text_content(self):
+        """Konfiguriert das QTextEdit-Widget und lädt den festen, formatierten Inhalt."""
         
-        widget: Optional[Union[QTextBrowser, 'QWidget']] = None
-        if hasattr(self.ui, 'textBrowser'):
-            widget = self.ui.textBrowser # type: ignore
-        elif hasattr(self.ui, 'textEdit'):
-            widget = self.ui.textEdit # type: ignore
-            widget.setReadOnly(True) # type: ignore
-        
-        if widget:
-            widget.setHtml(html_content) # type: ignore
-            widget.setFont(QFont("Arial", 10)) # type: ignore
-        else:
-            browser = QTextBrowser(self)
-            browser.setHtml(html_content)
-            if self.layout() is None:
-                layout = QVBoxLayout(self)
-                self.setLayout(layout)
-            if self.layout() is not None:
-                self.layout().addWidget(browser)
+        # 1. Prüfen und Konfigurieren des QTextEdit-Widgets ('txt_version_credits')
+        if hasattr(self.ui, 'txt_version_credits') and isinstance(self.ui.txt_version_credits, QTextEdit):
+            text_edit: QTextEdit = self.ui.txt_version_credits
             
+            # Wichtig: Schreibgeschützt machen
+            text_edit.setReadOnly(True) 
+            text_edit.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            
+            # 2. Den gewünschten Text als HTML formatieren (zentriert und gestylt)
+            html_content = """
+            <div align='center'>
+                <h1 style='font-size: 18pt; margin-bottom: 5px; color: #0078D4;'>
+                    eQSL Programm
+                </h1>
+                <h2 style='font-size: 14pt; margin-top: 0;'>
+                    Version 0.1.0
+                </h2>
+                <p>
+                    <b>Release Datum:</b> 19. November 2025
+                </p>
+                <hr width='70%' style='border: 1px solid #ccc;'>
+
+                <h3 style='font-weight: bold;'>New Function in 0.1.0:</h3>
+                <p>
+                    First public release,<br>
+                    for info read manual<br>
+                    or readme<br>
+                </p>
+                
+                <br>
+                
+                <h3 style='font-weight: bold; color: #555;'>Created by</h3>
+                <p style='font-size: 12pt; font-weight: bold; color: #0078D4;'>
+                    SuccuS
+                </p>
+                
+                <br>
+                
+                <h3 style='font-weight: bold;'>Credits to:</h3>
+                <p>
+                    Text to fill in at<br>
+                    first public release
+                </p>
+            </div>
+            """
+            
+            # 3. Inhalt zuweisen
+            text_edit.setHtml(html_content)
+            
+            # Sie können die Basis-Schriftart setzen, falls gewünscht (optional)
+            text_edit.setFont(QFont("Arial", 10)) 
+
+        else:
+            # Falls das Widget im UI-Code anders benannt wurde oder fehlt.
+            print("FEHLER: QTextEdit 'txt_version_credits' wurde nicht gefunden oder ist der falsche Typ.")
+            QMessageBox.critical(self, "UI Fehler", "Das Version-Textfeld konnte nicht gefunden werden.")
+
+    # Die Methode _setup_connections kann leer bleiben, da im Version-Fenster keine Logik nötig ist.
     def _setup_connections(self):
         pass
 
