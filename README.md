@@ -12,7 +12,9 @@ a specific folder.
 
 The program is written in Python, and the GUI is created with QT Designer.
 
-Author SuccuS
+By
+
+![KowMang](./support_data/default_preview.png)
 
 
 
@@ -30,5 +32,7 @@ einen bestimmten Ordner zurück in das .png-Format konvertiert werden können.
 
 Das Programm ist in Python geschrieben, und die GUI wurde mit QT Designer erstellt.
 
-Autor SuccuS
+By
+
+![KowMang](./support_data/default_preview.png)
 
