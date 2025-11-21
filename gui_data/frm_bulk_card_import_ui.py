@@ -73,7 +73,8 @@ class Ui_frm_bulk_card_import(object):
         self.btn_import_bulkcard.setText(QCoreApplication.translate("frm_bulk_card_import", u"Import", None))
         self.btn_reset_bulkcard.setText(QCoreApplication.translate("frm_bulk_card_import", u"Reset", None))
         self.lb_path_bulkcard.setText(QCoreApplication.translate("frm_bulk_card_import", u"Path for Bulk Card Upload", None))
-        self.lb_warning_bulk_upload_1.setText(QCoreApplication.translate("frm_bulk_card_import", u"Warning for correct folder structure and filename syntax!!!", None))
+        self.lb_warning_bulk_upload_1.setText(QCoreApplication.translate("frm_bulk_card_import", u"<html><head/><body><p align=\"center\">Warning! Images for upload must have a filename defined by the AC9HP downloader,<br>which should be like this and the .jpg or .png format: <br><br><br>\n"
+"<span style=\" font-size:10pt; font-weight:700;\">Callsign=EA2BHE_VisitorCallsign=OE4VMB_QSODate=2025-09-01_15_23_00_0_Band=20M_Mode=FT8</span></p><p><br/></p><p><br/></p></body></html>", None))
         self.lb_bulk_card_upload_section.setText(QCoreApplication.translate("frm_bulk_card_import", u"Bulk Card Import for Eqsl downloaded by AC9HP Downloader", None))
         self.btn_cancel_frm_bulk_import.setText(QCoreApplication.translate("frm_bulk_card_import", u"Cancel", None))
     # retranslateUi

@@ -371,7 +371,34 @@ class EqslBulkImportWindow(QDialog):
             QMessageBox.warning(self, "Import error", "Please select a valid directory first.")
             return
 
-        self.bulk_card_import_requested.emit(current_dir)
+        QMessageBox.information(self.bulk_import_window, "Bulk Import started", f"Starting import of images from:\n{dir_path}")
+        
+        self.image_importer.db_filepath = db_path 
+
+        results: dict[str, Union[str, int, bool]] = self.image_importer.bulk_import_images(dir_path)
+        
+        # Show the results
+        if results.get('imported', 0) > 0:
+            QMessageBox.information(
+                self.bulk_import_window, 
+                "Import completed", 
+                f"Bulk import completed successfully.\n"
+                f"Total files: {results.get('total_files', 0)}\n"
+                f"New images imported: {results.get('imported', 0)}\n"
+                f"Images already present: {results.get('already_present', 0)}\n"
+                f"Errors (parsing/file): {results.get('parse_error', 0) + results.get('file_error', 0)}"
+            )
+            self.qso_data_updated.emit(results['imported']) # type: ignore
+        else:
+             QMessageBox.warning(
+                 self.bulk_import_window, 
+                 "Import completed", 
+                 f"Bulk import completed, but no new images were imported.\n"
+                 f"Details:\n"
+                 f"Total files: {results.get('total_files', 0)}\n"
+                 f"Images already present: {results.get('already_present', 0)}\n"
+                 f"QSO not found: {results.get('not_found', 0)}"
+             )
 
 
 class EqslHelpWindow(QDialog): 
@@ -441,7 +468,12 @@ class EqslVersionWindow(QDialog):
     def _setup_text_content(self):
         """Configures the QTextEdit widget and loads the fixed, formatted content."""
         
-        # 1. Check and configure the QTextEdit widget ('txt_version_credits')
+        # 1. PFAD ZUR BILDDATEI BERECHNEN (NEU)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(base_dir, '..', 'support_data', 'default_preview.png')
+        image_url = 'file:///' + os.path.normpath(image_path).replace('\\', '/')
+        
+        # 2. Check and configure the QTextEdit widget ('txt_version_credits')
         if hasattr(self.ui, 'txt_version_credits') and isinstance(self.ui.txt_version_credits, QTextEdit):
             text_edit: QTextEdit = self.ui.txt_version_credits
             
@@ -449,8 +481,10 @@ class EqslVersionWindow(QDialog):
             text_edit.setReadOnly(True) 
             text_edit.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             
-            # 2. Format the desired text as HTML (centered and styled)
-            html_content = """
+            # 3. Format the desired text as HTML (centered and styled)
+            image_tag = f"""<img src="{image_url}" alt="Logo" width="178" height="119" style="margin-top: 15px;">"""
+
+            html_content = f"""
             <div align='center'>
                 <h1 style='font-size: 18pt; margin-bottom: 5px; color: #0078D4;'>
                     eQSL Program
@@ -474,7 +508,7 @@ class EqslVersionWindow(QDialog):
                 
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
                 <p style='font-size: 12pt; font-weight: bold; color: #0078D4;'>
-                    SuccuS
+                    {image_tag}
                 </p>
                 
                 <br>
@@ -487,7 +521,7 @@ class EqslVersionWindow(QDialog):
             </div>
             """
             
-            # 3. Assign content
+            # 4. Assign content
             text_edit.setHtml(html_content)
             
             # You can set the base font if desired (optional)
@@ -735,5 +769,3 @@ class GuiManager(QObject):
         if self.version_window is None:
             self.version_window = EqslVersionWindow(parent=self.main_window)
         self.version_window.show()
-
-        
