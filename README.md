@@ -14,7 +14,14 @@ The program is written in Python, and the GUI is created with QT Designer.
 
 By
 
-![KowMang](./support_data/default_preview.png)
+<img src="./support_data/default_preview.png" alt="Alt Text" width="255" height="170"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
 
 
 
@@ -34,5 +41,5 @@ Das Programm ist in Python geschrieben, und die GUI wurde mit QT Designer erstel
 
 By
 
-![KowMang](./support_data/default_preview.png)
+<img src="./support_data/default_preview.png" alt="Alt Text" width="255" height="170">
 

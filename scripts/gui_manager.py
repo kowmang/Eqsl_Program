@@ -456,7 +456,7 @@ class EqslVersionWindow(QDialog):
             text_edit.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             
             # 3. Format the desired text as HTML (centered and styled)
-            image_tag = f"""<img src="{image_url}" alt="Logo" width="178" height="119" style="margin-top: 15px;">"""
+            image_tag = f"""<img src="{image_url}" alt="Logo" width="255" height="170" style="margin-top: 15px;">"""
 
             html_content = f"""
             <div align='center'>
