@@ -1,61 +1,61 @@
 import sqlite3
 import os
 import json
-# Importiere QObject und Signal, da die Klasse Signale aussenden soll
+# Import QObject and Signal, as the class should send signals.
 from PySide6.QtCore import Slot, QObject, Signal 
 
 
-# SettingsManager muss von QObject erben, um Signale senden zu können
+# SettingsManager must inherit from QObject to be able to send signals
 class SettingsManager(QObject):
     """
-    Verwaltet das Speichern und Laden der Programmeinstellungen (z.B. Pfade) 
-    und ist für die Erstellung neuer Datenbanken zuständig.
+    Manages saving and loading program settings (e.g., paths) 
+    and is responsible for creating new databases.
     """
     
-    # Signal definieren, das den neuen Pfad überträgt, wenn die Datenbank gesetzt wurde
+    # Define signal that transmits the new path when the database is set
     db_path_selected = Signal(str)
     
     def __init__(self):
-        # QObject-Initialisierung muss im Konstruktor aufgerufen werden, wenn man erbt
+        # QObject initialization must be called in the constructor when inheriting
         super().__init__()
         print("SettingsManager initialized.")
         
-        # Den Pfad zur Konfigurationsdatei relativ zum aktuellen Skript festlegen
+        # Set the path to the configuration file relative to the current script
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.config_filepath = os.path.join(base_dir, '..', 'settings.json')
         self.support_data_dir = os.path.join(base_dir, '..', 'support_data') 
         
-        # Standardeinstellungen oder geladene Einstellungen
+        # Default settings or loaded settings
         self.settings = self.load_settings()
 
     def get_current_db_path(self) -> str:
-        """Gibt den aktuell in den Einstellungen gespeicherten DB-Pfad zurück."""
+        """Returns the currently stored DB path in the settings."""
         return self.settings.get("database", "")
 
     def get_current_download_dir(self) -> str:
-        """Gibt den aktuell in den Einstellungen gespeicherten Download-Pfad zurück."""
+        """Returns the currently stored download directory in the settings."""
         return self.settings.get("download_directory", "")
     
     def get_current_adif_path(self) -> str:
-        """Gibt den aktuell in den Einstellungen gespeicherten ADIF-Pfad zurück."""
+        """Returns the currently stored ADIF path in the settings."""
         return self.settings.get("adif_path", "")
     
-    # GEÄNDERT: Von 'get_current_bulk_card_dir' zu 'get_bulk_card_dir', um den AttributeError zu beheben
+    # CHANGED: From 'get_current_bulk_card_dir' to 'get_bulk_card_dir' to fix AttributeError
     def get_bulk_card_dir(self) -> str:
-        """Gibt den Pfad zum Bulk Card Verzeichnis zurück."""
+        """Returns the path to the Bulk Card directory."""
         return self.settings.get("bulk_card_directory", "")
 
     def load_settings(self) -> dict:
-        """Lädt Einstellungen aus settings.json oder gibt Standardwerte zurück."""
+        """Loads settings from settings.json or returns default values."""
         
-        # DEFINITION DER VOLLSTÄNDIGEN STANDARD-STRUKTUR
+        # DEFINITION OF THE COMPLETE STANDARD STRUCTURE
         default_settings = {
-            "database": "",  # Pfad zur SQLite-Datenbank
+            "database": "",  # Path to the SQLite database
             "table_name": "eqsl_data", 
-            "last_upload_dir": "",# Letztes Verzeichnis für Uploads
-            "download_directory": "", # Standard-Download-Verzeichnis
-            "adif_path": "", # Standardpfad für ADIF-Import
-            "bulk_card_directory": "" # Pfad für Bulk Card Settings
+            "last_upload_dir": "",# Last directory for uploads
+            "download_directory": "", # Default download directory
+            "adif_path": "", # Default path for ADIF import
+            "bulk_card_directory": "" # Path for Bulk Card settings
         }
         
         if os.path.exists(self.config_filepath):
@@ -64,13 +64,13 @@ class SettingsManager(QObject):
                     settings = json.load(f)
                     print(f"Settings loaded from: {self.config_filepath}")
                     
-                    # Merge mit Defaults, um sicherzustellen, dass alle Schlüssel vorhanden sind
+                    # Merge with defaults to ensure all keys are present
                     default_settings.update(settings)
                     return default_settings
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error loading settings file: {e}. Using default settings.")
         
-        # Erstellt das Verzeichnis, falls es fehlt, bevor die leere Datei gespeichert wird
+        # Creates the directory if it is missing before saving the empty file
         config_dir = os.path.dirname(self.config_filepath)
         if config_dir and not os.path.exists(config_dir):
             try:
@@ -81,10 +81,10 @@ class SettingsManager(QObject):
         return default_settings
 
     def save_settings(self):
-        """Speichert die aktuellen Einstellungen in settings.json."""
+        """Saves the current settings to settings.json."""
         try:
             with open(self.config_filepath, 'w', encoding='utf-8') as f:
-                # Speichert nur die aktuellen Einstellungen, nicht die default_settings
+                # Saves only the current settings, not the default_settings
                 json.dump(self.settings, f, indent=4)
             print(f"Settings successfully saved to: {self.config_filepath}")
         except IOError as e:
@@ -93,12 +93,12 @@ class SettingsManager(QObject):
     @Slot()
     def reset_db_path(self):
         """
-        Setzt den Datenbankpfad in den Einstellungen zurück auf einen leeren String und speichert.
+        Resets the database path in the settings to an empty string and saves.
         """
         if self.settings.get("database"):
             self.settings["database"] = ""
             self.save_settings()
-            # Signal senden, dass der Pfad zurückgesetzt wurde (mit leerem String)
+            # Signal that the path has been reset (with an empty string)
             self.db_path_selected.emit("") 
             print("Database path successfully reset to empty string.")
         else:
@@ -107,7 +107,7 @@ class SettingsManager(QObject):
     @Slot()
     def reset_bulk_card_dir(self):
         """
-        Setzt den Bulk Card Verzeichnispfad in den Einstellungen zurück.
+        Resets the Bulk Card directory path in the settings to an empty string and saves.
         """
         if self.settings.get("bulk_card_directory"):
             self.settings["bulk_card_directory"] = ""
@@ -119,9 +119,9 @@ class SettingsManager(QObject):
     @Slot(str)
     def handle_new_download_dir(self, dir_path: str):
         """
-        Speichert den ausgewählten Download-Ordner in den Einstellungen.
+        Saves the selected download directory in the settings.
         """
-        # Überprüfen, ob der Pfad ein gültiges Verzeichnis ist und existiert
+        # Check if the path is a valid directory and exists
         if not dir_path or not os.path.isdir(dir_path):
             print(f"Error: Selected path is not a valid directory or does not exist: {dir_path}")
             return
@@ -133,7 +133,7 @@ class SettingsManager(QObject):
 
     @Slot(str)
     def handle_new_adif_path(self, adif_filepath: str):
-        """Speichert den Pfad zur ADIF-Datei in den Settings."""
+        """Saves the path to the ADIF file in the settings."""
         if not adif_filepath or not os.path.exists(adif_filepath):
             print(f"Error: Selected ADIF file does not exist: {adif_filepath}")
             return
@@ -146,7 +146,7 @@ class SettingsManager(QObject):
     @Slot(str)
     def handle_new_bulk_card_dir(self, dir_path: str):
         """
-        Speichert das ausgewählte Verzeichnis für die Bulk Card Settings.
+        Saves the selected directory for the Bulk Card settings.
         """
         if not dir_path or not os.path.isdir(dir_path):
             print(f"Error: Selected path is not a valid directory or does not exist: {dir_path}")
@@ -160,14 +160,14 @@ class SettingsManager(QObject):
     @Slot(str)
     def handle_new_db_path(self, db_filepath: str):
         """
-        Erstellt die Datenbankdatei, das Schema und speichert den Pfad unter 'database'.
-        Stellt sicher, dass das Zielverzeichnis existiert.
+        Creates the database file, the schema, and saves the path under 'database'.
+        Ensures that the target directory exists.
         """
         if not db_filepath.lower().endswith(('.db', '.sqlite')):
             print(f"Error: Database file path '{db_filepath}' does not have a valid extension.")
             return
 
-        # Sicherstellen, dass das Verzeichnis existiert
+        # Ensure the directory exists
         db_dir = os.path.dirname(db_filepath)
         if db_dir and not os.path.exists(db_dir):
             try:
@@ -182,11 +182,11 @@ class SettingsManager(QObject):
         success = self._create_db_with_schema(db_filepath)
 
         if success:
-            # Datenbankpfad in den Einstellungen unter dem Schlüssel 'database' aktualisieren
+            # Update the database path in the settings under the key 'database'
             self.settings["database"] = db_filepath
             self.save_settings()
 
-            # Signal senden, dass der Pfad erfolgreich gesetzt wurde
+            # Emit signal that the path was successfully set
             self.db_path_selected.emit(db_filepath) 
 
             print(f"New default database set to: {db_filepath}")
@@ -197,7 +197,7 @@ class SettingsManager(QObject):
     @Slot(str)
     def handle_existing_db_path(self, db_filepath: str):
         """
-        Speichert einen bereits existierenden Datenbankpfad als Standard.
+        Saves an already existing database path as the default.
         """
         if not os.path.exists(db_filepath):
             print(f"Error: Selected file does not exist: {db_filepath}")
@@ -209,13 +209,13 @@ class SettingsManager(QObject):
 
         print(f"Setting existing database path to: {db_filepath}")
         
-        # Datenbankpfad in den Einstellungen unter dem Schlüssel 'database' aktualisieren
+        # Update the database path in the settings under the key 'database'
         self.settings["database"] = db_filepath
         
-        # Einstellungen speichern (Automatisches Speichern)
+        # Save settings (automatic saving)
         self.save_settings()
 
-        # Signal senden, dass der Pfad erfolgreich gesetzt wurde
+        # Emit signal that the path was successfully set
         self.db_path_selected.emit(db_filepath)
 
         print(f"New default database set to: {db_filepath}")
@@ -223,55 +223,55 @@ class SettingsManager(QObject):
 
     def _create_db_with_schema(self, db_filepath: str) -> bool:
         """
-        Stellt eine Verbindung zur Datenbank her und erstellt alle notwendigen Tabellen.
-        Liest den Tabellennamen aus den Settings.
+        Establishes a connection to the database and creates all necessary tables.
+        Reads the table name from the settings.
         """
-        # HINWEIS: Hier wird der Tabellenname aus den Settings gelesen (Fix vom letzten Mal)
+        # NOTE: The table name is read from the settings here (fix from last time)
         table_name = self.settings.get("table_name", "eqsl_data") 
 
-        # SQL-Befehl für die hochgeladenen eQSL-Daten
+        # SQL command for the uploaded eQSL data
         EQSL_DATA_SQL = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             qso_id INTEGER PRIMARY KEY,
     
-            -- WICHTIGE QSO-DATEN FÜR UNIQUE KEY
-            CALL TEXT NOT NULL,         -- Rufzeichen des QSO-Partners
-            QSO_DATE TEXT NOT NULL,     -- Datum (YYYYMMDD)
-            TIME_ON TEXT NOT NULL,      -- Startzeit (HHMMSS)
+            -- IMPORTANT QSO DATA FOR UNIQUE KEY
+            CALL TEXT NOT NULL,         -- Call sign of the QSO partner
+            QSO_DATE TEXT NOT NULL,     -- Date (YYYYMMDD)
+            TIME_ON TEXT NOT NULL,      -- Start time (HHMMSS)
     
-            -- ALLGEMEINE QSO-DATEN
+            -- GENERAL QSO DATA
             BAND TEXT,
             MODE TEXT,
             SUBMODE TEXT,
-            FREQ REAL,                  -- Frequenz (z.B. 14.0764)
-            RST_SENT TEXT,              -- Gesendetes Rapport
-            RST_RCVD TEXT,              -- Empfangenes Rapport
-            TX_PWR REAL,                -- Sendeleistung (z.B. 30.0)
+            FREQ REAL,                  -- Frequency (e.g., 14.0764)
+            RST_SENT TEXT,              -- Sent report
+            RST_RCVD TEXT,              -- Received report
+            TX_PWR REAL,                -- Transmit power (e.g., 30.0)
     
-            -- GEOGRAFISCHE DATEN DES PARTNERS
-            CONT TEXT,                  -- Kontinent
-            COUNTRY TEXT,               -- Land (Name)
-            DXCC INTEGER,               -- DXCC-Nummer
-            PFX TEXT,                   -- Präfix
+            -- GEOGRAPHICAL DATA OF THE PARTNER
+            CONT TEXT,                  -- Continent
+            COUNTRY TEXT,               -- Country (Name)
+            DXCC INTEGER,               -- DXCC Number
+            PFX TEXT,                   -- Prefix
             CQZ INTEGER,                -- CQ Zone
             ITUZ INTEGER,               -- ITU Zone
-            GRIDSQUARE TEXT,            -- Locator (z.B. JO55RM)
-            LAT REAL,                   -- Breitengrad
-            LON REAL,                   -- Längengrad
+            GRIDSQUARE TEXT,            -- Locator (e.g., JO55RM)
+            LAT REAL,                   -- Latitude
+            LON REAL,                   -- Longitude
 
-            -- PERSÖNLICHE DATEN DES PARTNERS
-            NAME TEXT,                  -- Name (Vor- und Nachname)
-            QTH TEXT,                   -- Ort/City
-            ADDRESS TEXT,               -- Komplette Adresse
+            -- PERSONAL DATA OF THE PARTNER
+            NAME TEXT,                  -- Name (First and Last)
+            QTH TEXT,                   -- Location/City
+            ADDRESS TEXT,               -- Complete address
             EMAIL TEXT,
             AGE INTEGER,
     
             -- eQSL-STATUS
             EQSL_QSL_SENT TEXT,
-            EQSL_QSLS_DATE TEXT,        -- Sendedatum (YYYYMMDD)
+            EQSL_QSLS_DATE TEXT,        -- Sent date (YYYYMMDD)
             EQSL_QSL_RCVD TEXT,
-            EQSL_QSLR_DATE TEXT,        -- Empfangsdatum (YYYYMMDD)
-            EQSL_IMAGE_BLOB BLOB,       -- eQSL Bild als BLOB 
+            EQSL_QSLR_DATE TEXT,        -- Received date (YYYYMMDD)
+            EQSL_IMAGE_BLOB BLOB,       -- eQSL image as BLOB 
 
             
             -- DX-INDEXES 
@@ -279,20 +279,20 @@ class SettingsManager(QObject):
             POTA_REF TEXT,
             IOTA_REF TEXT,
     
-            -- UNIQUE Constraint zur Duplikat-Erkennung (wichtig!)
+            -- UNIQUE Constraint for duplicate detection (important!)
             UNIQUE(CALL, QSO_DATE, TIME_ON) 
         );
         """
 
         try:
-            # Stellt Verbindung her und aktiviert Foreign Keys (wichtig für SQLite)
+            # Establishes connection and enables Foreign Keys (important for SQLite)
             conn = sqlite3.connect(db_filepath)
             cursor = conn.cursor()
             
-            # Tabellen erstellen
+            # Create tables
             cursor.execute(EQSL_DATA_SQL)
             
-            # Speichert die Änderungen und schließt die Verbindung
+            # Save changes and close the connection
             conn.commit()
             conn.close()
             print(f"Schema created: {table_name} table is now defined.")

@@ -7,13 +7,13 @@ from PySide6.QtCore import (Slot, QSortFilterProxyModel, QItemSelection, QItemSe
 from PySide6.QtSql import QSqlDatabase, QSqlTableModel
 from PySide6.QtGui import QPixmap 
 
-# Korrekte Imports (basierend auf Ihrer Struktur)
+# Correct imports (based on your structure)
 from .gui_data.frm_main_window_ui import Ui_frm_main_window 
 from .scripts.gui_manager import GuiManager 
 from .scripts.settings_manager import SettingsManager 
 from .scripts.image_viewer_dialog import ImageViewerDialog 
 
-# Definition der Spalten-Indizes (0-basiert)
+# Definition of column indexes (0-based)
 COL_CALL = 1
 COL_QSO_DATE = 2
 COL_TIME_ON = 3
@@ -28,7 +28,7 @@ COL_GRID = 17
 
 COL_IMAGE_BLOB = 29 
 
-# Liste der durchsuchbaren Spalten
+# List of searchable columns
 SEARCHABLE_COLUMN_INDICES = [
     COL_CALL, COL_QSO_DATE, COL_TIME_ON, COL_BAND, COL_MODE, 
     COL_SUB_MODE, COL_COUNTRY, COL_FREQ, COL_CQZ, COL_ITUZ, COL_GRID
@@ -36,7 +36,7 @@ SEARCHABLE_COLUMN_INDICES = [
 
 
 # ======================================================================
-# Benutzerdefiniertes Proxy-Modell für Multi-Spalten-ODER-Filterung
+# Custom proxy model for multi-column OR filtering
 # ======================================================================
 class MultiColumnFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None, searchable_indices=None):
@@ -46,24 +46,24 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
 
     def setFilterString(self, text: str):
         """
-        Setzt den Suchtext. Leerzeichen dienen nun als ODER-Trenner.
+        Sets the filter string. Spaces now act as OR separators.
         """
-        # Teilt den Text in Begriffe auf und konvertiert in Kleinbuchstaben
+        # Split the text into terms and convert to lowercase
         self.search_terms = [term.strip().lower() for term in text.split() if term.strip()]
-        # Filterung neu starten
+        # Restart filtering
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         """
-        Implementiert die ODER-Logik: Zeile wird akzeptiert, wenn EINER der Suchbegriffe 
-        in EINER der definierten Spalten gefunden wird.
+        Implements the OR logic: a row is accepted if ANY of the search terms 
+        in ANY of the defined columns is found.
         """
         if not self.search_terms:
             return True 
 
         source_model = self.sourceModel()
         
-        # ODER-Logik
+        # OR logic
         for term in self.search_terms:
             for col_index in self.searchable_indices:
                 index = source_model.index(source_row, col_index, source_parent)
@@ -75,12 +75,12 @@ class MultiColumnFilterProxyModel(QSortFilterProxyModel):
                 try:
                     data_str = str(data).lower()
                     if term in data_str:
-                        # Begriff gefunden => Zeile akzeptieren (ODER-Bedingung erfüllt)
+                        # Term found => accept row (OR condition met)
                         return True 
                 except:
                     continue
 
-        # Keiner der Suchbegriffe wurde gefunden => Zeile ablehnen
+        # None of the search terms were found => reject row
         return False
 
 
@@ -95,7 +95,7 @@ class EqslMainWindow(QMainWindow):
         self.db = db_conn
         self.settings_manager = settings_manager 
         
-        # NEU: Speichervariable für die Standard-Pixmap
+        # NEW: Storage variable for the default pixmap
         self.default_pixmap = QPixmap() 
         
         self.gui_manager = GuiManager(
@@ -106,7 +106,7 @@ class EqslMainWindow(QMainWindow):
 
         self.ui = Ui_frm_main_window()
         self.ui.setupUi(self)
-        self.setWindowTitle("eQSL Programm (Hauptfenster)")
+        self.setWindowTitle("eQSL Program (Main Window)")
 
         self._setup_models()
         self._setup_ui_elements()
@@ -116,12 +116,12 @@ class EqslMainWindow(QMainWindow):
     def _setup_models(self):
         table_name = self.settings_manager.settings.get("table_name", "eqsl_data")
         
-        # 1. QSqlTableModel initialisieren
+        # 1. Initialize QSqlTableModel
         self.source_model = QSqlTableModel(db=self.db)
         self.source_model.setTable(table_name)
         self.source_model.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
         
-        # Spaltenüberschriften setzen
+        # Set column headers
         self.source_model.setHeaderData(COL_CALL, Qt.Orientation.Horizontal, "Call")
         self.source_model.setHeaderData(COL_QSO_DATE, Qt.Orientation.Horizontal, "Date")
         self.source_model.setHeaderData(COL_TIME_ON, Qt.Orientation.Horizontal, "Time")
@@ -132,20 +132,20 @@ class EqslMainWindow(QMainWindow):
         self.source_model.setHeaderData(COL_CQZ, Qt.Orientation.Horizontal, "CQ Zone")
         self.source_model.setHeaderData(COL_GRID, Qt.Orientation.Horizontal, "Grid")
         
-        # Statische Vorfilterung: Nur Einträge mit einem Bild anzeigen
+        # Static pre-filtering: Only show entries with an image
         self.source_model.setFilter(f"EQSL_IMAGE_BLOB IS NOT NULL")
         self.source_model.select()
 
-        # 2. MultiColumnFilterProxyModel initialisieren
+        # 2. Initialize MultiColumnFilterProxyModel
         self.proxy_model = MultiColumnFilterProxyModel(self, searchable_indices=SEARCHABLE_COLUMN_INDICES) 
         self.proxy_model.setSourceModel(self.source_model)
         
-        # 3. View setzen
+        # 3. Set view
         self.ui.tbl_data_view_main.setModel(self.proxy_model)
         self.ui.tbl_data_view_main.setSelectionBehavior(self.ui.tbl_data_view_main.SelectionBehavior.SelectRows)
         self.ui.tbl_data_view_main.setSortingEnabled(True)
 
-        # Spalten ausblenden
+        # Hide columns
         total_columns = self.source_model.columnCount()
         visible_indices = set(SEARCHABLE_COLUMN_INDICES + [COL_IMAGE_BLOB]) 
 
@@ -157,26 +157,26 @@ class EqslMainWindow(QMainWindow):
 
 
     def _setup_ui_elements(self):
-        """Konfiguriert UI-Elemente und lädt das Standardbild."""
-        # Preview Label für die Bildanzeige konfigurieren
+        """Configures UI elements and loads the default image."""
+        # Configure preview label for image display
         self.ui.lb_preview_image_main.setScaledContents(True)
         self.ui.lb_preview_image_main.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # NEU: Standardbild laden
-        # HINWEIS: Passen Sie diesen Pfad an, falls Ihr Standardbild woanders liegt!
-        # Beispiel: 'support_data/default_preview.png'
+        # NEW: Load default image
+        # NOTE: Adjust this path if your default image is located elsewhere!
+        # Example: 'support_data/default_preview.png'
         default_image_path = os.path.join(os.path.dirname(__file__), 'support_data', 'default_preview.png')
         
         if self.default_pixmap.load(default_image_path):
              self._set_default_preview()
         else:
-             self.ui.lb_preview_image_main.setText("Kein Bild ausgewählt. (Default-Bild fehlt.)")
+             self.ui.lb_preview_image_main.setText("No image selected. (Default image missing.)")
 
 
     def _set_default_preview(self):
-        """Hilfsfunktion, um das skalierte Standardbild zu setzen."""
+        """Helper function to set the scaled default image."""
         if not self.default_pixmap.isNull():
-             # Bild proportional skalieren, um in das Label zu passen
+             # Scale image proportionally to fit the label
              scaled_pixmap = self.default_pixmap.scaled(
                  self.ui.lb_preview_image_main.size(),
                  Qt.AspectRatioMode.KeepAspectRatio,
@@ -184,28 +184,28 @@ class EqslMainWindow(QMainWindow):
              )
              self.ui.lb_preview_image_main.setPixmap(scaled_pixmap)
         else:
-            self.ui.lb_preview_image_main.setText("Kein Bild ausgewählt.")
+            self.ui.lb_preview_image_main.setText("No image selected.")
 
 
     def _setup_connections(self):
-        """Verbindet die UI-Elemente mit dem GuiManager oder lokalen Slots."""
+        """Connects UI elements to the GuiManager or local slots."""
         
-        # Filterung
+        # Filtering
         self.ui.btn_search_main.clicked.connect(lambda: self.filter_data_flex(self.ui.txt_search_field_main.text()))
-        self.ui.btn_reset_main.clicked.connect(self.reset_filter) # ANGEPASST
+        self.ui.btn_reset_main.clicked.connect(self.reset_filter) # ADJUSTED
         
-        # Selektion
+        # Selection
         self.ui.btn_markall_main.clicked.connect(self.mark_all)
-        self.ui.btn_unmarkall_main.clicked.connect(self.unmark_all) # ANGEPASST
+        self.ui.btn_unmarkall_main.clicked.connect(self.unmark_all) # ADJUSTED
         
-        # Aktionen für Bilder
+        # Actions for images
         self.ui.btn_show_image.clicked.connect(self.show_selected_images)
         self.ui.btn_export_image.clicked.connect(self.download_selected_images)
         
-        # Vorschau bei Auswahländerung
+        # Preview on selection change
         self.ui.tbl_data_view_main.selectionModel().currentChanged.connect(self.show_preview)
         
-        # Menü-Aktionen (zum GuiManager)
+        # Menu actions (to GuiManager)
         if hasattr(self.ui, 'actionSettings'):
             self.ui.actionSettings.triggered.connect(self.gui_manager.open_settings)
         if hasattr(self.ui, 'actionSingle_Card_Import'):
@@ -219,34 +219,34 @@ class EqslMainWindow(QMainWindow):
         if hasattr(self.ui, 'actionExit'):
             self.ui.actionExit.triggered.connect(self.close)
 
-        # DB-Pfad-Änderung & Datenaktualisierung
+        # DB path change & data update
         self.settings_manager.db_path_selected.connect(self._handle_db_path_changed)
         self.gui_manager.qso_data_updated.connect(self._refresh_model)
 
 
     # ----------------------------------------------------------------------
-    # LOKALE SLOTS
+    # LOCAL SLOTS
     # ----------------------------------------------------------------------
     
     @Slot()
     def filter_data_flex(self, text: str):
-        """Übergibt den Suchtext an das benutzerdefinierte Proxy-Modell zur Multi-Spalten-ODER-Suche."""
+        """Passes the search text to the custom proxy model for multi-column OR search."""
         self.proxy_model.setFilterString(text)
         
     @Slot()
     def reset_filter(self):
-        """Setzt das Textfeld zurück, entfernt den dynamischen Filter UND setzt die Vorschau zurück."""
+        """Resets the text field, removes the dynamic filter, AND resets the preview."""
         self.ui.txt_search_field_main.clear()
         self.filter_data_flex("") 
         
-        # NEU: Auswahl löschen und Default-Bild setzen
+        # NEW: Clear selection and set default image
         self.ui.tbl_data_view_main.selectionModel().clearSelection()
         self._set_default_preview()
         
     @Slot()
     def mark_all(self):
-        """Wählt alle aktuell sichtbaren Zeilen aus."""
-        # Das Löschen der Auswahl ist am Anfang nötig, da sonst die Auswahl im SelectionModel bestehen bleibt
+        """Selects all currently visible rows."""
+        # Clearing the selection at the beginning is necessary because otherwise the selection remains in the SelectionModel
         self.ui.tbl_data_view_main.selectionModel().clearSelection() 
         
         row_count = self.proxy_model.rowCount()
@@ -262,17 +262,17 @@ class EqslMainWindow(QMainWindow):
 
     @Slot()
     def unmark_all(self):
-        """Hebt die gesamte Auswahl auf UND setzt die Vorschau zurück."""
+        """Clears the entire selection AND resets the preview."""
         self.ui.tbl_data_view_main.selectionModel().clearSelection()
-        # NEU: Default-Bild setzen, nachdem die Auswahl aufgehoben wurde
+        # NEW: Set default image after clearing the selection
         self._set_default_preview()
 
 
     @Slot(QModelIndex, QModelIndex)
     def show_preview(self, current_index: QModelIndex, previous_index: QModelIndex):
-        """Zeigt das Bild des aktuell ausgewählten Datensatzes oder das Standardbild an."""
+        """Shows the image of the currently selected record or the default image."""
         
-        # Wichtig: Wenn current_index ungültig ist (z.B. nach Filter-Reset), wird der Default gesetzt
+        # Important: If current_index is invalid (e.g., after filter reset), set the default
         if not current_index.isValid():
             self._set_default_preview() 
             return
@@ -292,17 +292,17 @@ class EqslMainWindow(QMainWindow):
                 )
                 self.ui.lb_preview_image_main.setPixmap(scaled_pixmap)
             else:
-                 # Fehler beim Laden des Bildformats, zeige Standardbild
-                self.ui.lb_preview_image_main.setText("Fehler beim Laden des Bildformats.")
+                 # Error loading image format, show default image
+                self.ui.lb_preview_image_main.setText("Error loading image format.")
                 self._set_default_preview() 
         else:
-            # Kein Bild vorhanden oder BLOB leer, zeige Standardbild
+            # No image available or BLOB empty, show default image
             self._set_default_preview()
 
 
     @Slot()
     def show_selected_images(self):
-        """Öffnet die Galerie mit allen markierten Bildern."""
+        """Opens the gallery with all selected images."""
         selected_rows = self.ui.tbl_data_view_main.selectionModel().selectedRows()
         
         image_list = []
@@ -318,86 +318,86 @@ class EqslMainWindow(QMainWindow):
             viewer = ImageViewerDialog(image_list, self)
             viewer.exec()
         else:
-            QMessageBox.information(self, "Keine Auswahl", "Bitte markieren Sie Datensätze mit Bildern.")
+            QMessageBox.information(self, "No Selection", "Please select records with images.")
 
     @Slot()
     def download_selected_images(self):
-        """Lädt ausgewählte Bilder in den Settings-definierten Ordner herunter."""
+        """Downloads selected images to the folder defined in the settings."""
         
         download_folder = self.settings_manager.get_current_download_dir()
         
         if not download_folder or not os.path.isdir(download_folder):
-            QMessageBox.critical(self, "Download-Fehler", 
-                                 "Der Download-Pfad ist in den Settings nicht gesetzt oder ungültig. Bitte prüfen Sie die Einstellungen.")
+            QMessageBox.critical(self, "Download Error", 
+                                 "The download path is not set or invalid in the settings. Please check the settings.")
             return
         
         file_format = "PNG" 
 
         selected_rows = self.ui.tbl_data_view_main.selectionModel().selectedRows()
         if not selected_rows:
-            QMessageBox.warning(self, "Keine Auswahl", "Bitte markieren Sie Datensätze zum Export.")
+            QMessageBox.warning(self, "No Selection", "Please select records to export.")
             return
 
         success_count = 0
         for proxy_index in selected_rows:
             source_index = self.proxy_model.mapToSource(proxy_index)
             
-            # Datenfelder für den Dateinamen abrufen
+            # Retrieve data fields for the filename
             call = self.source_model.data(self.source_model.index(source_index.row(), COL_CALL))
             date = self.source_model.data(self.source_model.index(source_index.row(), COL_QSO_DATE))
             time = self.source_model.data(self.source_model.index(source_index.row(), COL_TIME_ON))
             band = self.source_model.data(self.source_model.index(source_index.row(), COL_BAND))
             mode = self.source_model.data(self.source_model.index(source_index.row(), COL_MODE))
             
-            # Bild-BLOB abrufen
+            # Retrieve image BLOB
             blob_index = self.source_model.index(source_index.row(), COL_IMAGE_BLOB)
             blob_data = self.source_model.data(blob_index)
 
             if not isinstance(blob_data, QByteArray) or blob_data.isEmpty():
                 continue
 
-            # Dateinamen erstellen und bereinigen
+            # Create and sanitize filename
             filename_base = f"{call}_{date}_{time}_{band}_{mode}"
             safe_filename = re.sub(r'[^\w\-]', '_', str(filename_base)) 
             
             file_path = os.path.join(download_folder, f"{safe_filename}.{file_format.lower()}")
 
-            # Speichern
+            # Save
             pixmap = QPixmap()
             if pixmap.loadFromData(blob_data):
                 success = pixmap.save(file_path, file_format) 
                 if success:
                     success_count += 1
             
-        QMessageBox.information(self, "Export Abgeschlossen", 
-                                f"{success_count} von {len(selected_rows)} Datensätzen erfolgreich exportiert. (Ziel: {download_folder})")
+        QMessageBox.information(self, "Export Completed", 
+                                f"{success_count} of {len(selected_rows)} records successfully exported. (Destination: {download_folder})")
 
     @Slot()
     def _refresh_model(self):
-        """Aktualisiert das Datenmodell, z.B. nach einem Import."""
+        """Refreshes the data model, e.g., after an import."""
         self.source_model.select()
-        print("EqslMainWindow: Datenmodell nach Import aktualisiert.")
-        QMessageBox.information(self, "Aktualisierung", "Die Datenansicht wurde erfolgreich aktualisiert.")
+        print("EqslMainWindow: Data model refreshed after import.")
+        QMessageBox.information(self, "Update", "The data view has been successfully refreshed.")
 
 
     @Slot(str)
     def _handle_db_path_changed(self, new_db_path: str):
         """
-        Wird aufgerufen, wenn der DB-Pfad über die Settings geändert wird.
+        Called when the DB path is changed via the settings.
         """
-        QMessageBox.information(self, "Datenbankwechsel", 
-                                f"Versuche, die Datenbankverbindung zu wechseln: {new_db_path}")
+        QMessageBox.information(self, "Database Change", 
+                                f"Attempting to change the database connection to: {new_db_path}")
         
-        # 1. Alte Verbindung schließen
+        # 1. Close old connection
         if self.db.isOpen():
             self.db.close()
             
-        # 2. Datenbanknamen im QSqlDatabase-Objekt ändern
+        # 2. Change database name in QSqlDatabase object
         self.db.setDatabaseName(new_db_path)
         
-        # 3. Neue Verbindung öffnen
+        # 3. Open new connection
         if self.db.open():
-            # 4. Modell neu initialisieren 
+            # 4. Reinitialize model 
             table_name = self.settings_manager.settings.get("table_name", "eqsl_data")
             
             self.source_model.setTable(table_name)
@@ -406,7 +406,7 @@ class EqslMainWindow(QMainWindow):
             
             self.ui.tbl_data_view_main.setModel(self.proxy_model) 
             
-            # Spalten erneut ausblenden.
+            # Hide columns again.
             total_columns = self.source_model.columnCount()
             visible_indices = set(SEARCHABLE_COLUMN_INDICES + [COL_IMAGE_BLOB])
             
@@ -416,51 +416,51 @@ class EqslMainWindow(QMainWindow):
                  else:
                     self.ui.tbl_data_view_main.setColumnHidden(col_index, False)
                     
-            self.setWindowTitle(f"eQSL Programm (Hauptfenster) - DB: {os.path.basename(new_db_path)}")
-            QMessageBox.information(self, "Datenbankwechsel", 
-                                    "Datenbankverbindung erfolgreich gewechselt und Ansicht aktualisiert.")
+            self.setWindowTitle(f"eQSL Program (Main Window) - DB: {os.path.basename(new_db_path)}")
+            QMessageBox.information(self, "Database Change", 
+                                    "Database connection successfully changed and view updated.")
         else:
-            QMessageBox.critical(self, "Datenbankfehler", 
-                                 f"Konnte neue Datenbank '{new_db_path}' nicht öffnen. Behalte alten Zustand bei (falls möglich).")
+            QMessageBox.critical(self, "Database Error", 
+                                 f"Could not open new database '{new_db_path}'. Retaining old state if possible.")
 
 
 # ----------------------------------------------------------------------
-# main() Funktion für den Programmstart 
+# main() Function for program start 
 # ----------------------------------------------------------------------
 
 def main():
-    """Definierte Startfunktion für die Anwendung und Datenbankverbindung."""
+    """Defined start function for the application and database connection."""
     app = QApplication(sys.argv)
     
-    # 1. Settings Manager initialisieren und Pfade abrufen
+    # 1. Initialize Settings Manager and retrieve paths
     try:
         settings_manager = SettingsManager()
     except Exception as e:
-        QMessageBox.critical(None, "Startfehler", 
-                             f"Konnte SettingsManager nicht initialisieren: {e}")
+        QMessageBox.critical(None, "Startup Error", 
+                             f"Could not initialize SettingsManager: {e}")
         sys.exit(1) 
         
     db_path = settings_manager.get_current_db_path() 
     
-    # 2. Datenbankverbindung herstellen
+    # 2. Establish database connection
     db = QSqlDatabase.addDatabase("QSQLITE")
     db.setDatabaseName(db_path) 
     
     db_ok = True
     if not db_path:
-        QMessageBox.critical(None, "Datenbankfehler", 
-                             "Datenbankpfad in Settings.json nicht definiert. Bitte in den Settings festlegen. Die Anwendung startet ohne Datenzugriff.")
+        QMessageBox.critical(None, "Database Error", 
+                             "Database path not defined in Settings.json. Please set it in the settings. The application will start without data access.")
         db_ok = False
         
     if db_path and not db.open():
-        QMessageBox.critical(None, "Datenbankfehler", 
-                             f"Konnte Datenbank '{db_path}' nicht öffnen. Bitte überprüfen Sie den Pfad in den Settings. Die Anwendung startet ohne Datenzugriff.")
+        QMessageBox.critical(None, "Database Error", 
+                             f"Could not open database '{db_path}'. Please check the path in the settings. The application will start without data access.")
         db_ok = False
         
-    # 3. Hauptfenster mit DB-Verbindung UND Settings Manager instanziieren
+    # 3. Instantiate main window with DB connection AND Settings Manager
     main_window = EqslMainWindow(db, settings_manager) 
     
-    # 4. GUI anzeigen
+    # 4. Show GUI
     main_window.show()
     sys.exit(app.exec())
 

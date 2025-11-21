@@ -1,3 +1,17 @@
+# Version 0.1.0
+### (database handling)
+
+
+* **main_window** design changed for tableView
+* **eqsl_main_prog** added tableView, search, imagePreview, show,
+                     export function
+* **image_viewer**   added image viewer for bulk show of images
+* **version_about**  changed from slow .html to hardcoded info
+* **all_files**      changed language to english (print messages too)
+
+                        
+---
+
 
 # Version 0.0.4
 ### (database handling)

@@ -24,7 +24,7 @@ class Ui_frm_main_window(object):
     def setupUi(self, frm_main_window):
         if not frm_main_window.objectName():
             frm_main_window.setObjectName(u"frm_main_window")
-        frm_main_window.resize(963, 699)
+        frm_main_window.resize(960, 700)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(0)
@@ -109,11 +109,11 @@ class Ui_frm_main_window(object):
         self.btn_show_image.setFont(font1)
         self.lb_preview_image_main = QLabel(self.centralwidget)
         self.lb_preview_image_main.setObjectName(u"lb_preview_image_main")
-        self.lb_preview_image_main.setGeometry(QRect(80, 10, 361, 171))
+        self.lb_preview_image_main.setGeometry(QRect(140, 20, 255, 170))
         frm_main_window.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(frm_main_window)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 963, 33))
+        self.menubar.setGeometry(QRect(0, 0, 960, 33))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuUpload = QMenu(self.menubar)

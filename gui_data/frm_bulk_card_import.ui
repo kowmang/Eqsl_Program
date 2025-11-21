@@ -116,7 +116,8 @@
     </rect>
    </property>
    <property name="text">
-    <string>Warning for correct folder structure and filename syntax!!!</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Warning! Images for upload must have a filename defined by the AC9HP downloader,&lt;br&gt;which should be like this and the .jpg or .png format: &lt;br&gt;&lt;br&gt;&lt;br&gt;
+&lt;span style=&quot; font-size:10pt; font-weight:700;&quot;&gt;Callsign=EA2BHE_VisitorCallsign=OE4VMB_QSODate=2025-09-01_15_23_00_0_Band=20M_Mode=FT8&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_bulk_card_upload_section">

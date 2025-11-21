@@ -5,12 +5,12 @@ from datetime import datetime
 
 class QslImageImporter:
     """
-    Verantwortlich für das Einlesen von Bilddateien (.jpg, .png)
-    und deren Zuordnung zu QSO-Einträgen in der SQLite-Datenbank.
+    Responsible for importing image files (.jpg, .png)
+    and assigning them to QSO entries in the SQLite database.
     """
     
-    # Beispiel Dateiname: Callsign=IK1ICF_VisitorCallsign=OE4VMB_QSODate=2025-09-02_12_19_00_0_Band=20M_Mode=FT8.jpg
-    # REGEX-Muster zum Extrahieren der QSO-Schlüssel aus dem Dateinamen
+    # Example filename: Callsign=IK1ICF_VisitorCallsign=OE4VMB_QSODate=2025-09-02_12_19_00_0_Band=20M_Mode=FT8.jpg
+    # REGEX pattern to extract QSO keys from the filename
     FILENAME_PATTERN = re.compile(
         r'Callsign=(?P<CALL>.*?)_'
         r'VisitorCallsign=(?P<V_CALL>.*?)_'
@@ -20,21 +20,21 @@ class QslImageImporter:
         r'Mode=(?P<MODE>.*)'
     )
 
-    # WICHTIG: 'table_name' MUSS beim Instanziieren übergeben werden (z.B. 'eqsl_data')
+    # IMPORTANT: 'table_name' MUST be passed during instantiation (e.g., 'eqsl_data')
     def __init__(self, db_filepath: str, table_name: str = "eqsl_data"):
         self.db_filepath = db_filepath
         self.table_name = table_name
 
     def _get_db_connection(self):
-        """Stellt eine Verbindung zur SQLite-Datenbank her."""
+        """Establishes a connection to the SQLite database."""
         if not self.db_filepath or not os.path.exists(self.db_filepath):
-            raise FileNotFoundError(f"Datenbankdatei nicht gefunden: {self.db_filepath}")
+            raise FileNotFoundError(f"Database file not found: {self.db_filepath}")
         
         return sqlite3.connect(self.db_filepath)
 
     def _parse_filename(self, filename: str) -> dict | None:
-        """Extrahiert QSO-Schlüssel aus dem Dateinamen."""
-        # Entferne die Dateiendung für das Parsen
+        """Extracts QSO keys from the filename."""
+        # Remove the file extension for parsing
         base_name = os.path.splitext(filename)[0]
         match = self.FILENAME_PATTERN.match(base_name)
         
@@ -44,7 +44,7 @@ class QslImageImporter:
         data = match.groupdict()
 
         try:
-            # QSO_DATE (YYYYMMDD) und QSO_TIME (HHMMSS) für die Abfrage vorbereiten (Daten werden trotzdem geparst)
+            # Prepare QSO_DATE (YYYYMMDD) and QSO_TIME (HHMMSS) for the query (data is still parsed)
             qso_date_str = data['QSO_DATE_STR'].replace('-', '') 
             qso_time_str = data['QSO_TIME_STR'].replace('_', '') 
 
@@ -55,23 +55,23 @@ class QslImageImporter:
                 'call2': data['V_CALL'].upper(),
                 'mode': data['MODE'].upper(),
                 'band': data['BAND'].upper()
-            }
+                }
 
         except Exception as e:
-            print(f"Fehler beim Parsen der Daten aus Dateiname '{filename}': {e}")
+            print(f"Error parsing data from filename '{filename}': {e}")
             return None
 
 
     def _get_qso_id(self, conn: sqlite3.Connection, qso_data: dict) -> int | None:
         """
-        Findet die ROWID des QSO-Eintrags basierend auf den Schlüsseln (CALL, QSO_DATE, BAND und MODE).
+        Finds the ROWID of the QSO entry based on the keys (CALL, QSO_DATE, BAND, and MODE).
         """
         
-        # 1. Daten vorbereiten
+        # 1. Prepare data
         band_val = qso_data['band'].replace('M', '').replace('CM', '')
         
-        # 2. SQL-Abfrage
-        # Die Abfrage sucht nach (Call1 ODER Call2) UND QSO_DATE UND BAND UND MODE.
+        # 2. SQL query
+        # The query looks for (Call1 OR Call2) AND QSO_DATE AND BAND AND MODE.
         sql = f"""
         SELECT ROWID FROM {self.table_name}
         WHERE (UPPER(CALL) = ? OR UPPER(CALL) = ?)
@@ -81,54 +81,54 @@ class QslImageImporter:
         LIMIT 1
         """
         
-        # 3. Parameterliste für die Abfrage (5 Werte: Call1, Call2, Date, Band, Mode)
+        # 3. Parameter list for the query (5 values: Call1, Call2, Date, Band, Mode)
         params = (
             qso_data['call1'], 
             qso_data['call2'],
-            qso_data['qso_date'],  # <-- NEU: Dritter Wert für QSO_DATE
-            band_val,              # <-- Vierter Wert für BAND
-            qso_data['mode']       # <-- Fünfter Wert für MODE
+            qso_data['qso_date'],  # <-- NEW: Third value for QSO_DATE
+            band_val,              # <-- Fourth value for BAND
+            qso_data['mode']       # <-- Fifth value for MODE
         )
         
         try:
             cursor = conn.execute(sql, params)
             result = cursor.fetchone()
-            # print(f"-> Erfolg: QSO gefunden mit ID {result[0]} (CALL, DATE, BAND und MODE-Abgleich)") # Optional: Debug-Ausgabe
+            # print(f"-> Success: QSO found with ID {result[0]} (CALL, DATE, BAND, and MODE match)") # Optional: Debug output
             return result[0] if result else None
         except Exception as e:
-            # Der Fehler tritt nun hoffentlich nicht mehr auf, aber die Ausgabe bleibt
-            print(f"Fehler bei der DB-Abfrage für {qso_data['call1']}/{qso_data['call2']}: {e}")
+            # Hopefully this error no longer occurs, but the output remains
+            print(f"Error during DB query for {qso_data['call1']}/{qso_data['call2']}: {e}")
             return None
 
     def _image_to_blob(self, image_path: str) -> bytes | None:
-        """Konvertiert eine Bilddatei in ein BLOB (bytes)."""
+        """Converts an image file to a BLOB (bytes)."""
         try:
             with open(image_path, 'rb') as f:
                 return f.read()
         except Exception as e:
-            print(f"Fehler beim Lesen der Bilddatei {image_path}: {e}")
+            print(f"Error reading image file {image_path}: {e}")
             return None
             
     def _is_image_present(self, conn: sqlite3.Connection, qso_id: int) -> bool:
-        """Prüft, ob für den Eintrag bereits ein Bild vorhanden ist."""
+        """Checks if an image is already present for the entry."""
         sql = f"SELECT EQSL_IMAGE_BLOB FROM {self.table_name} WHERE ROWID = ?"
         cursor = conn.execute(sql, (qso_id,))
         result = cursor.fetchone()
         
-        # True, wenn die Spalte nicht NULL ist
+        # True if the column is not NULL
         return result is not None and result[0] is not None
         
     def _update_qso_with_blob(self, conn: sqlite3.Connection, qso_id: int, blob_data: bytes):
-        """Speichert das BLOB in der Datenbank."""
+        """Stores the BLOB in the database."""
         sql = f"UPDATE {self.table_name} SET EQSL_IMAGE_BLOB = ? WHERE ROWID = ?"
         conn.execute(sql, (blob_data, qso_id))
         conn.commit()
 
     def bulk_import_images(self, directory_path: str) -> dict:
         """
-        Führt den Massenimport durch:
-        1. Durchsucht das Verzeichnis nach .jpg/.png.
-        2. Parst Dateinamen, sucht QSO-ID, konvertiert Bild in BLOB, speichert.
+        Performs the bulk import:
+        1. Searches the directory for .jpg/.png files.
+        2. Parses filenames, finds QSO ID, converts image to BLOB, stores it.
         """
         results = {
             'total_files': 0,
@@ -140,14 +140,14 @@ class QslImageImporter:
         }
         
         if not os.path.isdir(directory_path):
-            print(f"Fehler: '{directory_path}' ist kein gültiger Ordner.")
+            print(f"Error: '{directory_path}' is not a valid directory.")
             return results
 
         file_list = [f for f in os.listdir(directory_path) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
         results['total_files'] = len(file_list)
         
         if not file_list:
-            print("Keine relevanten Bilddateien (.jpg, .png) im Ordner gefunden.")
+            print("No relevant image files (.jpg, .png) found in the directory.")
             return results
 
         try:
@@ -155,28 +155,28 @@ class QslImageImporter:
             
             for filename in file_list:
                 full_path = os.path.join(directory_path, filename)
-                # print(f"Verarbeite: {filename}") 
+                # print(f"Processing: {filename}") 
                 
-                # 1. Dateiname parsen
+                # 1. Parse filename
                 qso_data = self._parse_filename(filename)
                 if not qso_data:
                     results['parse_error'] += 1
                     continue
                     
-                # 2. QSO-ID finden
+                # 2. Find QSO ID
                 qso_id = self._get_qso_id(conn, qso_data)
                 
                 if qso_id is None:
-                    # print(f"-> QSO nicht gefunden: {qso_data['call1']}/{qso_data['call2']} (CALL, DATE, BAND und MODE-Abgleich)")
+                    # print(f"-> QSO not found: {qso_data['call1']}/{qso_data['call2']} (CALL, DATE, BAND and MODE match)")
                     results['not_found'] += 1
                     continue
                     
-                # 3. Prüfen, ob Bild bereits vorhanden
+                # 3. Check if image is already present
                 if self._is_image_present(conn, qso_id):
                     results['already_present'] += 1
                     continue
                     
-                # 4. Bild in BLOB konvertieren
+                # 4. Convert image to BLOB
                 blob_data = self._image_to_blob(full_path)
                 if not blob_data:
                     results['file_error'] += 1
@@ -189,17 +189,17 @@ class QslImageImporter:
             conn.close()
             
         except FileNotFoundError as e:
-            print(f"Kritischer Fehler: {e}")
+            print(f"Critical error: {e}")
         except Exception as e:
-            print(f"Unbekannter Import-Fehler: {e}")
+            print(f"Unknown import error: {e}")
         
-        # Zusammenfassung des Imports ausgeben
-        print("\n--- Zusammenfassung Bulk Card Import ---")
-        print(f"Gesamtdateien: {results['total_files']}")
-        print(f"Importiert: {results['imported']} NEUE Bilder gespeichert.")
-        print(f"Bereits vorhanden: {results['already_present']}")
-        print(f"QSO nicht in DB gefunden: {results['not_found']}")
-        print(f"Parse-Fehler: {results['parse_error']}")
-        print(f"Datei-Fehler (Lesen): {results['file_error']}")
+        # Print summary of the import
+        print("\n--- Bulk Card Import Summary ---")
+        print(f"Total files: {results['total_files']}")
+        print(f"Imported: {results['imported']} NEW images saved.")
+        print(f"Already present: {results['already_present']}")
+        print(f"QSO not found in DB: {results['not_found']}")
+        print(f"Parse errors: {results['parse_error']}")
+        print(f"File errors (reading): {results['file_error']}")
             
         return results

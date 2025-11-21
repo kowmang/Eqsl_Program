@@ -3,13 +3,12 @@ Database and Administration Program for EQSL Cards
 
 # Description (english):
 
-The program is designed to import QSL cards downloaded from the eqsl.cc website using the Log4OM program, based on the fixed folder structure and file name structure of the image files,
-and write them to an SQLite3 database, converting the .jpg files to .blob format.
-Individual cards can also be entered and added manually.
-Missing country data as well as ITU zone and CQ zone are supplemented via the ARRL DXCC list.  
+The program is designed to import QSL cards downloaded from the eqsl.cc website using the "AC9HP Downloader program", based on the fixed folder structure and file name structure of the image files,
+and write them to an SQLite3 database, which holds your log in .adif format to crosscheck the incoming cards. 
+Individual cards you may receive per mail, can also be entered and added per hand. 
 A search function makes it easy to find individual or multiple cards (for awards, diplomas, etc.), 
-which can then be viewed or converted back to .jpg format via a download function 
-and downloaded. 
+which can then be viewed or converted back to .png format via a export function in 
+a specific folder.
 
 The program is written in Python, and the GUI is created with QT Designer.
 
@@ -17,19 +16,19 @@ Author SuccuS
 
 
 
+# Eqsl_Program
+Datenbank- und Verwaltungsprogramm für EQSL-Karten
+
 # Beschreibung (deutsch):
 
-Das Programm ist vorgesehen um durch das Programm Log4OM von der Seite eqsl.cc heruntergeladene QSL Karten, anhand der fix vorgegebenen Ordnerstruktur und Dateinamenstruktur der Bilddateien einzulesen
-und in eine SQLite3 Datenbank zuschreiben wobei die .jpg Dateien in das .blob Format umgewandelt werden.
-Ebenso können einzelne Karten manuell eingegeben und hinzugefügt werden.
-Fehlende Länderdaten sowie ITU-Zone und CQ-Zone werden über die ARRL DXCC Liste ergänzt.  
-Eine Suchfunktion erleichter das Auffinden einzelner oder mehrerer Karten (für Awards, Diplome, usw.), 
-diese können dann angesehen werden oder über eine Downloadfunktion wieder in das .jpg Format umgewandelt 
-und heruntergeladen werden. 
+Das Programm dient dazu, QSL-Karten, die mit dem „AC9HP Downloader-Programm” von der Website eqsl.cc heruntergeladen wurden, anhand der festgelegten Ordnerstruktur und Dateinamenstruktur der Bilddateien zu importieren
+und in eine SQLite3-Datenbank zu schreiben, die Ihr Log im .adif-Format enthält, um die eingehenden Karten zu überprüfen. 
+Einzelne Karten, die Sie per Post erhalten, können ebenfalls manuell eingegeben und hinzugefügt werden. 
+Eine Suchfunktion erleichtert das Auffinden einzelner oder mehrerer Karten (für Auszeichnungen, Diplome usw.), 
+die dann angezeigt oder über eine Exportfunktion in 
+einen bestimmten Ordner zurück in das .png-Format konvertiert werden können.
 
-Das Programm ist in Python geschrieben, die GUI mit QT Designer erzeugt. 
+Das Programm ist in Python geschrieben, und die GUI wurde mit QT Designer erstellt.
 
-Author SuccuS
-
-
+Autor SuccuS
 
