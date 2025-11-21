@@ -361,7 +361,7 @@ class EqslBulkImportWindow(QDialog):
 
     @Slot()
     def _handle_import_request(self):
-        """Starts the import process if a valid path is set."""
+        """Starts the import process if a valid path is set. (KORREKTUR: Nur Signal senden)"""
         try:
             current_dir = self.settings_manager.get_bulk_card_dir()
         except AttributeError:
@@ -371,34 +371,8 @@ class EqslBulkImportWindow(QDialog):
             QMessageBox.warning(self, "Import error", "Please select a valid directory first.")
             return
 
-        QMessageBox.information(self.bulk_import_window, "Bulk Import started", f"Starting import of images from:\n{dir_path}")
-        
-        self.image_importer.db_filepath = db_path 
-
-        results: dict[str, Union[str, int, bool]] = self.image_importer.bulk_import_images(dir_path)
-        
-        # Show the results
-        if results.get('imported', 0) > 0:
-            QMessageBox.information(
-                self.bulk_import_window, 
-                "Import completed", 
-                f"Bulk import completed successfully.\n"
-                f"Total files: {results.get('total_files', 0)}\n"
-                f"New images imported: {results.get('imported', 0)}\n"
-                f"Images already present: {results.get('already_present', 0)}\n"
-                f"Errors (parsing/file): {results.get('parse_error', 0) + results.get('file_error', 0)}"
-            )
-            self.qso_data_updated.emit(results['imported']) # type: ignore
-        else:
-             QMessageBox.warning(
-                 self.bulk_import_window, 
-                 "Import completed", 
-                 f"Bulk import completed, but no new images were imported.\n"
-                 f"Details:\n"
-                 f"Total files: {results.get('total_files', 0)}\n"
-                 f"Images already present: {results.get('already_present', 0)}\n"
-                 f"QSO not found: {results.get('not_found', 0)}"
-             )
+        # Die Importlogik wurde in den GuiManager verschoben. Hier nur das Signal senden.
+        self.bulk_card_import_requested.emit(current_dir)
 
 
 class EqslHelpWindow(QDialog): 
@@ -503,16 +477,12 @@ class EqslVersionWindow(QDialog):
                     for info read manual<br>
                     or readme<br>
                 </p>
-                
                 <br>
-                
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
                 <p style='font-size: 12pt; font-weight: bold; color: #0078D4;'>
                     {image_tag}
                 </p>
-                
                 <br>
-                
                 <h3 style='font-weight: bold;'>Credits to:</h3>
                 <p>
                     Text to fill in at<br>
@@ -751,6 +721,7 @@ class GuiManager(QObject):
                 self._handle_bulk_card_import_request
             )
             
+        # KORRIGIERTE EINRÜCKUNG: Diese Zeilen müssen auf derselben Ebene wie der 'if'-Block sein.
         self.bulk_import_window._setup_ui_state()
         self.bulk_import_window.exec() 
 
