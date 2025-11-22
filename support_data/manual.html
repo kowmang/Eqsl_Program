@@ -5,318 +5,435 @@
     <title>Eqsl Program Handbook</title>
     
     <style>
-.manual-main-window {
-  max-width: 100%; /* Das Bild passt sich dem Container an */
-  height: auto;    /* Verhindert Verzerrung */
-  border: 1px solid #ccc; /* Fügt einen Rahmen hinzu */
+/* --- Allgemeine Best Practices für Lesbarkeit --- */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6; 
+  padding: 20px;
+  max-width: 900px; 
+  margin: 0 auto;
 }
-</style>
+
+/* --- Abstände (Spacing) für Überschriften --- */
+h1 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #333; 
+  margin-bottom: 30px;
+}
+h2 {
+  margin-top: 40px; 
+  padding-bottom: 5px;
+  border-bottom: 20px solid #ccc;
+  color: #23a0b3;
+}
+h3 {
+  margin-top: 25px;
+  padding-bottom: 5px;
+  margin-bottom: 15px; 
+  color: #0e6969;
+}
+
+/* --- Listen und Absätze --- */
+p, ul, ol, dl {
+  margin-bottom: 18px;
+}
+
+/* NEU: Klasse für den Absatz direkt unter einem Bild */
+.image-caption {
+    /* WICHTIG: Setzt den Abstand oben auf 1.2 Zeilenhöhe */
+    margin-top: 1.2em; 
+    /* Reduziert den Abstand zum nächsten Absatz/Element */
+    margin-bottom: 10px; 
+}
 
 
+/* --- 1. Bild-Klasse: Standardgröße (volle Breite) --- */
+.manual-main-window {
+  display: block; 
+  max-width: 100%; /*100% Container-Breite */
+  height: auto;    
+  border: 1px solid #ccc; 
+  /* WICHTIG: Unterer Abstand (Bottom) auf 0 gesetzt */
+  margin: 20px 0 0 0; 
+  padding: 5px; 
+}
 
+/* --- 2. Bild-Klasse: Kleinere Bilder (für spezifische Elemente) --- */
+.image-small {
+  display: block;
+  max-width: 60%; /* Reduzierte Breite */
+  height: auto;
+  border: 1px solid #ccc; 
+  /* WICHTIG: Unterer Abstand (Bottom) auf 0 gesetzt */
+  margin: 20px auto 0 auto; 
+  padding: 5px; 
+}
 
-
+/* --- Inhaltsverzeichnis --- */
+.table-of-contents {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 30px; 
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+.table-of-contents ul {
+  list-style: none;
+  padding-left: 10px;
+}
+.table-of-contents li {
+  margin: 3px 0;
+}
+.table-of-contents li a {
+  text-decoration: none;
+  color: #23a0b3;
+}
+    </style>
 </head>
 <body>
 
-    <h1>Manual: Eqsl Program</h1>
+    <h1 id="top">Manual: Eqsl Program</h1>
     
-    <h2>This manual describes the usage and features of the Eqsl Database Program.</h2>
-
-   
     <p>
-    1. Introduction <br>
-    2. Installation <br>
-    3. Overview of the windows <br>
-      3.1 Main Window <br>
-      3.2 Settings Window <br>
-      3.3 Single Card Import Window <br>
-      3.4 Bulk Card Import Window <br>
-      3.5 Help Menu <br>
-    4. Start with the work <br>
-      4.1 Settings
-      4.2 Bulk Card Import <br>
-      4.3 Single Card Import <br>
-      4.4 Search and showing QSL Card Images <br>
-      4.5 Export QSL Card Images <br>
-    5. Troubleshooting <br>
-    6. FAQ <br>
-    7. Contact and Support <br>
+    <strong>This manual describes the usage and features of the Eqsl Database Program.</strong>
     </p>
 
+    <nav class="table-of-contents">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#section-1">1. Introduction</a></li>
+            <li><a href="#section-2">2. Installation</a></li>
+            <li><a href="#section-3">3. Overview of the windows</a>
+                <ul>
+                    <li><a href="#section-3-1">3.1 Main Window</a></li>
+                    <li><a href="#section-3-2">3.2 Settings Window</a></li>
+                    <li><a href="#section-3-3">3.3 Single Card Import Window</a></li>
+                    <li><a href="#section-3-4">3.4 Bulk Card Import Window</a></li>
+                    <li><a href="#section-3-5">3.5 Help Menu</a></li>
+                </ul>
+            </li>
+            <li><a href="#section-4">4. Start with the work</a>
+                <ul>
+                    <li><a href="#section-4-1">4.1 Settings</a></li>
+                    <li><a href="#section-4-2">4.2 Bulk Card Import</a></li>
+                    <li><a href="#section-4-3">4.3 Single Card Import</a></li>
+                    <li><a href="#section-4-4">4.4 Search and showing QSL Card Images</a></li>
+                    <li><a href="#section-4-5">4.5 Export QSL Card Images</a></li>
+                </ul>
+            </li>
+            <li><a href="#section-5">5. Troubleshooting</a></li>
+            <li><a href="#section-6">6. FAQ</a></li>
+            <li><a href="#section-7">7. Contact and Support</a></li>
+        </ul>
+    </nav>
+
+    <hr>
+    
+    <h2 id="section-1">1. Introduction 💾</h2>
+    
+    <h3><u>Database and Administration Program for EQSL Cards</u></h3>
     <p>
-    1. Introduction <br>
-    <br>
-    <u>Database and Administration Program for EQSL Cards</u><br>
-    <br>
-    The program is designed to import QSL cards downloaded from the eqsl.cc website using the "AC9HP Downloader program",<br>
-    based on the fixed folder structure and file name structure of the image files,<br>
-    and write them to an SQLite3 database, which holds your log in .adif format to crosscheck the incoming cards.<br> 
-    Individual cards you may receive per mail, can also be entered and added per hand.<br>
-    A search function makes it easy to find individual or multiple cards (for awards, diplomas, etc.),<br> 
-    which can then be viewed or converted back to .png format via a export function in a specific folder.<br>
-    <br>
-    The program is written in Python, and the GUI is created with QT Designer.<br>
+    The program is designed to import QSL cards downloaded from the <strong>eqsl.cc website</strong> using the <strong>"AC9HP Downloader program"</strong>, based on the fixed folder structure and file name structure of the image files, and write them to an <strong>SQLite3 database</strong>, which holds your log in .adif format to crosscheck the incoming cards.
+    </p>
+    <p>
+    Individual cards you may receive per mail can also be entered and added per hand. A search function makes it easy to find individual or multiple cards (for awards, diplomas, etc.), which can then be viewed or converted back to <strong>.png format</strong> via an export function in a specific folder.
+    </p>
+    <p>
+    The program is written in <strong>Python</strong>, and the GUI is created with <strong>QT Designer</strong>.
+    </p>
+    
+    <hr>
+
+    <h2 id="section-2">2. Installation 🛠️</h2>
+    
+    <p>
+    //FIXME: Has to be redone after finishing the program
+    </p>
+    <p>
+    To install the Eqsl Program, please follow these steps:
+    </p>
+    <ol>
+    <li>Download the latest version of the program from the official website or repository.</li>
+    <li>Ensure that you have <strong>Python</strong> and the required libraries installed on your system.</li>
+    <li>Extracted the downloaded files to a desired location on your computer.</li>
+    <li>Run the setup script to install any necessary dependencies.</li>
+    <li>Launch the program using the provided executable or script file.</li>
+    </ol>
+
+    <hr>
+    
+    <h2 id="section-3">3. Overview of the windows 🖥️</h2>
+    
+    <p>
+    Here we will start with what all good manual readers want to know, which section or button does what. After starting the program, you will see the <strong>main window</strong> with several buttons and options.
+    </p>
+    <p>
+    At first start, no database is present, there will be an error message that reminds you to create a new database file.
+    </p>
+    
+    <img class="image-small" src="manual_images/database_error_startup.png" alt="Database error message on startup.">
+    
+    <p class="image-caption">
+    Only click <strong>"OK"</strong> to close the message and proceed. 
     </p>
 
+    <h3 id="section-3-1">3.1 Main Window</h3>
+    
+    <img class="manual-main-window" src="manual_images/main_window.png" alt="Screenshot of the Main Window with labeled sections.">
+    
+    <p class="image-caption">
+    In the <strong>green section</strong>, on the top left, you see the name of the database file currently opened.
+    </p>
     <p>
-    2. Installation <br> //FIXME: Has to be redone after finishing the program<br>
-    <br>
-    To install the Eqsl Program, please follow these steps:<br>
-    1. Download the latest version of the program from the official website or repository.<br>
-    2. Ensure that you have Python and the required libraries installed on your system.<br>
-    3. Extract the downloaded files to a desired location on your computer.<br>
-    4. Run the setup script to install any necessary dependencies.<br>
-    5. Launch the program using the provided executable or script file.<br>
-    <br>
+    Below in the <strong>red one</strong>, you have the main action buttons:
+    <ul>
+    <li><strong>File Menu:</strong> - Settings, - Exit</li>
+    <li><strong>Import Menu:</strong> - Single Card Import (manual), - Bulk Card Import (from folder automatic)</li>
+    <li><strong>Help Menu:</strong> - User Manual, - About Eqsl Program</li>
+    </ul>
+    </p>
+    <p>
+    On the left side in the <strong>blue section</strong>, you have the <strong>Image Preview</strong>.
+    </p>
+    <p>
+    On the right side in the <strong>magenta section</strong>, you have the <strong>Search and Export functions</strong>.
+    </p>
+    <p>
+    And at the bottom in the <strong>yellow section</strong>, you have the <strong>Database viewed</strong>.
+    </p>
+    <p>
+    For closing the program, just click on the <strong>"Exit"</strong> button in the File menu or on the red X in the upper right corner like in every windows system.
     </p>
 
+    <h3 id="section-3-2">3.2 Settings Window</h3>
+    
+    <img class="manual-main-window" src="manual_images/settings_window.png" alt="Screenshot of the Settings Window.">
+    
+    <p class="image-caption">
+    Here in the <strong>yellow section</strong> you can set the path to an existing SQLite3 database file, via the <strong>"Select Button"</strong> or create a new one by clicking on <strong>"New DB Button"</strong>. Then a window will open to browse to the desired folder and enter a name for the new database file.
+    </p>
     <p>
-    3. Overview of the windows <br>
-    <br>
-    Here we will start with what all good manual readers want to know, which section or button does what.<br>
-    After starting the program, you will see the main window with several buttons and options.<br
-    At first start, no database is present, there will be a error message, that reminds you to create a new database file.
-    <br>
+    In the middle at the <strong>blue section</strong>, you can set the path to your <strong>ADIF log file</strong>, which is used to crosscheck incoming QSL cards with the <strong>"Select Button"</strong> and then import it into the Database with <strong>"Import Button"</strong>. <strong>Attention: Program does not work without this file!!</strong>
+    </p>
+    <p>
+    At the bottom in the <strong>orange section</strong>, you can set the path to the folder, where the exported QSL card images will be saved to with the <strong>"Select Button"</strong>.
+    </p>
+    <p>
+    After setting all paths, click on <strong>"Cancel Button"</strong> to leave the window, changes will be automatically saved. With the <strong>"Restore Button"</strong> you can clear the paths to program defaults.
+    </p>
 
-<img class="manual-main-window" src="manual_images/database_error_startup.png" alt="...">
-
+    <h3 id="section-3-3">3.3 Single Card Import Window</h3>
     
-    Only click "OK" to close the message and proceed. 
-
-
-    3.1 Main Window <br>
-
-        
-<img class="manual-main-window" src="manual_images/main_window.png" alt="..."><br>
-
-    In the green section, on the  top left you see the name of the  database file currently opened.<br>
+    <img class="manual-main-window" src="manual_images/single_card_import_window.png" alt="Screenshot of the Single Card Import Window.">
     
-    Below in the red one, you have the main action buttons:<br>
-    - File Menu: - Settings 
-                 - Exit 
+    <p class="image-caption">
+    Here you can import individual QSL cards, which you may have received per mail. You have to fill in the asked fields for the crosscheck with the database in the <strong>orange field</strong>.
+    </p>
+    <p>
+    Click on the <strong>"Select Button"</strong> in the <strong>magenta field</strong> to browse to the image file of the card.
+    </p>
+    <p>
+    In the <strong>green field</strong> you have the <strong>"Import Button"</strong> to import the image into the database.
+    </p> 
+    <p>
+    Click on <strong>"Cancel Button"</strong> to leave the window.
+    </p>
 
-    - Import Menu: - Single Card Import (maunell)
-                   - Bulk Card Import (from folder automatic)
+    <h3 id="section-3-4">3.4 Bulk Card Import Window</h3>
     
-    - Help Menu: - User Manual
-                  - About Eqsl Program
-
-    On the left side in the blue section, you have the Image Preview.<br>
-
-    On the right side in the magenta section, you have the Search and Export functions.<br>
-
-    And at the bottom in the yellow section, you have the Database viewed.<br>
-
-    For closing the program, just click on the Exit button in the File menu or on the red X,
-    in the uppest right corner like in every windows system.<br>
-
+    <img class="manual-main-window" src="manual_images/bulk_card_import_window.png" alt="Screenshot of the Bulk Card Import Window.">
     
-    3.2 Settings Window <br>
+    <p class="image-caption">
+    Here you can import multiple QSL cards at once, which you have downloaded from eqsl.cc with the AC9HP Downloader program. In the <strong>red field</strong> are important infos for the file name syntax.
+    </p>
+    <p>
+    Click on the <strong>"Select Button"</strong> in the <strong>magenta field</strong> to browse to the folder, where the card images are stored.
+    </p>
+    <p>
+    In the <strong>green field</strong> you have the <strong>"Import Button"</strong> to import all images from the folder into the database.
+    </p> 
+    <p>
+    Click on <strong>"Cancel Button"</strong> to leave the window.
+    </p>
 
-<img class="manual-main-window" src="manual_images/settings_window.png" alt="..."><br>
-
-    Here in the yellow section you can set the path to an existing SQLite3 database file,<br>
-    via the "Select Button" or create a new one by clicking on "New DB Button". Then a window
-    will open to browse to the desired folder and enter a name for the new database file.<br>
-
-    In the middle at the blue section, you can set the path to your ADIF log file,<br>
-    which is used to crosscheck incoming QSL cards with the "Select Button" and then 
-    import it into the Database with "Import Button". Attention: Program does not work 
-    without this file!!<br>
-
-    At the bottom in the orange section, you can set the path to the folder,<br>
-    where the exported QSL card images will be saved to with the "Select Button".<br>
-
-    After setting all paths, click on "Cancel Button" to leave the window, changes will be 
-    automaticly saved. With the "Restore Button" you can clear the paths to programs defaults.<br>
-
+    <h3 id="section-3-5">3.5 Help Menu</h3>
     
-    3.3 Single Card Import Window <br>
+    <p>
+    In the <strong>Help Menu</strong> you can open this User Manual or view info about the Eqsl Program.
+    </p>
 
-<img class="manual-main-window" src="manual_images/single_card_import_window.png" alt="..."><br>
+    <hr>
 
+    <h2 id="section-4">4. Start with the work 🚀</h2>
     
-    Here you can import individual QSL cards, which you may have received per mail.
-    You have to fill in the asked fields for the crosscheck with the database in the orange field.
-    <br>
-    Click on the "Select Button" in the magenta field to browse to the image file of the card.
-
-    In the green field you have the "Import Button" to import the image into the database.<br>
-      
-    Click on "Cancel Button" to leave the window.<br>
-
-
-    3.4 Bulk Card Import Window <br>
-
-<img class="manual-main-window" src="manual_images/bulk_card_import_window.png" alt="..."><br>
-
-    Here you can import multiple QSL cards at once, which you have downloaded from eqsl.cc
-    with the AC9HP Downloader program. In the red field are important infos for the file name syntax.
-    <br>
-    Click on the "Select Button" in the magenta field to browse to the folder,
-    where the card images are stored.<br>
-
-    In the green field you have the "Import Button" to import all images from the folder into the database.<br>
-      
-    Click on "Cancel Button" to leave the window.<br>
-
-    3.5 Help Menu <br>
-
-    In the Help Menu you can open this User Manual or view info about the Eqsl Program.<br>
-
-
-
-    4. Start with the work <br>
-
-    4.1 Settings <br>
-
-    To start working with the program, first ensure that you have set up your database and imported your ADIF log file
-    via the Settings window. There for you can have more SQLite3 databases in this program (only to not forget to change
-    to the correct one, where you want to store the images) so you can do for different callsigns or sota or pota and so on.
+    <h3 id="section-4-1">4.1 Settings</h3>
     
-    When you decide to have more then one database, you can import different adif files in those databases or when you have 
-    only one for all logfile you can also use this on different databases, because the data thats in the main window is shown
-    will be automaticly filtered to only show entries which has a image stored. The rest is in the database but will not
-    be shown.<br>
+    <p>
+    To start working with the program, first ensure that you have set up your database and imported your ADIF log file via the <strong>Settings window</strong>. You can have more SQLite3 databases in this program (only to not forget to change to the correct one, where you want to store the images) so you can do for different callsigns or SOTA or POTA and so on.
+    </p>
+    <p>
+    When you decide to have more than one database, you can import different ADIF files into those databases or if you have only one log file for all, you can also use this on different databases, because the data shown in the main window will be automatically filtered to only show entries which have an image stored. The rest is in the database but will not be shown.
+    </p>
+    <p>
+    So let's start from top to bottom main window: click on <strong>"File"</strong> then on <strong>"Settings"</strong>. The Settings Window will open.
+    </p>
     
-    So let´s start from top to bottom main window click on File then on Settings. The Settings Window will open.<br>
+    <p>
+    Go to the <strong>"Database"</strong> section and click on <strong>"Select Database Button"</strong> to choose the database you want to work with. If this is the first time you fired up this program click on <strong>"New DB"</strong> to create a new SQLite3 database. It opens a browser so you can choose the destination of your database and also its name. Hit <strong>"Save"</strong> and the path and name of the new database is shown in the database selection.
+    </p>
+    <p>
+    Then go to the <strong>"ADIF Log File"</strong> section and click on <strong>"Select Button"</strong> to choose your ADIF log file you wish to import into the new database. If you do this in a month again only the new ones will be written into the database (duplicate check).
+    </p>
+    <p>
+    Finally go to the <strong>"Export Folder"</strong> section and click on <strong>"Select Button"</strong> to choose the folder where you want to export your QSL card images later if necessary.
+    </p>
+    <p>
+    After setting all paths, click on <strong>"Cancel Button"</strong> to leave the window, changes will be automatically saved.
+    </p>
+    <p>
+    Now you are back in the main window and ready to start importing QSL cards. You can choose between <strong>Single Card Import</strong> or <strong>Bulk Card Import</strong>.
+    </p>
 
-     Go to the Database section and click on Select Database Button to choose the database you want to work with.
-     If this is the first time you fired up this program click on "New DB" to create a new SQLite3 database, it opens a
-     browser so you can choose the destination of your database and also its name. Hit Save and the path and name of the 
-     new database is shown in the database selection.<br>
-
-     Then go to the ADIF Log File section and click on Select Button to choose your ADIF log file you wish to import into 
-     the new database. If you do this in a month again only the new ones will be written into database (duplicate check).<br>
-
-    Finally go to the Export Folder section and click on Select Button to choose the folder where you want to export your
-    QSL card images later if necessary.<br>
-    After setting all paths, click on "Cancel Button" to leave the window, changes will be automaticly saved.<br>
-
-    Now you are back in the main window and ready to start importing QSL cards.<br>
-    You can choose between Single Card Import or Bulk Card Import.<br>
+    <h3 id="section-4-2">4.2 Bulk Card Import</h3>
     
-
-    4.2 Bulk Card Import <br>
-
-    Lets start with Bulk Card Import first, click on Import, then Bulk Card Import and the Bulk Card Import window opens.<br>
-
-    Here there are some things to consider:<br>
-    The program expects the file names of the QSL card images to follow a specific format,<br>
-    which is defined by the "AC9HP Downloader program" when downloading cards from eqsl.cc.<br>
-
-    The expected file name format is:<br> 
-
-    Callsign=EA2BHE_VisitorCallsign=OE4VMB_QSODate=20231015_Band=20M_Mode=FT8.png<br>  
+    <p>
+    Let's start with <strong>Bulk Card Import</strong> first: click on <strong>"Import"</strong>, then <strong>"Bulk Card Import"</strong> and the Bulk Card Import window opens.
+    </p>
+    <p>
+    Here there are some things to consider: The program expects the file names of the QSL card images to follow a specific format, which is defined by the <strong>"AC9HP Downloader program"</strong> when downloading cards from eqsl.cc.
+    </p>
+    <p>
+    The expected file name format is:
+    <br> 
+    `Callsign=EA2BHE_VisitorCallsign=OE4VMB_QSODate=20231015_Band=20M_Mode=FT8.png`
+    <br> 
     or
-    Callsign=EA2BHE_VisitorCallsign=OE4VMB_QSODate=20231015_Band=20M_Mode=FT8.jpg
-
-    The program uses this information to crosscheck with the database and import the cards correctly.<br>
-    So make sure that the images you want to import follow this naming convention.<br>
-
+    <br>
+    `Callsign=EA2BHE_VisitorCallsign=OE4VMB_QSODate=20231015_Band=20M_Mode=FT8.jpg`
+    </p>
+    <p>
+    The program uses this information to crosscheck with the database and import the cards correctly. So make sure that the images you want to import follow this naming convention.
+    </p>
+    <p>
     In the future versions there will be also support for other file name conventions.
+    </p>
+    <p>
+    When you have the images stored in a folder with the correct file names, click on the <strong>"Select Button"</strong> to browse to the folder, where the card images are stored.
+    </p>
+    <p>
+    Then click on the <strong>"Import Button"</strong> to import all images from the folder into the database. Once completed, a message will confirm the successful import, numbers of imports and rejected.
+    </p>
+    <p>
+    <strong>But what happens now in the background?</strong> The program will read each image file in the selected folder, extract the relevant information from the file name, and crosscheck it with the entries in your database. If a matching entry is found, the program will convert the image into an SQLite3 image format named <strong>.blob</strong> (yes, really it is named so) and store it in the database associated with that entry. If no matching entry is found, the program will skip that image and move on to the next one. This process continues until all images in the folder have been processed.
+    </p> 
+    <p>
+    After the import is complete, you can view the imported cards in the main window of the program. The database view will show the entries that have associated images, allowing you to easily manage and organize your QSL cards.
+    </p>
 
-    When you have the images stored in a folder with the correct file names,<br>
-    click on the "Select Button" to browse to the folder, where the card images are stored.<br>
-
-    Then click on the "Import Button" to import all images from the folder into the database.<br>
-    Once completed, a message will confirm the successful import, numbers of imports and rejected.<br>
-
-    But what happens now in the background? The program will read each image file in the selected folder,<br>
-    extract the relevant information from the file name, and crosscheck it with the entries in your database.<br>
-    If a matching entry is found, the program will convert the image into a SQLite3 image format named .blob (yes,
-    really it is named so) and store it in the database associated with that entry.<br>
-    If no matching entry is found, the program will skip that image and move on to the next one.<br>
-    This process continues until all images in the folder have been processed.<br>  
-
-    After the import is complete, you can view the imported cards in the main window of the program.<br>
-    The database view will show the entries that have associated images, allowing you to easily manage and
-    organize your QSL cards.<br>
-
-
-
-    4.3 Single Card Import <br>
-
-    Now let´s try the Single Card Import, click on Import, then Single Card Import and the Single Card Import window opens.<br>
-
-    Here you can import individual QSL cards, which you may have received per mail.<br>
-    You have to fill in the asked fields for the crosscheck with the database:<br>
+    <h3 id="section-4-3">4.3 Single Card Import</h3>
     
-    - Call Sign: Call sign as used in the QSO.<br>
-    - QSO Date: Enter the date of the QSO in YYYYMMDD format.<br> //FIXME: Date Conventions!!!
-    - Band: Enter the band on which the QSO took place (e.g., 20M, 40M).<br>
-    - Mode: Enter the mode of communication used (e.g., FT8, SSB).<br>
+    <p>
+    Now let's try the <strong>Single Card Import</strong>: click on <strong>"Import"</strong>, then <strong>"Single Card Import"</strong> and the Single Card Import window opens.
+    </p>
+    <p>
+    Here you can import individual QSL cards, which you may have received per mail. You have to fill in the asked fields for the crosscheck with the database:
+    </p>
+    <ul>
+    <li><strong>Call Sign:</strong> Call sign as used in the QSO.</li>
+    <li><strong>QSO Date:</strong> Enter the date of the QSO in **YYYYMMDD** format. //FIXME: Date Conventions!!!</li>
+    <li><strong>Band:</strong> Enter the band on which the QSO took place (e.g., 20M, 40M).</li>
+    <li><strong>Mode:</strong> Enter the mode of communication used (e.g., FT8, SSB).</li>
+    </ul>
+    <p>
+    Click on the <strong>"Select Button"</strong> to browse to the image file of the card.
+    </p>
+    <p>
+    Then click on the <strong>"Import Button"</strong> to import the image into the database. Once completed, a message will confirm the successful import or if the card could not be matched.
+    </p>
+    <p>
+    In the background, the program will read the selected image file, and proceed like in the bulk import.
+    </p>
+    <p>
+    After the import is complete, you can view the imported cards in the main window of the program. The database view will show the entries that have associated images, allowing you to easily manage and organize your QSL cards.
+    </p>
 
-    Click on the "Select Button" to browse to the image file of the card.<br>
-
-    Then click on the "Import Button" to import the image into the database.<br>  
-    Once completed, a message will confirm the successful import or if the card could not be matched.<br>
-
-    In the background, the program will read the selected image file, and procced like in the bulk import.
-
-    After the import is complete, you can view the imported cards in the main window of the program.<br>
-    The database view will show the entries that have associated images, allowing you to easily manage and
-    organize your QSL cards.<br>
-
-    4.4 Search and showing QSL Card Images <br>
-
-    In the main window, you can use the search function to find specific QSL cards based on various criteria.<br>
-    You can enter search terms in the search field and click on the "Search Button" to filter the database view.<br>
-    The results will be displayed in the database view, showing only the entries that match your search criteria.<br>
-    You can click on any entry in the database view to see a preview of the associated QSL card image in the Image
-    Preview section (if no image is selected there is a default image shown).<br> 
-
-    If you want to clear the search and view all entries again, simply click on the "Reset Button".<br>
-
-    When you searched for a specific entry and want to see the image larger or have more than one entry, just mark them all with the 
-    "Mark all Button" or click on them in the database view, to select some specific. Then hit the "Show Button" and a larger
-    image viewer will open up and you can click through the images.<br>
-
-    4.5 Export QSL Card Images <br>
-
-    If you wish to export QSL card images from the database back to .png format,<br>
-    you can use the export function in the main window.<br> 
-    First, use the search function to filter the database view to show the entries you want to export.<br>
-    Then click on the "Export Button" to export the images of the displayed entries to the specified export folder.<br>
-
-    The program will save the images in .png format in the chosen folder,<br>
-    using the original file name format for easy identification.<br>  
-    A message will confirm the successful export and the location of the exported images.<br>
-
-    5. Troubleshooting <br>
-
-    If you encounter any issues while using the Eqsl Program, here are some common troubleshooting steps:<br>
-    - Ensure that you have set up the database and imported your ADIF log file correctly in the Settings window.<br>
-    - Verify that the file names of the QSL card images follow the expected format for bulk import.<br>
-    - Check for any error messages displayed by the program and refer to the FAQ section for solutions.<br>
-    - If the program crashes or behaves unexpectedly, try restarting it and repeating the action.<br
-    - For persistent issues, consider reaching out to the support contact provided in the Contact and Support section.<br>
-
-    6. FAQ <br>
-    Q: What file formats are supported for QSL card images?<br>
-    A: The program currently supports .png and .jpg file formats for QSL card images.<br>
-
-    Q: Can I use multiple databases with the program?<br>
-    A: Yes, you can create and manage multiple SQLite3 databases within the program.<br>
-
-    Q: How do I update the ADIF log file in the database?<br>
-    A: You can import a new ADIF log file in the Settings window, and the program will update the database accordingly.<br>
-
-    7. Contact and Support <br>
-    For further assistance or support, please contact:<br>
-    Email:  
-    Support Website:<br>
-    Community Forums:<br>
+    <h3 id="section-4-4">4.4 Search and showing QSL Card Images</h3>
     
+    <p>
+    In the main window, you can use the <strong>search function</strong> to find specific QSL cards based on various criteria. You can enter search terms in the search field and click on the <strong>"Search Button"</strong> to filter the database view. The results will be displayed in the database view, showing only the entries that match your search criteria.
+    </p>
+    <p>
+    You can click on any entry in the database view to see a preview of the associated QSL card image in the <strong>Image Preview section</strong> (if no image is selected there is a default image shown).
+    </p> 
+    <p>
+    If you want to clear the search and view all entries again, simply click on the <strong>"Reset Button"</strong>.
+    </p>
+    <p>
+    When you searched for a specific entry and want to see the image larger or have more than one entry, just mark them all with the <strong>"Mark all Button"</strong> or click on them in the database view to select some specific ones. Then hit the <strong>"Show Button"</strong> and a larger image viewer will open up and you can click through the images.
+    </p>
+
+    <h3 id="section-4-5">4.5 Export QSL Card Images</h3>
+    
+    <p>
+    If you wish to export QSL card images from the database back to <strong>.png format</strong>, you can use the export function in the main window.
+    </p>
+    <p>
+    First, use the search function to filter the database view to show the entries you want to export. Then click on the <strong>"Export Button"</strong> to export the images of the displayed entries to the specified export folder.
+    </p>
+    <p>
+    The program will save the images in <strong>.png format</strong> in the chosen folder, using the original file name format for easy identification. A message will confirm the successful export and the location of the exported images.
+    </p>
+
+    <hr>
+
+    <h2 id="section-5">5. Troubleshooting ⚙️</h2>
+    
+    <p>
+    If you encounter any issues while using the Eqsl Program, here are some common troubleshooting steps:
+    </p>
+    <ul>
+    <li>Ensure that you have set up the database and imported your ADIF log file correctly in the <strong>Settings window</strong>.</li>
+    <li>Verify that the file names of the QSL card images follow the expected format for bulk import.</li>
+    <li>Check for any error messages displayed by the program and refer to the FAQ section for solutions.</li>
+    <li>If the program crashes or behaves unexpectedly, try restarting it and repeating the action.</li>
+    <li>For persistent issues, consider reaching out to the support contact provided in the <strong>"Contact and Support"</strong> section.</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="section-6">6. FAQ ❓</h2>
+    
+    <dl>
+        <dt><strong>Q: What file formats are supported for QSL card images?</strong></dt>
+        <dd>A: The program currently supports <strong>.png</strong> and <strong>.jpg</strong> file formats for QSL card images.</dd>
+
+        <dt><strong>Q: Can I use multiple databases with the program?</strong></dt>
+        <dd>A: Yes, you can create and manage multiple <strong>SQLite3 databases</strong> within the program.</dd>
+
+        <dt><strong>Q: How do I update the ADIF log file in the database?</strong></dt>
+        <dd>A: You can import a new ADIF log file in the <strong>Settings window</strong>, and the program will update the database accordingly.</dd>
+    </dl>
+    
+    <hr>
+
+    <h2 id="section-7">7. Contact and Support 📧</h2>
+    
+    <p>
+    For further assistance or support, please contact:
+    </p>
+    <p>
+    Email: [Insert Email Address Here]
+    <br>
+    Support Website: [Insert Support Website Link Here]
+    <br>
+    Community Forums: [Insert Community Forums Link Here]
+    </p>
+    <p>
     Thank you for using the Eqsl Program! We hope this manual has been helpful in guiding you through its features and usage.
     </p>
 
+    <p style="text-align: right;"><a href="#top">Back to Top</a></p>
 
-
-
-
-
-
-  </body>
+</body>
 </html>
