@@ -1,8 +1,9 @@
 import os
 from PySide6.QtWidgets import (
     QMainWindow, QDialog, QVBoxLayout, QTextBrowser, 
-    QFileDialog, QMessageBox, QWidget, QTextEdit
+    QFileDialog, QMessageBox, QWidget, QTextEdit       
 )
+from PySide6.QtCore import QUrl
 from PySide6.QtCore import Slot, Signal, QObject, Qt 
 from PySide6.QtGui import QFont
 import os.path
@@ -386,41 +387,62 @@ class EqslHelpWindow(QDialog):
         self._setup_connections() 
 
     def _load_manual_content(self):
+        # Basis-Verzeichnis der aktuellen Python-Datei bestimmen
         base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Absoluten Pfad zur manual.html erstellen
+        # Der Pfad: .../support_data/manual.html (ein Ordner hoch, dann in support_data)
         html_path = os.path.join(base_dir, '..', 'support_data', 'manual.html')
+        print(html_path)
 
         html_content = ""
-        if not os.path.exists(html_path):
-            html_content = (
-                f"<h1>Error: manual.html not found!</h1>"
-                f"<p>Expected path: <code>{html_path}</code></p>"
-            )
-        else:
-            try:
-                with open(html_path, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
-            except Exception as e:
-                html_content = f"<h1>Error reading the file!</h1><p>{e}</p>"
-        
         widget: Optional[Union[QTextBrowser, 'QWidget']] = None
+        
         if hasattr(self.ui, 'textBrowser'):
             widget = self.ui.textBrowser # type: ignore
         elif hasattr(self.ui, 'textEdit'):
             widget = self.ui.textEdit # type: ignore
             widget.setReadOnly(True) # type: ignore
+            
+        if not os.path.exists(html_path):
+            # Fehler anzeigen, falls die Datei nicht existiert
+            html_content = (
+                f"<h1>Error: manual.html not found!</h1>"
+                f"<p>Expected path: <code>{html_path}</code></p>"
+            )
+            if widget:
+                widget.setHtml(html_content) # type: ignore
         
-        if widget:
-            widget.setHtml(html_content) # type: ignore
-            widget.setFont(QFont("Arial", 10)) # type: ignore
-        else:
-            browser = QTextBrowser(self)
-            browser.setHtml(html_content)
-            if self.layout() is None:
-                layout = QVBoxLayout(self)
-                self.setLayout(layout)
-            if self.layout() is not None:
-                self.layout().addWidget(browser)
-
+        elif widget and isinstance(widget, QTextBrowser):
+            # EMPFOHLENE LÖSUNG: Datei direkt als QUrl laden, um Basis-Pfad aufzulösen
+            try:
+                file_url = QUrl.fromLocalFile(html_path)
+                widget.setSource(file_url)
+                widget.setFont(QFont("Arial", 10)) # type: ignore
+            except Exception as e:
+                html_content = f"<h1>Error loading the file via URL!</h1><p>{e}</p>"
+                widget.setHtml(html_content) # type: ignore
+        
+        elif widget and hasattr(widget, 'setHtml'):
+            # Fallback für QTextEdit oder wenn setSource nicht funktioniert (nicht ideal für Bilder)
+            try:
+                with open(html_path, 'r', encoding='utf-8') as f:
+                    html_content = f.read()
+                
+                # Option 2: setHtml mit Base URL (falls nötig)
+                base_dir_for_images = os.path.join(base_dir, '..', 'support_data')
+                base_url = QUrl.fromLocalFile(base_dir_for_images)
+                
+                widget.setHtml(html_content, base_url) # type: ignore
+                widget.setFont(QFont("Arial", 10)) # type: ignore
+                
+            except Exception as e:
+                html_content = f"<h1>Error reading the file!</h1><p>{e}</p>"
+                widget.setHtml(html_content) # type: ignore
+        
+        # (Restlicher Code für den Fall, dass kein Widget vorhanden ist, kann entfallen
+        # oder in den Fehler-Block integriert werden.)
+        
     def _setup_connections(self):
         pass
 
