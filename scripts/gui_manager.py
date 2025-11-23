@@ -392,7 +392,7 @@ class EqslHelpWindow(QDialog):
         
         # Absoluten Pfad zur manual.html erstellen
         # Der Pfad: .../support_data/manual.html (ein Ordner hoch, dann in support_data)
-        html_path = os.path.join(base_dir, '..', 'support_data', 'manual.html')
+        html_path = os.path.join(base_dir, '..', 'support_data', 'manual_eng.html')
         print(html_path)
 
         html_content = ""

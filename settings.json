@@ -1,9 +1,9 @@
 {
-    "database": "C:/Users/oe4vm/Desktop/Proggen/eqsl_program/Eqsl_Program/database_sql/new_test_db_23.db",
+    "database": "C:/Users/oe4vm/Desktop/Proggen/eqsl_program/Eqsl_Program/database_sql/test_large_plus_adif.db",
     "table_name": "eqsl_data",
     "last_upload_dir": "",
-    "download_directory": "C:/Users/oe4vm/Proggen",
-    "adif_path": "C:/Users/oe4vm/Desktop/Proggen/test50.adi",
-    "bulk_card_directory": "",
+    "download_directory": "C:/Users/oe4vm/Desktop/Proggen",
+    "adif_path": "C:/Users/oe4vm/Desktop/Proggen/test_large_plus.adi",
+    "bulk_card_directory": "C:/Users/oe4vm/Desktop/Proggen/test 5",
     "dxcc_lookup_path": "C:\\Users\\oe4vm\\Desktop\\Proggen\\eqsl_program\\Eqsl_Program\\scripts\\..\\support_data\\dxcc_lookup.csv"
 }
