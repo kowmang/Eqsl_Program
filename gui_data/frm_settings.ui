@@ -53,7 +53,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Restore</string>
+    <string>Reset</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_downloadfolder_image">
@@ -108,7 +108,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Back</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_search_download_dir">

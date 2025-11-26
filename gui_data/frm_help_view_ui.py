@@ -22,7 +22,7 @@ class Ui_frm_help_view(object):
     def setupUi(self, frm_help_view):
         if not frm_help_view.objectName():
             frm_help_view.setObjectName(u"frm_help_view")
-        frm_help_view.resize(900, 700)
+        frm_help_view.resize(1000, 700)
         self.horizontalLayout = QHBoxLayout(frm_help_view)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.textBrowser = QTextBrowser(frm_help_view)

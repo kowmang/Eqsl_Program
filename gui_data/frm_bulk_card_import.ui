@@ -157,7 +157,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Back</string>
    </property>
   </widget>
  </widget>

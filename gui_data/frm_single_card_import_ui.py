@@ -91,6 +91,14 @@ class Ui_frm_single_card_import(object):
         self.txt_band_single = QLineEdit(frm_single_card_import)
         self.txt_band_single.setObjectName(u"txt_band_single")
         self.txt_band_single.setGeometry(QRect(450, 150, 101, 30))
+        QWidget.setTabOrder(self.txt_callsign_single, self.txt_date_single)
+        QWidget.setTabOrder(self.txt_date_single, self.txt_band_single)
+        QWidget.setTabOrder(self.txt_band_single, self.txt_mode_single)
+        QWidget.setTabOrder(self.txt_mode_single, self.txt_path_singlecard_import)
+        QWidget.setTabOrder(self.txt_path_singlecard_import, self.btn_select_path_single)
+        QWidget.setTabOrder(self.btn_select_path_single, self.btn_reset_path_single)
+        QWidget.setTabOrder(self.btn_reset_path_single, self.btn_singlecard_import)
+        QWidget.setTabOrder(self.btn_singlecard_import, self.btn_cancel_frm_single_import)
 
         self.retranslateUi(frm_single_card_import)
 
@@ -99,7 +107,7 @@ class Ui_frm_single_card_import(object):
 
     def retranslateUi(self, frm_single_card_import):
         frm_single_card_import.setWindowTitle(QCoreApplication.translate("frm_single_card_import", u"Dialog", None))
-        self.btn_cancel_frm_single_import.setText(QCoreApplication.translate("frm_single_card_import", u"Cancel", None))
+        self.btn_cancel_frm_single_import.setText(QCoreApplication.translate("frm_single_card_import", u"Back", None))
         self.btn_reset_path_single.setText(QCoreApplication.translate("frm_single_card_import", u"Reset", None))
         self.lb_mode_single.setText(QCoreApplication.translate("frm_single_card_import", u"Mode", None))
         self.lb_band_single.setText(QCoreApplication.translate("frm_single_card_import", u"Band", None))

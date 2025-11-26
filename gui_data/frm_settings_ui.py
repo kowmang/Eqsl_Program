@@ -93,9 +93,9 @@ class Ui_frm_settings(object):
     def retranslateUi(self, frm_settings):
         frm_settings.setWindowTitle(QCoreApplication.translate("frm_settings", u"Dialog", None))
         self.lb_database_selection.setText(QCoreApplication.translate("frm_settings", u"Database Selection", None))
-        self.btn_reset_db.setText(QCoreApplication.translate("frm_settings", u"Restore", None))
+        self.btn_reset_db.setText(QCoreApplication.translate("frm_settings", u"Reset", None))
         self.lb_downloadfolder_image.setText(QCoreApplication.translate("frm_settings", u"Downloadfolder for Image Download", None))
-        self.btn_cancel_frm_settings.setText(QCoreApplication.translate("frm_settings", u"Cancel", None))
+        self.btn_cancel_frm_settings.setText(QCoreApplication.translate("frm_settings", u"Back", None))
         self.btn_search_download_dir.setText(QCoreApplication.translate("frm_settings", u"Select", None))
         self.btn_search_db.setText(QCoreApplication.translate("frm_settings", u"Select", None))
         self.btn_new_db.setText(QCoreApplication.translate("frm_settings", u"New DB", None))

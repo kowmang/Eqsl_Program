@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>960</width>
+    <width>1060</width>
     <height>700</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
      <rect>
       <x>520</x>
       <y>50</y>
-      <width>421</width>
+      <width>411</width>
       <height>30</height>
      </rect>
     </property>
@@ -59,8 +59,8 @@
    <widget class="QPushButton" name="btn_search_main">
     <property name="geometry">
      <rect>
-      <x>850</x>
-      <y>110</y>
+      <x>960</x>
+      <y>50</y>
       <width>85</width>
       <height>27</height>
      </rect>
@@ -99,7 +99,7 @@
      <rect>
       <x>10</x>
       <y>200</y>
-      <width>941</width>
+      <width>1031</width>
       <height>441</height>
      </rect>
     </property>
@@ -288,13 +288,32 @@
      <string/>
     </property>
    </widget>
+   <widget class="QPushButton" name="btn_reset_main_2">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>110</y>
+      <width>85</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Edit</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>960</width>
+     <width>1060</width>
      <height>33</height>
     </rect>
    </property>
@@ -360,6 +379,22 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>txt_search_field_main</tabstop>
+  <tabstop>btn_search_main</tabstop>
+  <tabstop>btn_markall_main</tabstop>
+  <tabstop>btn_unmarkall_main</tabstop>
+  <tabstop>btn_show_image</tabstop>
+  <tabstop>btn_export_image</tabstop>
+  <tabstop>btn_reset_main_2</tabstop>
+  <tabstop>btn_reset_main</tabstop>
+  <tabstop>btn_exit_program</tabstop>
+  <tabstop>btn_download</tabstop>
+  <tabstop>btn_unmark_all</tabstop>
+  <tabstop>tbl_data_view_main</tabstop>
+  <tabstop>btn_show</tabstop>
+  <tabstop>btn_mark_all</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
