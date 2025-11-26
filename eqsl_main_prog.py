@@ -8,10 +8,11 @@ from PySide6.QtSql import QSqlDatabase, QSqlTableModel
 from PySide6.QtGui import QPixmap 
 
 # Correct imports (based on your structure)
-from .gui_data.frm_main_window_ui import Ui_frm_main_window 
-from .scripts.gui_manager import GuiManager 
-from .scripts.settings_manager import SettingsManager 
-from .scripts.image_viewer_dialog import ImageViewerDialog 
+from gui_data.frm_main_window_ui import Ui_frm_main_window 
+from scripts.gui_manager import GuiManager 
+from scripts.settings_manager import SettingsManager 
+from scripts.image_viewer_dialog import ImageViewerDialog
+
 
 # Definition of column indexes (0-based)
 COL_CALL = 1

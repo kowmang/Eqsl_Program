@@ -14,18 +14,18 @@ from typing import Optional, Union, TYPE_CHECKING, Any
 # from PySide6.QtWidgets import QMainWindow 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QMainWindow # FFor type safety
-    from ..gui_data.frm_settings_ui import Ui_frm_settings
-    from ..gui_data.frm_single_card_import_ui import Ui_frm_single_card_import
-    from ..gui_data.frm_help_view_ui import Ui_frm_help_view
-    from ..gui_data.frm_version_ui import Ui_frm_version
-    from ..gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
+    from gui_data.frm_settings_ui import Ui_frm_settings
+    from gui_data.frm_single_card_import_ui import Ui_frm_single_card_import
+    from gui_data.frm_help_view_ui import Ui_frm_help_view
+    from gui_data.frm_version_ui import Ui_frm_version
+    from gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
 
 # The compiled UI classes are imported here (relative to the 'scripts' folder)
-from ..gui_data.frm_settings_ui import Ui_frm_settings
-from ..gui_data.frm_single_card_import_ui import Ui_frm_single_card_import
-from ..gui_data.frm_help_view_ui import Ui_frm_help_view
-from ..gui_data.frm_version_ui import Ui_frm_version
-from ..gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
+from gui_data.frm_settings_ui import Ui_frm_settings
+from gui_data.frm_single_card_import_ui import Ui_frm_single_card_import
+from gui_data.frm_help_view_ui import Ui_frm_help_view
+from gui_data.frm_version_ui import Ui_frm_version
+from gui_data.frm_bulk_card_import_ui import Ui_frm_bulk_card_import
 
 # Importing the logic managers
 from .settings_manager import SettingsManager 
