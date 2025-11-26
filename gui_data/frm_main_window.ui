@@ -34,6 +34,9 @@
       <height>30</height>
      </rect>
     </property>
+    <property name="placeholderText">
+     <string>160M ,  JN87kg ,  EA7.. .. .. ,  Greece,  23.12.2025 ,</string>
+    </property>
    </widget>
    <widget class="QLabel" name="lb_searchfield_main">
     <property name="geometry">

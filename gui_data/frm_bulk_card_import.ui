@@ -105,6 +105,9 @@
      <pointsize>11</pointsize>
     </font>
    </property>
+   <property name="placeholderText">
+    <string>Path to the Cards Folder</string>
+   </property>
   </widget>
   <widget class="QLabel" name="lb_warning_bulk_upload_1">
    <property name="geometry">

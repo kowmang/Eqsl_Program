@@ -91,6 +91,9 @@
      <pointsize>11</pointsize>
     </font>
    </property>
+   <property name="placeholderText">
+    <string>Path to your database</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="btn_cancel_frm_settings">
    <property name="geometry">
@@ -163,6 +166,9 @@
      <pointsize>11</pointsize>
     </font>
    </property>
+   <property name="placeholderText">
+    <string>Path to your downloadfolder</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="btn_new_db">
    <property name="geometry">
@@ -196,6 +202,9 @@
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+   <property name="placeholderText">
+    <string>Path to your adif file</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_adif_list_import">

@@ -44,6 +44,9 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>23.02.2025</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="btn_reset_path_single">
    <property name="geometry">
@@ -93,6 +96,9 @@
      <width>101</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="placeholderText">
+    <string>FT8, SSB, . . . </string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_band_single">
@@ -184,6 +190,9 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>OE4ABC</string>
+   </property>
   </widget>
   <widget class="QLabel" name="lb_path_singlecard">
    <property name="geometry">
@@ -219,6 +228,9 @@
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+   <property name="placeholderText">
+    <string>Path to the Qsl Card</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_single_card_upload_section">
@@ -271,6 +283,12 @@
      <width>101</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="placeholderText">
+    <string>20M, 20</string>
    </property>
   </widget>
  </widget>
