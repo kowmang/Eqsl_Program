@@ -140,7 +140,7 @@ class Ui_frm_main_window(object):
         self.actionManual.setText(QCoreApplication.translate("frm_main_window", u"Manual", None))
         self.actionVersionInfo.setText(QCoreApplication.translate("frm_main_window", u"About", None))
         self.actionBulk_Card_Import.setText(QCoreApplication.translate("frm_main_window", u"Bulk Card Import", None))
-        self.txt_search_field_main.setPlaceholderText(QCoreApplication.translate("frm_main_window", u"160M ,  JN87kg ,  EA7.. .. .. ,  Greece,  23.12.2025 ,", None))
+        self.txt_search_field_main.setPlaceholderText(QCoreApplication.translate("frm_main_window", u"160M ,  JN87kg ,  EA7.. .. .. ,  Greece,  20250902,", None))
         self.lb_searchfield_main.setText(QCoreApplication.translate("frm_main_window", u"Search for . . . ", None))
         self.btn_search_main.setText(QCoreApplication.translate("frm_main_window", u"Search", None))
         self.btn_reset_main.setText(QCoreApplication.translate("frm_main_window", u"Reset", None))
