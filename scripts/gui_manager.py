@@ -1,4 +1,5 @@
 import os
+import sys # Hinzugefügt, da im Originalcode fehlte, aber für Exceptions nützlich
 from PySide6.QtWidgets import (
     QMainWindow, QDialog, QVBoxLayout, QTextBrowser, 
     QFileDialog, QMessageBox, QWidget, QTextEdit       
@@ -9,7 +10,7 @@ from PySide6.QtGui import QFont
 import os.path
 
 # Typing Imports
-from typing import Optional, Union, TYPE_CHECKING, Any
+from typing import Optional, Union, TYPE_CHECKING, Dict, Any
 # NEW: Import QMainWindow here if it cannot find Pylance in the TYPE_CHECKING block.
 # from PySide6.QtWidgets import QMainWindow 
 if TYPE_CHECKING:
@@ -34,7 +35,7 @@ from .qsl_image_importer import QslImageImporter
 from .qsl_single_image_importer import QslSingleImageImporter 
 
 # ----------------------------------------------------
-# 1. DEFINITION OF SUBWINDOWS (Classes remain unchanged)
+# 1. DEFINITION OF SUBWINDOWS 
 # ----------------------------------------------------
 
 class EqslSettingsWindow(QDialog):
@@ -110,10 +111,6 @@ class EqslSettingsWindow(QDialog):
              
         if hasattr(self.ui, 'btn_import_adif'): 
             self.ui.btn_import_adif.clicked.connect(self._handle_adif_import_click)
-
-    # ... (Rest of the EqslSettingsWindow methods _get_default_db_directory, _open_new_db_dialog, 
-    # _open_existing_db_dialog, _handle_reset_db, _open_download_dir_dialog, 
-    # _open_adif_select_dialog, _handle_adif_import_click remain unchanged) ...
 
     def _get_default_db_directory(self) -> str:
         """Calculates the default 'database_sql' directory."""
@@ -211,18 +208,57 @@ class EqslSettingsWindow(QDialog):
 
 
 class EqslSingleImportWindow(QDialog): 
-    single_card_import_requested = Signal(str, str, str, str, str) # Call, Date, Band, Mode, Path
+    # KORREKTUR 1: Optional[int] durch object ersetzen
+    single_card_import_requested = Signal(str, str, str, str, str, object) # Call, Date, Band, Mode, Path
     
-    def __init__(self, parent: Optional[QWidget] = None): 
+    def __init__(self, settings_manager: SettingsManager, qso_data: Optional[Dict[str, Any]] = None, parent: Optional[QWidget] = None): 
         super().__init__(parent)
         self.ui: Ui_frm_single_card_import = Ui_frm_single_card_import()
         self.ui.setupUi(self) # type: ignore
         self.setWindowTitle("eQSL Programm (Single Card Import)")
         
         self.setWindowModality(Qt.WindowModality.ApplicationModal) 
+
+        self.settings_manager = settings_manager
+        self.qso_data = qso_data 
         
+        self.setup_ui_state()
+
         self._setup_connections() 
-    
+
+    def setup_ui_state(self):
+        """Initialisiert den Zustand der UI-Elemente und befüllt sie im Edit-Modus."""
+
+        if self.qso_data: # Im Edit-Modus
+            self.ui.txt_callsign_single.setText(self.qso_data.get('callsign', ''))
+            
+            # Datum formatieren (z.B. von YYYYMMDD zu YYYY-MM-DD für bessere Lesbarkeit)
+            raw_date = self.qso_data.get('qso_date', '')
+            formatted_date = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:]}" if len(raw_date) == 8 else raw_date
+            
+            self.ui.txt_date_single.setText(formatted_date)
+            self.ui.txt_band_single.setText(self.qso_data.get('band', ''))
+            self.ui.txt_mode_single.setText(self.qso_data.get('mode', ''))
+            self.ui.txt_path_singlecard_import.setText("") # Pfad ist leer für neue Bildauswahl
+            
+            self.setWindowTitle("eQSL Programm (Datensatz bearbeiten)")
+            if hasattr(self.ui, 'lb_single_card_upload_section'):
+                self.ui.lb_single_card_upload_section.setText("Datensatz bearbeiten (Edit)")
+            
+        else: # Normaler Import-Modus
+            # Alle Felder leeren
+            self.ui.txt_callsign_single.setText("")
+            self.ui.txt_date_single.setText("")
+            self.ui.txt_band_single.setText("")
+            self.ui.txt_mode_single.setText("")
+            self.ui.txt_path_singlecard_import.setText("")
+            
+            self.setWindowTitle("eQSL Programm (Single Card Import)")
+            if hasattr(self.ui, 'lb_single_card_upload_section'):
+                self.ui.lb_single_card_upload_section.setText("Single Card Import")
+        # ... (Rest der bestehenden setup_ui_state Logik) ...
+
+
     def _setup_connections(self):
         if hasattr(self.ui, 'btn_cancel_frm_single_import'):
             self.ui.btn_cancel_frm_single_import.clicked.connect(self.close)
@@ -284,7 +320,14 @@ class EqslSingleImportWindow(QDialog):
             QMessageBox.warning(self, "Import error", "Please fill in all fields and select an image path.")
             return
             
-        self.single_card_import_requested.emit(callsign, date, band, mode, image_path)
+        # self.single_card_import_requested.emit(callsign, date, band, mode, image_path) # <- DIESE ZEILE WURDE ENTFERNT (WAR DOPPELT UND FALSCH)
+
+        # ROWID abrufen (ist nur im Edit-Modus vorhanden)
+        rowid = self.qso_data.get('rowid') if self.qso_data else None 
+        
+        # Signal mit der ROWID senden (Dies ist der korrekte Aufruf)
+        self.single_card_import_requested.emit(callsign, date, band, mode, image_path, rowid) 
+        self.close()
 
 
 class EqslBulkImportWindow(QDialog): 
@@ -578,6 +621,7 @@ class GuiManager(QObject):
         self.image_importer.db_filepath = db_path
         self.single_image_importer.db_filepath = db_path 
         print(f"GuiManager: DB path for importers updated to: {db_path}")
+        
     @Slot(str)
     def _handle_adif_import_from_settings(self, adif_filepath: str):
         """
@@ -600,8 +644,9 @@ class GuiManager(QObject):
         
         self.qso_data_updated.emit(new_records)
         
-    @Slot(str, str, str, str, str)
-    def _handle_single_card_import_request(self, callsign: str, date: str, band: str, mode: str, image_path: str):
+    # KORREKTUR 2: Optional[int] durch object ersetzen
+    @Slot(str, str, str, str, str, object)
+    def _handle_single_card_import_request(self, callsign: str, date: str, band: str, mode: str, image_path: str, rowid: Optional[int] = None):
         """
         Performs the actual single import of images.
         """
@@ -613,7 +658,7 @@ class GuiManager(QObject):
             
         self.single_image_importer.db_filepath = db_path 
 
-        results: dict[str, Union[str, int, bool]] = self.single_image_importer.import_single_image(callsign, date, band, mode, image_path)
+        results: dict[str, Union[str, int, bool]] = self.single_image_importer.import_single_image(callsign, date, band, mode, image_path, rowid=rowid)
         
         if results['success']:
             QMessageBox.information(
@@ -624,7 +669,7 @@ class GuiManager(QObject):
             if self.single_import_window is not None:
                 self.single_import_window.close()
             
-            if results.get('qso_id'):
+            if results.get('success'):
                 self.qso_data_updated.emit(1)
                 
         else:
@@ -709,18 +754,29 @@ class GuiManager(QObject):
         self.settings_window.setup_ui_state() 
         self.settings_window.exec() 
 
-    @Slot()
-    def open_single_import(self):
-        """Opens the window for single import (MODAL: WindowModal + .exec())."""
+    # KORREKTUR 3: Optional[Dict[str, Any]] durch object ersetzen
+    @Slot(object) 
+    def open_single_card_import(self, qso_data: Optional[Dict[str, Any]] = None): 
+        """Öffnet das Fenster für den Single QSL Card Import, optional vorbefüllt zur Bearbeitung."""
         if self.single_import_window is None:
-            self.single_import_window = EqslSingleImportWindow(parent=self.main_window)
-            
-            # NEW: Connection for single import request
-            self.single_import_window.single_card_import_requested.connect(
-                self._handle_single_card_import_request
+            # Erstelle das Fenster und übergib die Daten
+            self.single_import_window = EqslSingleImportWindow(
+            self.settings_manager, 
+            qso_data=qso_data, # DATEN ÜBERGEBEN
+            parent=self.main_window
             )
-            
-        self.single_import_window.exec() 
+        
+            # Das Signal ist nun mit 6 Parametern verbunden
+            self.single_import_window.single_card_import_requested.connect(
+            self._handle_single_card_import_request
+            )
+        
+        else:
+            # Wenn Fenster bereits existiert, Daten aktualisieren und Zustand zurücksetzen
+            self.single_import_window.qso_data = qso_data # DATEN AKTUALISIEREN
+            self.single_import_window.setup_ui_state()
+        
+        self.single_import_window.exec()
 
     @Slot()
     def open_bulk_import(self):

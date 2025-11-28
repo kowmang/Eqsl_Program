@@ -2,7 +2,7 @@ import os
 import sqlite3
 import re # Although not necessary for single import, it remains for the basic definition..
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Union
 
 # --- BASE CLASS (Assuming it exists in a separate file or here) ---
 # It provides the generic database and blob functions.
@@ -38,9 +38,6 @@ class QslImageImporterBasis:
         call_val = qso_data['call'].upper()
         
         # 2. SQL query
-        # The query looks for whether the entered call matches the CALL field in the log.
-        # It might make sense to search for either the user's call OR the partner's call.
-        # Here, only the main CALL field (partner) is checked, as the user enters the partner call.
         sql = f"""
         SELECT ROWID FROM {self.table_name}
         WHERE UPPER(CALL) = ?
@@ -83,6 +80,7 @@ class QslImageImporterBasis:
         result = cursor.fetchone()
         
         # True if the column is not NULL
+        # NOTE: Using result[0] is correct here as the column is checked.
         return result is not None and result[0] is not None
         
     def _update_qso_with_blob(self, conn: sqlite3.Connection, qso_id: int, blob_data: bytes):
@@ -96,7 +94,8 @@ class QslImageImporterBasis:
 class QslSingleImageImporter(QslImageImporterBasis):
     """
     Imports a single QSL image based on manually entered
-    QSO data (Call, Date, Band, Mode) and an image path.
+    QSO data (Call, Date, Band, Mode) and an image path,
+    or updates an existing entry (Edit-Mode) based on rowid.
     """
     
     def __init__(self, db_filepath: str, table_name: str = "eqsl_data"):
@@ -116,13 +115,15 @@ class QslSingleImageImporter(QslImageImporterBasis):
         try:
             date_input = data['date'].strip()
             
-            # Try to parse common formats (YYYY-MM-DD, DD.MM.YYYY)
-            if re.match(r'\d{4}-\d{2}-\d{2}', date_input):
+            # Try to parse common formats (YYYY-MM-DD, DD.MM.YYYY, YYYYMMDD)
+            if re.match(r'^\d{4}-\d{2}-\d{2}$', date_input):
                 date_obj = datetime.strptime(date_input, '%Y-%m-%d')
-            elif re.match(r'\d{2}\.\d{2}\.\d{4}', date_input):
+            elif re.match(r'^\d{2}\.\d{2}\.\d{4}$', date_input):
                 date_obj = datetime.strptime(date_input, '%d.%m.%Y')
+            elif re.match(r'^\d{8}$', date_input):
+                date_obj = datetime.strptime(date_input, '%Y%m%d') # Already correct format
             else:
-                print(f"Invalid date format: {date_input}. Expected YYYY-MM-DD or DD.MM.YYYY.")
+                print(f"Invalid date format: {date_input}. Expected YYYY-MM-DD, DD.MM.YYYY, or YYYYMMDD.")
                 return None
                 
             formatted_date = date_obj.strftime('%Y%m%d') # Format for the DB
@@ -151,7 +152,8 @@ class QslSingleImageImporter(QslImageImporterBasis):
             'path': file_path
         }
 
-    def import_single_image(self, callsign: str, date: str, band: str, mode: str, image_path: str) -> Dict[str, Any]:
+    # KORREKTUR: rowid: Optional[int] = None zum Methoden-Signature HINZUGEFÜGT
+    def import_single_image(self, callsign: str, date: str, band: str, mode: str, image_path: str, rowid: Optional[int] = None) -> Dict[str, Any]:
         """
         Performs the single import based on manual data.
 
@@ -160,6 +162,7 @@ class QslSingleImageImporter(QslImageImporterBasis):
         :param band: BAND field from the GUI
         :param mode: MODE field from the GUI
         :param image_path: Path to the image from the GUI
+        :param rowid: Optional ROWID for updating an existing entry (Edit-Mode)
         :return: Result dictionary with 'success' and 'message'
         """
         
@@ -181,8 +184,14 @@ class QslSingleImageImporter(QslImageImporterBasis):
         try:
             conn = self._get_db_connection()
             
-            # 2. Find QSO-ID (match by Call, Date, Band, Mode)
-            qso_id = self._get_qso_id(conn, qso_data)
+            # KORRIGIERTE LOGIK: Wenn rowid vorhanden ist, Suche überspringen
+            qso_id: Union[int, None] = None
+            if rowid is not None:
+                qso_id = rowid # Verwende die vorhandene ID für den Update-Fall (Edit-Mode)
+                results['message'] = f"QSO found (ID {qso_id}) in Edit-Mode."
+            else:
+                # 2. Find QSO-ID (match by Call, Date, Band, Mode)
+                qso_id = self._get_qso_id(conn, qso_data)
             
             if qso_id is None:
                 results['message'] = "QSO not found in the database."
@@ -190,8 +199,9 @@ class QslSingleImageImporter(QslImageImporterBasis):
                 conn.close()
                 return results
 
-            # 3. Check if image is already present
-            if self._is_image_present(conn, qso_id):
+            # 3. Check if image is already present (nur im reinen Import-Modus relevant)
+            # Im Edit-Modus wird die Prüfung ignoriert, da die Aktualisierung immer erlaubt ist.
+            if rowid is None and self._is_image_present(conn, qso_id):
                 results['message'] = f"QSO found (ID {qso_id}), but an image is already present. (Not saved)"
                 results['success'] = True 
                 results['qso_id'] = qso_id
@@ -211,8 +221,12 @@ class QslSingleImageImporter(QslImageImporterBasis):
             
             results['success'] = True
             results['qso_id'] = qso_id
-            results['message'] = f"Import successful! Image saved to QSO entry ID {qso_id}."
             
+            if rowid is not None:
+                results['message'] = f"Update successful! Image replaced for QSO entry ID {qso_id}."
+            else:
+                results['message'] = f"Import successful! Image saved to QSO entry ID {qso_id}."
+
             conn.close()
             
         except FileNotFoundError as e:
