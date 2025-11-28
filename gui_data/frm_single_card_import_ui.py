@@ -91,6 +91,14 @@ class Ui_frm_single_card_import(object):
         self.txt_band_single = QLineEdit(frm_single_card_import)
         self.txt_band_single.setObjectName(u"txt_band_single")
         self.txt_band_single.setGeometry(QRect(450, 150, 101, 30))
+        QWidget.setTabOrder(self.txt_callsign_single, self.txt_date_single)
+        QWidget.setTabOrder(self.txt_date_single, self.txt_band_single)
+        QWidget.setTabOrder(self.txt_band_single, self.txt_mode_single)
+        QWidget.setTabOrder(self.txt_mode_single, self.txt_path_singlecard_import)
+        QWidget.setTabOrder(self.txt_path_singlecard_import, self.btn_select_path_single)
+        QWidget.setTabOrder(self.btn_select_path_single, self.btn_reset_path_single)
+        QWidget.setTabOrder(self.btn_reset_path_single, self.btn_singlecard_import)
+        QWidget.setTabOrder(self.btn_singlecard_import, self.btn_cancel_frm_single_import)
 
         self.retranslateUi(frm_single_card_import)
 
@@ -99,15 +107,21 @@ class Ui_frm_single_card_import(object):
 
     def retranslateUi(self, frm_single_card_import):
         frm_single_card_import.setWindowTitle(QCoreApplication.translate("frm_single_card_import", u"Dialog", None))
-        self.btn_cancel_frm_single_import.setText(QCoreApplication.translate("frm_single_card_import", u"Cancel", None))
+        self.btn_cancel_frm_single_import.setText(QCoreApplication.translate("frm_single_card_import", u"Back", None))
+        self.txt_date_single.setPlaceholderText(QCoreApplication.translate("frm_single_card_import", u"23.02.2025", None))
         self.btn_reset_path_single.setText(QCoreApplication.translate("frm_single_card_import", u"Reset", None))
         self.lb_mode_single.setText(QCoreApplication.translate("frm_single_card_import", u"Mode", None))
+        self.txt_mode_single.setPlaceholderText(QCoreApplication.translate("frm_single_card_import", u"FT8, SSB, . . . ", None))
         self.lb_band_single.setText(QCoreApplication.translate("frm_single_card_import", u"Band", None))
         self.btn_select_path_single.setText(QCoreApplication.translate("frm_single_card_import", u"Select", None))
         self.btn_singlecard_import.setText(QCoreApplication.translate("frm_single_card_import", u"Import", None))
         self.lb_date_single.setText(QCoreApplication.translate("frm_single_card_import", u"Date", None))
+        self.txt_callsign_single.setPlaceholderText(QCoreApplication.translate("frm_single_card_import", u"OE4ABC", None))
         self.lb_path_singlecard.setText(QCoreApplication.translate("frm_single_card_import", u"Path for Single Card Import", None))
+        self.txt_path_singlecard_import.setPlaceholderText(QCoreApplication.translate("frm_single_card_import", u"Path to the Qsl Card", None))
         self.lb_single_card_upload_section.setText(QCoreApplication.translate("frm_single_card_import", u"Single Card Import", None))
         self.lb_callsign_single.setText(QCoreApplication.translate("frm_single_card_import", u"Callsign", None))
+        self.txt_band_single.setText("")
+        self.txt_band_single.setPlaceholderText(QCoreApplication.translate("frm_single_card_import", u"20M, 20", None))
     # retranslateUi
 

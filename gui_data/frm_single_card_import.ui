@@ -32,7 +32,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Back</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="txt_date_single">
@@ -43,6 +43,9 @@
      <width>111</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="placeholderText">
+    <string>23.02.2025</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_reset_path_single">
@@ -93,6 +96,9 @@
      <width>101</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="placeholderText">
+    <string>FT8, SSB, . . . </string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_band_single">
@@ -184,6 +190,9 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>OE4ABC</string>
+   </property>
   </widget>
   <widget class="QLabel" name="lb_path_singlecard">
    <property name="geometry">
@@ -219,6 +228,9 @@
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+   <property name="placeholderText">
+    <string>Path to the Qsl Card</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_single_card_upload_section">
@@ -272,8 +284,25 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="placeholderText">
+    <string>20M, 20</string>
+   </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>txt_callsign_single</tabstop>
+  <tabstop>txt_date_single</tabstop>
+  <tabstop>txt_band_single</tabstop>
+  <tabstop>txt_mode_single</tabstop>
+  <tabstop>txt_path_singlecard_import</tabstop>
+  <tabstop>btn_select_path_single</tabstop>
+  <tabstop>btn_reset_path_single</tabstop>
+  <tabstop>btn_singlecard_import</tabstop>
+  <tabstop>btn_cancel_frm_single_import</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

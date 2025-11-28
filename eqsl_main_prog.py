@@ -8,10 +8,11 @@ from PySide6.QtSql import QSqlDatabase, QSqlTableModel
 from PySide6.QtGui import QPixmap 
 
 # Correct imports (based on your structure)
-from .gui_data.frm_main_window_ui import Ui_frm_main_window 
-from .scripts.gui_manager import GuiManager 
-from .scripts.settings_manager import SettingsManager 
-from .scripts.image_viewer_dialog import ImageViewerDialog 
+from gui_data.frm_main_window_ui import Ui_frm_main_window 
+from scripts.gui_manager import GuiManager 
+from scripts.settings_manager import SettingsManager 
+from scripts.image_viewer_dialog import ImageViewerDialog
+
 
 # Definition of column indexes (0-based)
 COL_CALL = 1
@@ -208,8 +209,9 @@ class EqslMainWindow(QMainWindow):
         # Menu actions (to GuiManager)
         if hasattr(self.ui, 'actionSettings'):
             self.ui.actionSettings.triggered.connect(self.gui_manager.open_settings)
+        # HIER IST DIE KORREKTUR
         if hasattr(self.ui, 'actionSingle_Card_Import'):
-            self.ui.actionSingle_Card_Import.triggered.connect(self.gui_manager.open_single_import)
+            self.ui.actionSingle_Card_Import.triggered.connect(self.gui_manager.open_single_card_import) 
         if hasattr(self.ui, 'actionBulk_Card_Import'):
             self.ui.actionBulk_Card_Import.triggered.connect(self.gui_manager.open_bulk_import)
         if hasattr(self.ui, 'actionManual'):
@@ -218,6 +220,9 @@ class EqslMainWindow(QMainWindow):
             self.ui.actionVersionInfo.triggered.connect(self.gui_manager.open_version_info)
         if hasattr(self.ui, 'actionExit'):
             self.ui.actionExit.triggered.connect(self.close)
+        if hasattr(self.ui, 'btn_edit'):
+            self.ui.btn_edit.clicked.connect(self._handle_edit_qso) # <-- NEU
+
 
         # DB path change & data update
         self.settings_manager.db_path_selected.connect(self._handle_db_path_changed)
@@ -379,6 +384,44 @@ class EqslMainWindow(QMainWindow):
         print("EqslMainWindow: Data model refreshed after import.")
         QMessageBox.information(self, "Update", "The data view has been successfully refreshed.")
 
+    @Slot()
+    def _handle_edit_qso(self):
+        """Verarbeitet den Klick auf den 'Edit'-Button, ruft die QSO-Daten ab und öffnet das Importfenster zum Bearbeiten."""
+        selection_model = self.ui.tbl_data_view_main.selectionModel()
+        selected_indices = selection_model.selectedRows()
+
+        if not selected_indices:
+            QMessageBox.warning(self, "Auswahlfehler", "Bitte wählen Sie einen Eintrag in der Tabelle aus, den Sie bearbeiten möchten.")
+            return
+    
+    # Nur die erste ausgewählte Zeile verwenden
+        proxy_index = selected_indices[0] 
+        source_index = self.proxy_model.mapToSource(proxy_index)
+        source_model = self.source_model
+    
+    # WICHTIG: Die ROWID (interne ID) ist für das Update nötig. Sie ist normalerweise Spalte 0.
+        qso_id = source_model.data(source_model.index(source_index.row(), 0), Qt.ItemDataRole.DisplayRole)
+        if not qso_id:
+            QMessageBox.critical(self, "Fehler", "Konnte die interne Datensatz-ID (ROWID) nicht abrufen.")
+            return
+        
+    # Abrufen der anzuzeigenden Daten
+    # Definierte Spaltenindizes aus eqsl_main_prog.py verwenden
+        COL_MAP = {
+            'callsign': COL_CALL,
+            'qso_date': COL_QSO_DATE, # Format: YYYYMMDD
+            'band': COL_BAND,
+            'mode': COL_MODE,
+            }
+    
+        qso_data = {'rowid': int(qso_id)} # ROWID speichern
+    
+        for key, col_index in COL_MAP.items():
+            data = source_model.data(source_model.index(source_index.row(), col_index), Qt.ItemDataRole.DisplayRole)
+            qso_data[key] = str(data) if data is not None else ""
+    
+    # Öffnet das Importfenster im "Edit"-Modus mit den Daten
+        self.gui_manager.open_single_card_import(qso_data=qso_data)    
 
     @Slot(str)
     def _handle_db_path_changed(self, new_db_path: str):

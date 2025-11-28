@@ -53,7 +53,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Restore</string>
+    <string>Reset</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_downloadfolder_image">
@@ -91,6 +91,9 @@
      <pointsize>11</pointsize>
     </font>
    </property>
+   <property name="placeholderText">
+    <string>Path to your database</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="btn_cancel_frm_settings">
    <property name="geometry">
@@ -108,7 +111,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Back</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_search_download_dir">
@@ -163,6 +166,9 @@
      <pointsize>11</pointsize>
     </font>
    </property>
+   <property name="placeholderText">
+    <string>Path to your downloadfolder</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="btn_new_db">
    <property name="geometry">
@@ -196,6 +202,9 @@
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+   <property name="placeholderText">
+    <string>Path to your adif file</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_adif_list_import">

@@ -67,6 +67,15 @@ p, ul, ol, dl {
   padding: 5px; 
 }
 
+.image-very-small {
+  display: block;
+  max-width: 15%;
+  height: auto;
+  border: 1px solid #ccc; 
+  margin: 20px 0 0 0; 
+  padding: 5px; 
+}
+
 /* --- Inhaltsverzeichnis --- */
 .table-of-contents {
   border: 1px solid #ddd;
@@ -116,8 +125,9 @@ p, ul, ol, dl {
                     <li><a href="#section-4-1">4.1 Settings</a></li>
                     <li><a href="#section-4-2">4.2 Bulk Card Import</a></li>
                     <li><a href="#section-4-3">4.3 Single Card Import</a></li>
-                    <li><a href="#section-4-4">4.4 Search and showing QSL Card Images</a></li>
-                    <li><a href="#section-4-5">4.5 Export QSL Card Images</a></li>
+                    <li><a href="#section-4-4">4.4 Edit a Entry (Image)</a></li>
+                    <li><a href="#section-4-5">4.4 Search and showing QSL Card Images</a></li>
+                    <li><a href="#section-4-6">4.5 Export QSL Card Images</a></li>
                 </ul>
             </li>
             <li><a href="#section-5">5. Troubleshooting</a></li>
@@ -151,17 +161,15 @@ p, ul, ol, dl {
     <h2 id="section-2">2. Installation 🛠️</h2>
     <br>
     <p>
-    //FIXME: Has to be redone after finishing the program
-    </p>
-    <p>
     To install the Eqsl Program, please follow these steps:
     </p>
     <ol>
-    <li>Download the latest version of the program from the official website or repository.</li>
-    <li>Ensure that you have <strong>Python</strong> and the required libraries installed on your system.</li>
-    <li>Extracted the downloaded files to a desired location on your computer.</li>
-    <li>Run the setup script to install any necessary dependencies.</li>
-    <li>Launch the program using the provided executable or script file.</li>
+    <li>Download the latest version of the program from the official website.</li>
+    <br>
+    WEBSITE LINK TO BE ADDED HERE //TODO: add website link
+    <br>
+    <li>Extracted the downloaded .zip archive to a desired location on your computer.</li>
+    <li>Launch the program using the provided executable Eqsl_Program.exe within the folder.</li>
     </ol>
 
     <hr>
@@ -229,7 +237,7 @@ p, ul, ol, dl {
     At the bottom in the <strong>orange section</strong>, you can set the path to the folder, where the exported QSL card images will be saved to with the <strong>"Select Button"</strong>.
     </p>
     <p>
-    After setting all paths, click on <strong>"Cancel Button"</strong> to leave the window, changes will be automatically saved. With the <strong>"Restore Button"</strong> you can clear the paths to program defaults.
+    After setting all paths, click on <strong>"Back Button"</strong> to leave the window, changes will be automatically saved. With the <strong>"Restore Button"</strong> you can clear the paths to program defaults.
     </p>
     <br>
     <br>
@@ -248,7 +256,7 @@ p, ul, ol, dl {
     In the <strong>green field</strong> you have the <strong>"Import Button"</strong> to import the image into the database.
     </p> 
     <p>
-    Click on <strong>"Cancel Button"</strong> to leave the window.
+    Click on <strong>"Back Button"</strong> to leave the window.
     </p>
     <br>
     <br>
@@ -267,7 +275,7 @@ p, ul, ol, dl {
     In the <strong>green field</strong> you have the <strong>"Import Button"</strong> to import all images from the folder into the database.
     </p> 
     <p>
-    Click on <strong>"Cancel Button"</strong> to leave the window.
+    Click on <strong>"Back Button"</strong> to leave the window.
     </p>
     <br>
     <br>
@@ -306,7 +314,7 @@ p, ul, ol, dl {
     Finally go to the <strong>"Export Folder"</strong> section and click on <strong>"Select Button"</strong> to choose the folder where you want to export your QSL card images later if necessary.
     </p>
     <p>
-    After setting all paths, click on <strong>"Cancel Button"</strong> to leave the window, changes will be automatically saved.
+    After setting all paths, click on <strong>"Back Button"</strong> to leave the window, changes will be automatically saved.
     </p>
     <p>
     Now you are back in the main window and ready to start importing QSL cards. You can choose between <strong>Single Card Import</strong> or <strong>Bulk Card Import</strong>.
@@ -375,7 +383,18 @@ p, ul, ol, dl {
     After the import is complete, you can view the imported cards in the main window of the program. The database view will show the entries that have associated images, allowing you to easily manage and organize your QSL cards.
     </p>
     <br>
-    <h3 id="section-4-4">4.4 Search and showing QSL Card Images</h3>
+    <h3 id="section-4-4">4.4 Edit a Entry (Image)</h3>
+    <br>
+    <p>
+    If you want to edit an existing entry in the database, for example to change the associated QSL card image, you can do so directly from the main window.
+    Mark the entry you want to edit in the database view by clicking on it. Then click on the <strong>"Edit Button"</strong>. The Single Card Import window will open with the current details of the selected entry pre-filled.
+    Edit the fields as needed and click on the <strong>"Select Button"</strong> to choose a new image file if you want to change the associated QSL card image.
+    To save the changes, click on the <strong>"Import Button"</strong>. A message will confirm the successful update of the entry. 
+    When you are done, click on <strong>"Back Button"</strong> to leave the window. In the main window, the database view will reflect the updated entry after
+    you hit the <strong>"Reset Button"</strong>.
+    </p>
+    <br>
+    <h3 id="section-4-5">4.5 Search and showing QSL Card Images</h3>
     <br>
     <p>
     In the main window, you can use the <strong>search function</strong> to find specific QSL cards based on various criteria. You can enter search terms in the search field and click on the <strong>"Search Button"</strong> to filter the database view. The results will be displayed in the database view, showing only the entries that match your search criteria.
@@ -390,7 +409,7 @@ p, ul, ol, dl {
     When you searched for a specific entry and want to see the image larger or have more than one entry, just mark them all with the <strong>"Mark all Button"</strong> or click on them in the database view to select some specific ones. Then hit the <strong>"Show Button"</strong> and a larger image viewer will open up and you can click through the images.
     </p>
     <br>
-    <h3 id="section-4-5">4.5 Export QSL Card Images</h3>
+    <h3 id="section-4-6">4.6 Export QSL Card Images</h3>
     <br>
     <p>
     If you wish to export QSL card images from the database back to <strong>.png format</strong>, you can use the export function in the main window.
@@ -460,7 +479,7 @@ p, ul, ol, dl {
     </p>
     <p>Best regards,<br>
     </p>
-    <img class="manual-main-window" src="manual_images/kowmang_logo.png" alt="KowMang_logo">
+    <img class="image-very-small" src="manual_images/kowmang_logo.png" alt="KowMang_logo">
     <br>
     <br>
     <p style="text-align: right;"><a href="#top">Back to Top</a></p>
