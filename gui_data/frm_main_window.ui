@@ -186,7 +186,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_reset_main_2">
+   <widget class="QPushButton" name="btn_edit">
     <property name="geometry">
      <rect>
       <x>850</x>
@@ -294,7 +294,7 @@
   <tabstop>btn_unmarkall_main</tabstop>
   <tabstop>btn_show_image</tabstop>
   <tabstop>btn_export_image</tabstop>
-  <tabstop>btn_reset_main_2</tabstop>
+  <tabstop>btn_edit</tabstop>
   <tabstop>btn_reset_main</tabstop>
  </tabstops>
  <resources/>
