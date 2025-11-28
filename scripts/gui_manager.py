@@ -536,22 +536,21 @@ class EqslVersionWindow(QDialog):
                 </p>
                 <hr width='70%' style='border: 1px solid #ccc;'>
 
-                <h3 style='font-weight: bold;'>New Function in 0.1.0:</h3>
+                <h3 style='font-weight: normal;'>For further information: </h3>
+                <h2 style='font-size: 12pt; margin-top: 0;'>
                 <p>
-                    First public release,<br>
-                    for info read manual<br>
-                    or //TODO: add website link<br>
+                    are here://TODO: add website link<br>
+                    or in the manual<br>
                 </p>
+                </h2>
                 <br>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
                 <p style='font-size: 12pt; font-weight: bold; color: #0078D4;'>
                     {image_tag}
                 </p>
-                <br>
                 <h3 style='font-weight: bold;'>Credits to:</h3>
                 <p>
-                    my Beta Tester:<br>
-                    <strong>HoMa</strong><br>
+                <h2 style='font-size: 14pt; margin-top: 0;'>HoMa</h2>
                 </p>
             </div>
             """

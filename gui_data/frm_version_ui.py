@@ -22,7 +22,7 @@ class Ui_frm_version(object):
     def setupUi(self, frm_version):
         if not frm_version.objectName():
             frm_version.setObjectName(u"frm_version")
-        frm_version.resize(500, 500)
+        frm_version.resize(500, 666)
         self.verticalLayout = QVBoxLayout(frm_version)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.txt_version_credits = QTextEdit(frm_version)
