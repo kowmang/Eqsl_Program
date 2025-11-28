@@ -1,3 +1,17 @@
+# Version 0.1.1
+### (beta phase)
+
+
+* **manual**            seize of images changed
+                        new function and installation written
+* **main_window**       new function "edit" added (now you can
+                        edit entries and images)
+* **design_UI**         made some changes to design and labeling,
+                        also changed window size and expanding
+                        
+---
+
+
 # Version 0.1.0
 ### (database lookup)
 

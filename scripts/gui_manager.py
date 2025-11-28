@@ -540,7 +540,7 @@ class EqslVersionWindow(QDialog):
                 <p>
                     First public release,<br>
                     for info read manual<br>
-                    or readme<br>
+                    or //TODO: add website link<br>
                 </p>
                 <br>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
@@ -550,8 +550,8 @@ class EqslVersionWindow(QDialog):
                 <br>
                 <h3 style='font-weight: bold;'>Credits to:</h3>
                 <p>
-                    Text to fill in at<br>
-                    first public release
+                    my Beta Tester:<br>
+                    <strong>HoMa</strong><br>
                 </p>
             </div>
             """
