@@ -9,6 +9,7 @@
 * **design_UI**         made some changes to design and labeling,
                         also changed windows size and expanding
 * **file_structure**    updated 
+* **LICENSE.txt**       added CC BY_NC 4.0 and Disclaimer
                         
 ---
 

@@ -546,7 +546,10 @@ class EqslVersionWindow(QDialog):
                 <br>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
                 <p style='font-size: 12pt; font-weight: bold; color: #0078D4;'>
-                    {image_tag}
+                    {image_tag}<br>© 2025 KowMang. This software is licensed under
+                    the CC BY-NC 4.0 International License. Please refer to
+                    the LICENSE file for details on the usage restrictions (Non-Commercial)
+                    and the liability disclaimer
                 </p>
                 <h3 style='font-weight: bold;'>Credits to:</h3>
                 <p>
