@@ -539,21 +539,21 @@ class EqslVersionWindow(QDialog):
                 <h3 style='font-weight: normal;'>For further information: </h3>
                 <h2 style='font-size: 12pt; margin-top: 0;'>
                 <p>
-                    are here://TODO: add website link<br>
-                    or in the manual<br>
+                    are here://TODO: add website link
+                    or email: kowmang@gmail.com
                 </p>
                 </h2>
-                <br>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
-                <p style='font-size: 12pt; font-weight: bold; color: #0078D4;'>
-                    {image_tag}<br>© 2025 KowMang. This software is licensed under
+                <p style='font-size: 10pt; font-weight: bold; color: #0078D4;'>
+                    {image_tag}<br>© 2025 KowMang.<br>
+                    This software is licensed under
                     the CC BY-NC 4.0 International License. Please refer to
                     the LICENSE file for details on the usage restrictions (Non-Commercial)
                     and the liability disclaimer
                 </p>
                 <h3 style='font-weight: bold;'>Credits to:</h3>
                 <p>
-                <h2 style='font-size: 14pt; margin-top: 0;'>HoMa</h2>
+                <h2 style='font-size: 14pt; margin-top: 0;'>"HoMa" - Beta Tester</h2>
                 </p>
             </div>
             """
