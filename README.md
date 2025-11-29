@@ -15,7 +15,7 @@ The program is written in Python, and the GUI is created with QT Designer.
 Licensing
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). The full legal text, including the strong warranty and liability disclaimer, can be found in the LICENSE.txt file in the root directory. Note: Commercial use is strictly prohibited under this license.
 
-By
+Copyright (c) 2025 KowMang
 
 <img src="./support_data/default_preview.png" alt="Alt Text" width="255" height="170"><br>
 <br>
@@ -43,9 +43,9 @@ einen bestimmten Ordner zurück in das .png-Format konvertiert werden können.
 Das Programm ist in Python geschrieben, und die GUI wurde mit QT Designer erstellt.
 
 Lizenzierung
-Dieses Projekt unterliegt der Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). Der vollständige Rechtstext, einschließlich der strengen Gewährleistungs- und Haftungsausschlüsse, ist in der Datei LICENSE.txt im Stammverzeichnis zu finden. Hinweis: Die kommerzielle Nutzung ist unter dieser Lizenz strengstens untersagt.
+Dieses Projekt unterliegt der Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). Der vollständige Rechtstext, einschließlich der Gewährleistungs- und Haftungsausschlüsse, ist in der Datei LICENSE.txt im Stammverzeichnis zu finden. Hinweis: Die kommerzielle Nutzung ist unter dieser Lizenz strengstens untersagt.
 
-By
+Copyright (c) 2025 KowMang
 
 <img src="./support_data/default_preview.png" alt="Alt Text" width="255" height="170">
 
