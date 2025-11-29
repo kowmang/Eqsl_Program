@@ -1,3 +1,7 @@
+# Copyright (c) 2025 KowMang
+# Licensed under the CC BY-NC 4.0 International License.
+# See LICENSE.txt for full terms, including the strong liability disclaimer.
+
 import sys
 import os
 import re 

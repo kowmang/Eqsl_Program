@@ -7,7 +7,9 @@
 * **main_window**       new function "edit" added (now you can
                         edit entries and images)
 * **design_UI**         made some changes to design and labeling,
-                        also changed window size and expanding
+                        also changed windows size and expanding
+* **file_structure**    updated 
+* **LICENSE.txt**       added CC BY_NC 4.0 and Disclaimer
                         
 ---
 
