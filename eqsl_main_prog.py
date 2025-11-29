@@ -1,4 +1,4 @@
-# Copyright (c) 2025 KowMang
+# Copyright (c) 2025 KowMang by OE4VMB
 # Licensed under the CC BY-NC 4.0 International License.
 # See LICENSE.txt for full terms, including the strong liability disclaimer.
 
