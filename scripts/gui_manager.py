@@ -466,7 +466,7 @@ class EqslHelpWindow(QDialog):
                 html_content = f"<h1>Error loading the file via URL!</h1><p>{e}</p>"
                 widget.setHtml(html_content) # type: ignore
         
-        elif widget and hasattr(widget, 'setHtml'):
+        elif widget and hasattr(QWidget, 'setHtml'):
             # Fallback für QTextEdit oder wenn setSource nicht funktioniert (nicht ideal für Bilder)
             try:
                 with open(html_path, 'r', encoding='utf-8') as f:
@@ -540,7 +540,7 @@ class EqslVersionWindow(QDialog):
                 <h2 style='font-size: 12pt; margin-top: 0;'>
                 <p>
                     are here://TODO: add website link
-                    or email: kowmang@gmail.com
+                    or email: kowmang2400@gmail.com
                 </p>
                 </h2>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
