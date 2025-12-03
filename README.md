@@ -16,6 +16,8 @@ Licensing
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). The full legal text, including the strong warranty and liability disclaimer, can be found in the LICENSE.txt file in the root directory. Note: Commercial use is strictly prohibited under this license.
 
 Copyright (c) 2025 KowMang by OE4VMB
+https://www.kowmang2400.eu/
+
 
 <img src="./support_data/default_preview.png" alt="Alt Text" width="255" height="170"><br>
 <br>
@@ -46,6 +48,7 @@ Lizenzierung
 Dieses Projekt unterliegt der Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). Der vollständige Rechtstext, einschließlich der Gewährleistungs- und Haftungsausschlüsse, ist in der Datei LICENSE.txt im Stammverzeichnis zu finden. Hinweis: Die kommerzielle Nutzung ist unter dieser Lizenz strengstens untersagt.
 
 Copyright (c) 2025 KowMang by OE4VMB
+https://www.kowmang2400.eu/
 
 <img src="./support_data/default_preview.png" alt="Alt Text" width="255" height="170">
 
