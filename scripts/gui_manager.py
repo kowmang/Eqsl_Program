@@ -539,8 +539,8 @@ class EqslVersionWindow(QDialog):
                 <h3 style='font-weight: normal;'>For further information: </h3>
                 <h2 style='font-size: 12pt; margin-top: 0;'>
                 <p>
-                    are here://TODO: add website link
-                    or email: kowmang2400@gmail.com
+                    are here:   https://www.kowmang2400.eu/
+                    or email:   kowmang2400@gmail.com
                 </p>
                 </h2>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
