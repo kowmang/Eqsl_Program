@@ -529,7 +529,7 @@ class EqslVersionWindow(QDialog):
                     eQSL Program
                 </h1>
                 <h2 style='font-size: 14pt; margin-top: 0;'>
-                    Version 0.1.0
+                    Version 1.0.0
                 </h2>
                 <p>
                     <b>Release Datum:</b> 19. November 2025
@@ -537,12 +537,13 @@ class EqslVersionWindow(QDialog):
                 <hr width='70%' style='border: 1px solid #ccc;'>
 
                 <h3 style='font-weight: normal;'>For further information: </h3>
-                <h2 style='font-size: 12pt; margin-top: 0;'>
+                <h3 style='font-size: 12pt; margin-top: 0;'>
                 <p>
-                    are here:   https://www.kowmang2400.eu/
-                    or email:   kowmang2400@gmail.com
+                https://www.kowmang2400.eu/
+                <h3 style='font-weight: normal;'>or contact via email: </h3>
+                kowmang2400@gmail.com
                 </p>
-                </h2>
+                </h3>
                 <h3 style='font-weight: bold; color: #555;'>Created by</h3>
                 <p style='font-size: 10pt; font-weight: bold; color: #0078D4;'>
                     {image_tag}<br>© 2025 KowMang.<br>
@@ -550,10 +551,10 @@ class EqslVersionWindow(QDialog):
                     the CC BY-NC 4.0 International License. Please refer to
                     the LICENSE file for details on the usage restrictions (Non-Commercial)
                     and the liability disclaimer
-                </p>
-                <h3 style='font-weight: bold;'>Credits to:</h3>
+                </p><br>
+                <h3 style='font-weight: normal;'>Credits to:</h3>
                 <p>
-                <h2 style='font-size: 14pt; margin-top: 0;'>"HoMa" - Beta Tester</h2>
+                <h3 style='font-size: 12pt; margin-top: 0;'>"HoMa" - Beta Tester</h3>
                 </p>
             </div>
             """
