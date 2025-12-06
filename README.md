@@ -1,5 +1,6 @@
 # Eqsl_Program
 Database and Administration Program for EQSL Cards
+Version: v1.0.0
 
 # Description (english):
 
@@ -32,6 +33,7 @@ https://www.kowmang2400.eu/
 
 # Eqsl_Program
 Datenbank- und Verwaltungsprogramm für EQSL-Karten
+Version: v1.0.0
 
 # Beschreibung (deutsch):
 
