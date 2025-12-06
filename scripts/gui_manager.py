@@ -554,7 +554,7 @@ class EqslVersionWindow(QDialog):
                 </p><br>
                 <h3 style='font-weight: normal;'>Credits to:</h3>
                 <p>
-                <h3 style='font-size: 12pt; margin-top: 0;'>"HoMa" - Beta Tester</h3>
+                <h3 style='font-weight: normal;'>"HoMa" - Beta Tester</h3>
                 </p>
             </div>
             """
